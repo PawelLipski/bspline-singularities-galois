@@ -33,7 +33,6 @@ void draw_element(int x, int y, int w, int h, int scale) {
 		type = FULL;
 		color = RED;
 	}
-	cout << "Rect: " << rect.x << ", " << rect.y << "; " << rect.w << " x " << rect.h << endl;
 	SDL_FillRect(screen, &rect, color);
 
 	if (type == FULL) {
@@ -52,6 +51,7 @@ bool happened(SDL_Event& event, int key) {
 int main() {
 	SDL_Init(SDL_INIT_VIDEO);
 	screen = SDL_SetVideoMode(512, 512, 0, SDL_ANYFORMAT);
+	SDL_WM_SetCaption("Esc to exit", NULL);
 	SDL_FillRect(screen, NULL, BLACK);
 
 	int N;
