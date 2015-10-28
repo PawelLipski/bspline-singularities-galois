@@ -23,7 +23,7 @@ class Element {
 		limits = { l, r, u, d };
 	}
 
-	bool contained_in_box_2D(int l, int r, int u, int d) const {
+	bool contained_in_box_2D(Coord l, Coord r, Coord u, Coord d) const {
 		return l <= left() && right() <= r && u <= up() && down() <= d;			
 	}
 
@@ -37,7 +37,7 @@ class Element {
 		cout << endl;
 	}
 
-	void set_limits(int dimension, int from, int to) {
+	void set_limits(int dimension, Coord from, Coord to) {
 		limits[dimension * 2] = from;
 		limits[dimension * 2 + 1] = to;
 	}
@@ -136,10 +136,10 @@ int main() {
 	domain.full_cube_split_2D(); // 1 -> 4 elements
 	domain.full_cube_split_2D(); // 4 -> 16 elements
 
-	int middle = size / 2;
-	int edge_offset = size / 4;
-	int axis_0 = middle - edge_offset;
-	int axis_1 = middle + edge_offset;
+	Coord middle = size / 2;
+	Coord edge_offset = size / 4;
+	Coord axis_0 = middle - edge_offset;
+	Coord axis_1 = middle + edge_offset;
 
 	domain.insert_edge(X_DIM, axis_0, 4); // horizontal
 	domain.insert_edge(X_DIM, axis_1, 4);
@@ -151,6 +151,7 @@ int main() {
 	domain.insert_vertex_2D(axis_1, axis_0);
 	domain.insert_vertex_2D(axis_1, axis_1);
 
+	// Internal 4 elements -> 16 elements
 	domain.partial_cube_split_2D(axis_0, axis_1, axis_0, axis_1);
 
 	domain.print();
