@@ -23,6 +23,10 @@ class Element {
 		limits = { l, r, u, d };
 	}
 
+	bool contained_in_box_2D(int l, int r, int u, int d) const {
+		return l <= left() && right() <= r && u <= up() && down() <= d;			
+	}
+
 	Coord get_size(int dimension) const {
 		return limits[2*dimension+1] - limits[2*dimension];
 	}
@@ -53,22 +57,33 @@ class Domain {
 	public:
 
 	Domain(Coord l, Coord r, Coord u, Coord d) {
-		add_element(l, r, u, d);
+		add_element_2D(l, r, u, d);
 		total_span = elements[0]; // preserve for the object lifetime
 	}
 
 	// Splits each element into 2**dimension smaller ones.
-	void full_cube_split() {
+	void partial_cube_split_2D(Coord left, Coord right, Coord up, Coord down) {
 		vector<Element> old_elements;
 		elements.swap(old_elements);
 		for (const auto& e: old_elements) {
-			Coord x_mid = (e.left() + e.right()) / 2;
-			Coord y_mid = (e.up() + e.down()) / 2;
-			add_element(e.left(), x_mid,  e.up(), y_mid);
-			add_element(x_mid, e.right(), e.up(), y_mid);
-			add_element(e.left(), x_mid,  y_mid, e.down());
-			add_element(x_mid, e.right(), y_mid, e.down());
+			if (e.contained_in_box_2D(left, right, up, down)) {
+				Coord x_mid = (e.left() + e.right()) / 2;
+				Coord y_mid = (e.up() + e.down()) / 2;
+				add_element_2D(e.left(), x_mid,  e.up(), y_mid);
+				add_element_2D(x_mid, e.right(), e.up(), y_mid);
+				add_element_2D(e.left(), x_mid,  y_mid, e.down());
+				add_element_2D(x_mid, e.right(), y_mid, e.down());
+			} else {
+				add_element(e);
+			}
 		}
+	}
+
+	// Splits each element into 2**dimension smaller ones.
+	void full_cube_split_2D() {
+		partial_cube_split_2D(
+			total_span.left(), total_span.right(),
+			total_span.up(), total_span.down());
 	}
 
 	// Inserts `count' of edge elements parallel to the given dimension's axis,
@@ -86,8 +101,8 @@ class Domain {
 	}
 
 	// Inserts a single infinitely small element (TODO: 2D specific so far).
-	void insert_point(Coord x, Coord y) {
-		add_element(x, x, y, y);
+	void insert_vertex_2D(Coord x, Coord y) {
+		add_element_2D(x, x, y, y);
 	}
 
 	void print() const {
@@ -99,8 +114,12 @@ class Domain {
 
 	private:
 
-	void add_element(Coord left, Coord right, Coord up, Coord down) {
-		elements.push_back(Element(left, right, up, down));
+	void add_element_2D(Coord left, Coord right, Coord up, Coord down) {
+		add_element(Element(left, right, up, down));
+	}
+
+	void add_element(const Element& e) {
+		elements.push_back(e);
 	}
 
 	Element total_span;
@@ -114,19 +133,25 @@ int main() {
 	int size = depth << 2; // so that the smallest elements are of size 1x1
 	Domain domain(0, size, 0, size);
 
-	domain.full_cube_split(); // 1 -> 4 elements
-	domain.full_cube_split(); // 4 -> 16 elements
+	domain.full_cube_split_2D(); // 1 -> 4 elements
+	domain.full_cube_split_2D(); // 4 -> 16 elements
 
 	int middle = size / 2;
 	int edge_offset = size / 4;
-	domain.insert_edge(X_DIM, middle - edge_offset, 4); // horizontal
-	domain.insert_edge(X_DIM, middle + edge_offset, 4);
-	domain.insert_edge(Y_DIM, middle - edge_offset, 4); // vertical
-	domain.insert_edge(Y_DIM, middle + edge_offset, 4);
-	domain.insert_point(middle - edge_offset, middle - edge_offset);
-	domain.insert_point(middle - edge_offset, middle + edge_offset);
-	domain.insert_point(middle + edge_offset, middle - edge_offset);
-	domain.insert_point(middle + edge_offset, middle + edge_offset);
+	int axis_0 = middle - edge_offset;
+	int axis_1 = middle + edge_offset;
+
+	domain.insert_edge(X_DIM, axis_0, 4); // horizontal
+	domain.insert_edge(X_DIM, axis_1, 4);
+	domain.insert_edge(Y_DIM, axis_0, 4); // vertical
+	domain.insert_edge(Y_DIM, axis_1, 4);
+
+	domain.insert_vertex_2D(axis_0, axis_0);
+	domain.insert_vertex_2D(axis_0, axis_1);
+	domain.insert_vertex_2D(axis_1, axis_0);
+	domain.insert_vertex_2D(axis_1, axis_1);
+
+	domain.partial_cube_split_2D(axis_0, axis_1, axis_0, axis_1);
 
 	domain.print();
 
