@@ -61,7 +61,7 @@ int main() {
 		cin >> left >> right >> up >> down;
 		int w = right - left;
 		int h = down - up;
-		draw_element(left, up, w, h, 64);
+		draw_element(left, up, w, h, 16);
 	}
 
 	SDL_Flip(screen);
