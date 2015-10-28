@@ -20,10 +20,10 @@ void draw_element(int x, int y, int w, int h, int scale) {
 
 	if (w == 0 && h == 0) {
 		type = VERTEX;
-		rect.x--;
-		rect.y--;
-		rect.w = 3;
-		rect.h = 3;
+		rect.x -= 2;
+		rect.y -= 2;
+		rect.w = 4;
+		rect.h = 4;
 		color = BLUE;
 	} else if (w == 0 || h == 0) {
 		type = EDGE;

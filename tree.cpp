@@ -24,9 +24,11 @@ class Cube {
 		limits = { l, r, u, d };
 	}
 
-	bool contained_in_box_2D(const Cube& box) const {
-		return box.left() <= left() && right() <= box.right() &&
-			box.up() <= up() && down() <= box.down();
+	bool contained_in_box(const Cube& box) const {
+		for (int i = 0; i < dimensions; i++)
+			if (!(box.get_from(i) <= get_from(i) && get_to(i) <= box.get_to(i)))
+				return false;
+		return true;
 	}
 
 	inline Coord get_from(int dimension) const {
@@ -83,7 +85,7 @@ class Domain {
 		vector<Cube> old_elements;
 		elements.swap(old_elements);
 		for (const auto& e: old_elements) {
-			if (e.non_empty() && e.contained_in_box_2D(box)) {
+			if (e.non_empty() && e.contained_in_box(box)) {
 				Coord x_mid = (e.left() + e.right()) / 2;
 				Coord y_mid = (e.up() + e.down()) / 2;
 				add_element_2D(e.left(), x_mid,  e.up(), y_mid);
@@ -126,10 +128,15 @@ class Domain {
 		add_vertex_2D(box.right(), box.down());
 	}
 
-	void print() const {
+	void print_elements_within_box(const Cube& box) const {
 		cout << elements.size() << endl;
 		for (const auto& e: elements)
-			e.print();
+			if (e.contained_in_box(box))
+				e.print();
+	}
+
+	void print_all_elements() const {
+		print_elements_within_box(original_box);
 	}
 
 	private:
@@ -183,7 +190,7 @@ int main() {
 		prev_box = box;
 	}
 
-	domain.print();
+	domain.print_all_elements();
 
 	return 0;
 }
