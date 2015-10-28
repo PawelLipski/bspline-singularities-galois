@@ -10,7 +10,7 @@ SDL_Surface* screen;
 #define BLUE  0x0000ff
 #define WHITE 0xffffff
 
-void draw_element(int x, int y, int w, int h, int scale) {
+void draw_element(int x, int y, int w, int h, int scale, int contour) {
 	SDL_Rect rect = { Sint16(x*scale), Sint16(y*scale), Uint16(w*scale), Uint16(h*scale) };
 
 	Uint32 color;
@@ -36,10 +36,10 @@ void draw_element(int x, int y, int w, int h, int scale) {
 	SDL_FillRect(screen, &rect, color);
 
 	if (type == FULL) {
-		rect.x += 2;
-		rect.y += 2;
-		rect.w -= 4;
-		rect.h -= 4;
+		rect.x += contour;
+		rect.y += contour;
+		rect.w -= contour * 2;
+		rect.h -= contour * 2;
 		SDL_FillRect(screen, &rect, BLACK);
 	}
 }
@@ -61,10 +61,23 @@ int main() {
 		cin >> left >> right >> up >> down;
 		int w = right - left;
 		int h = down - up;
-		draw_element(left, up, w, h, 16);
+		draw_element(left, up, w, h, 16, 2);
 	}
 
 	SDL_Flip(screen);
+
+	int M;
+	cin >> M;
+	for (int i = 0; i < M; i++) {
+		int left, right, up, down;
+		cin >> left >> right >> up >> down;
+		int w = right - left;
+		int h = down - up;
+		draw_element(left, up, w, h, 16, 0);
+		SDL_Delay(500);
+		SDL_Flip(screen);
+	}
+
 	while (true) {
 		SDL_Event event;
 		if (SDL_PollEvent(&event) && happened(event, SDLK_ESCAPE))

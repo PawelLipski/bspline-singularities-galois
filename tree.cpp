@@ -61,6 +61,13 @@ class Cube {
 		limits[dimension * 2 + 1] = to;
 	}
 
+	void split(int dimension, Coord coord, Cube* first, Cube* second) {
+		*first = *this;
+		*second = *this;
+		first->set_limits(dimension, get_from(dimension), coord);
+		second->set_limits(dimension, coord, get_to(dimension));
+	}
+
 	Coord left()  const { return limits[0]; }
 	Coord right() const { return limits[1]; }
 	Coord up()    const { return limits[2]; }
@@ -154,7 +161,7 @@ class Domain {
 
 	void add_element(const Cube& e) {
 		elements.push_back(e);
-	}
+	}	
 
 	Cube original_box;
 	vector<Cube> elements;
@@ -167,6 +174,15 @@ Cube get_original_box(Coord size) {
 Cube get_inner_box(Coord middle, Coord edge_offset) {
 	return Cube(middle - edge_offset, middle + edge_offset,
 			middle - edge_offset, middle + edge_offset);
+}
+
+vector<Cube> cut_off_boxes;
+
+void tree_process_box_2D(int dimension, const Cube& box) {
+	// TODO
+	//cout << "To be processed across dimension " << (dimension == X_DIM ? "x" : "y") << ": ";
+	//box.print();
+	cut_off_boxes.push_back(box);
 }
 
 int main() {
@@ -202,14 +218,36 @@ int main() {
 	}
 	domain.print_all_elements();
 
-	/*edge_offset = size / 4;
+	edge_offset = size / 4;
 	Cube outer_box(get_original_box(size));
-	Cube inner_box(get_inner_box(middle, edge_offset));
 
 	for (int i = 1; i < depth; i++) {
-		Cube box_side, box_main;
-		box.split(X_DIM, &box_side, &box_main);
-	}*/
+		Cube inner_box(get_inner_box(middle, edge_offset));
+		Cube side_box, main_box;
+		
+		outer_box.split(X_DIM, inner_box.left(), &side_box, &main_box);
+		outer_box = main_box;
+		tree_process_box_2D(Y_DIM, side_box);
+
+		outer_box.split(X_DIM, inner_box.right(), &main_box, &side_box);
+		outer_box = main_box;
+		tree_process_box_2D(Y_DIM, side_box);
+
+		outer_box.split(Y_DIM, inner_box.up(), &side_box, &main_box);
+		outer_box = main_box;
+		tree_process_box_2D(X_DIM, side_box);
+
+		outer_box.split(Y_DIM, inner_box.down(), &main_box, &side_box);
+		outer_box = main_box;
+		tree_process_box_2D(X_DIM, side_box);
+
+		edge_offset /= 2;
+	}
+
+	cout << cut_off_boxes.size() << endl;
+	for (const Cube& box: cut_off_boxes) {
+		box.print();
+	}
 
 	return 0;
 }
