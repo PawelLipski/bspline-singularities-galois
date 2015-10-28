@@ -75,10 +75,13 @@ class Cube {
 class Domain {
 	public:
 
-	Domain(Coord l, Coord r, Coord u, Coord d) {
-		add_element_2D(l, r, u, d);
-		original_box = elements[0]; // preserve for the object lifetime
+	Domain(const Cube& box) {
+		add_element(box);
+		original_box = box; // preserve for the object lifetime
 	}
+
+	Domain(Coord l, Coord r, Coord u, Coord d):
+		Domain(Cube(l, r, u, d)) { }
 
 	// Splits each element into 2**dimension smaller ones.
 	void split_elements_within_box_2D(const Cube& box) {
@@ -157,24 +160,32 @@ class Domain {
 	vector<Cube> elements;
 };
 
+Cube get_original_box(Coord size) {
+	return Cube(0, size, 0, size);
+}
+
+Cube get_inner_box(Coord middle, Coord edge_offset) {
+	return Cube(middle - edge_offset, middle + edge_offset,
+			middle - edge_offset, middle + edge_offset);
+}
+
 int main() {
 	int depth = 4; //atoi(argv[1])
 	//int order = 2; // atoi(argv[2])
 
-	int size = 2 << depth; // so that the smallest elements are of size 1x1
-	Domain domain(0, size, 0, size);
+	Coord size = 2 << depth; // so that the smallest elements are of size 1x1
+	Cube original_box(get_original_box(size));
+	Domain domain(original_box);
 
 	domain.split_all_elements_2D(); // 1 -> 4 elements
 	domain.split_all_elements_2D(); // 4 -> 16 elements
 
 	Coord middle = size / 2;
 	Coord edge_offset = size / 4;
-	Cube prev_box(0, size, 0, size);
+	Cube prev_box(original_box);
 
 	for (int i = 1; i < depth; i++) {
-		Cube box(
-			middle - edge_offset, middle + edge_offset,
-			middle - edge_offset, middle + edge_offset);
+		Cube box(get_inner_box(middle, edge_offset));
 
 		domain.add_edge_2D(X_DIM, prev_box, box.up(),    4); // horizontal
 		domain.add_edge_2D(X_DIM, prev_box, box.down(),  4);
@@ -189,8 +200,16 @@ int main() {
 		edge_offset /= 2;
 		prev_box = box;
 	}
-
 	domain.print_all_elements();
+
+	/*edge_offset = size / 4;
+	Cube outer_box(get_original_box(size));
+	Cube inner_box(get_inner_box(middle, edge_offset));
+
+	for (int i = 1; i < depth; i++) {
+		Cube box_side, box_main;
+		box.split(X_DIM, &box_side, &box_main);
+	}*/
 
 	return 0;
 }
