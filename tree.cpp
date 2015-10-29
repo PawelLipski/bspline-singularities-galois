@@ -35,6 +35,10 @@ class Cube {
 		return limits[2*dimension];
 	}
 
+	Coord get_middle(int dimension) const {
+		return (get_from(dimension) + get_to(dimension)) / 2;
+	}
+
 	Coord get_size(int dimension) const {
 		return get_to(dimension) - get_from(dimension);
 	}
@@ -66,6 +70,10 @@ class Cube {
 		*second = *this;
 		first->set_limits(dimension, get_from(dimension), coord);
 		second->set_limits(dimension, coord, get_to(dimension));
+	}
+
+	void split_halves(int dimension, Cube* first, Cube* second) {
+		split(dimension, get_middle(dimension), first, second);
 	}
 
 	Coord left()  const { return limits[0]; }
@@ -179,10 +187,11 @@ Cube get_inner_box(Coord middle, Coord edge_offset) {
 vector<Cube> cut_off_boxes;
 
 void tree_process_box_2D(int dimension, const Cube& box) {
-	// TODO
-	//cout << "To be processed across dimension " << (dimension == X_DIM ? "x" : "y") << ": ";
-	//box.print();
 	cut_off_boxes.push_back(box);
+
+	// TODO
+	// Cube first_half, second_half;
+	// box.split_halves(dimension, &first_half, &second_half);
 }
 
 int main() {
