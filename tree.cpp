@@ -24,6 +24,7 @@ class Cube {
 		limits = { l, r, u, d };
 	}
 
+	// Whether this cube is fully contained within the given box.
 	bool contained_in_box(const Cube& box) const {
 		for (int i = 0; i < dimensions; i++)
 			if (!(box.get_from(i) <= get_from(i) && get_to(i) <= box.get_to(i)))
@@ -65,14 +66,16 @@ class Cube {
 		limits[dimension * 2 + 1] = to;
 	}
 
-	void split(int dimension, Coord coord, Cube* first, Cube* second) {
+	// Splits this cube into two cubes, along the given dimension at the given
+	// coordinate, and puts the new cubes into the given pointers.
+	void split(int dimension, Coord coord, Cube* first, Cube* second) const {
 		*first = *this;
 		*second = *this;
 		first->set_limits(dimension, get_from(dimension), coord);
 		second->set_limits(dimension, coord, get_to(dimension));
 	}
 
-	void split_halves(int dimension, Cube* first, Cube* second) {
+	void split_halves(int dimension, Cube* first, Cube* second) const {
 		split(dimension, get_middle(dimension), first, second);
 	}
 
@@ -84,6 +87,8 @@ class Cube {
 	private:
 
 	vector<Coord> limits;
+
+	// Number of dimensions.
 	int dimensions;
 };
 
@@ -92,31 +97,34 @@ class Domain {
 
 	Domain(const Cube& box) {
 		add_element(box);
-		original_box = box; // preserve for the object lifetime
+		original_box = box;  // preserve for the object lifetime
 	}
 
 	Domain(Coord l, Coord r, Coord u, Coord d):
 		Domain(Cube(l, r, u, d)) { }
 
-	// Splits each element into 2**dimension smaller ones.
+	// Splits each element within the given box into 4 smaller ones.
 	void split_elements_within_box_2D(const Cube& box) {
 		vector<Cube> old_elements;
 		elements.swap(old_elements);
 		for (const auto& e: old_elements) {
 			if (e.non_empty() && e.contained_in_box(box)) {
-				Coord x_mid = (e.left() + e.right()) / 2;
-				Coord y_mid = (e.up() + e.down()) / 2;
-				add_element_2D(e.left(), x_mid,  e.up(), y_mid);
-				add_element_2D(x_mid, e.right(), e.up(), y_mid);
-				add_element_2D(e.left(), x_mid,  y_mid, e.down());
-				add_element_2D(x_mid, e.right(), y_mid, e.down());
+				Cube el, er;
+				e.split_halves(X_DIM, &el, &er);
+				Cube el1, el2, er1, er2;
+				el.split_halves(Y_DIM, &el1, &el2);
+				er.split_halves(Y_DIM, &er1, &er2);
+				add_element(el1);
+				add_element(el2);
+				add_element(er1);
+				add_element(er2);
 			} else {
 				add_element(e);
 			}
 		}
 	}
 
-	// Splits each element into 2**dimension smaller ones.
+	// Splits each element into 4 smaller ones.
 	void split_all_elements_2D() {
 		split_elements_within_box_2D(original_box);
 	}
@@ -133,12 +141,13 @@ class Domain {
 			Coord element_to = element_from + element_size;
 			Cube e(2);
 			e.set_limits(dimension, element_from, element_to);
-			e.set_limits(dimension ^ 1, coord, coord); // the other dimension
+			e.set_limits(dimension ^ 1, coord, coord);  // the other dimension
 			elements.push_back(e);
 		}
 	}
 
-	// Inserts a single infinitely small element.
+	// For each of the corners of the given box, inserts an infinitely small
+	// "vertex" element.
 	void add_corner_vertices_2D(const Cube& box) {
 		add_vertex_2D(box.left(), box.up());
 		add_vertex_2D(box.left(), box.down());
@@ -175,7 +184,7 @@ class Domain {
 	vector<Cube> elements;
 };
 
-Cube get_original_box(Coord size) {
+Cube get_outmost_box(Coord size) {
 	return Cube(0, size, 0, size);
 }
 
@@ -199,37 +208,40 @@ int main() {
 	//int order = 2; // atoi(argv[2])
 
 	Coord size = 2 << depth; // so that the smallest elements are of size 1x1
-	Cube original_box(get_original_box(size));
-	Domain domain(original_box);
+	Cube outmost_box(get_outmost_box(size));
+	Domain domain(outmost_box);
 
-	domain.split_all_elements_2D(); // 1 -> 4 elements
-	domain.split_all_elements_2D(); // 4 -> 16 elements
+	// Build a regular 4x4 grid.
+	domain.split_all_elements_2D();  // 1 -> 4 elements
+	domain.split_all_elements_2D();  // 4 -> 16 elements
 
 	Coord middle = size / 2;
 	Coord edge_offset = size / 4;
-	Cube prev_box(original_box);
+	Cube outer_box = outmost_box;
 
+	// Generate the adapted grid.
 	for (int i = 1; i < depth; i++) {
-		Cube box(get_inner_box(middle, edge_offset));
+		Cube inner_box(get_inner_box(middle, edge_offset));
 
-		domain.add_edge_2D(X_DIM, prev_box, box.up(),    4); // horizontal
-		domain.add_edge_2D(X_DIM, prev_box, box.down(),  4);
-		domain.add_edge_2D(Y_DIM, prev_box, box.left(),  4); // vertical
-		domain.add_edge_2D(Y_DIM, prev_box, box.right(), 4);
-
-		domain.add_corner_vertices_2D(box);
+		domain.add_edge_2D(X_DIM, outer_box, inner_box.up(),    4);  // horizontal
+		domain.add_edge_2D(X_DIM, outer_box, inner_box.down(),  4);
+		domain.add_edge_2D(Y_DIM, outer_box, inner_box.left(),  4);  // vertical
+		domain.add_edge_2D(Y_DIM, outer_box, inner_box.right(), 4);
+		domain.add_corner_vertices_2D(inner_box);
 
 		// Internal 4 elements -> 16 elements
-		domain.split_elements_within_box_2D(box);
+		domain.split_elements_within_box_2D(inner_box);
 
 		edge_offset /= 2;
-		prev_box = box;
+		outer_box = inner_box;
 	}
 	domain.print_all_elements();
 
-	edge_offset = size / 4;
-	Cube outer_box(get_original_box(size));
 
+	edge_offset = size / 4;
+	outer_box = outmost_box;
+
+	// Generate elimination tree.
 	for (int i = 1; i < depth; i++) {
 		Cube inner_box(get_inner_box(middle, edge_offset));
 		Cube side_box, main_box;
