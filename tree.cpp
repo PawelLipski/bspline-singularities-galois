@@ -24,6 +24,10 @@ class Cube {
 		limits = { l, r, u, d };
 	}
 
+    Cube(const Cube& cube, int n):
+        dimensions(cube.dimensions), limits(cube.limits), num(n) {
+	}
+
 	// Whether this cube is fully contained within the given box.
 	bool contained_in_box(const Cube& box) const {
 		for (int i = 0; i < dimensions; i++)
@@ -58,7 +62,7 @@ class Cube {
 	void print() const {
 		for (int i = 0; i < dimensions * 2; i++)
 			cout << limits[i] << " ";
-		cout << endl;
+		cout << num << endl;
 	}
 
 	void set_limits(int dimension, Coord from, Coord to) {
@@ -90,6 +94,14 @@ class Cube {
 
 	// Number of dimensions.
 	int dimensions;
+
+public:
+    int get_num() const {
+        return num;
+    }
+
+private:
+    int num;
 };
 
 class Domain {
@@ -157,16 +169,61 @@ class Domain {
 
 	void print_elements_within_box(const Cube& box) const {
 		cout << elements.size() << endl;
-		for (const auto& e: elements)
-			if (e.contained_in_box(box))
-				e.print();
+		int i = 0;
+		for (const auto& e: elements){
+			if (e.contained_in_box(box)){
+                e.print();
+            }
+		}
+
 	}
 
 	void print_all_elements() const {
 		print_elements_within_box(original_box);
 	}
 
-	private:
+    void enumerate_all_elements() {
+        vector<Cube> old_elements;
+        elements.swap(old_elements);
+        int i = 0;
+        for (const auto& e: old_elements) {
+            if (e.non_empty()){
+                elements.push_back(Cube(e, i++));
+            } else {
+                elements.push_back(Cube(e, -1));
+            }
+        }
+    }
+
+
+    bool cubes_are_adjacent(const Cube &c1, const Cube &c2) const {
+        return  c1.non_empty() && c2.non_empty() &&
+                (((c1.left() == c2.right() || c1.right() == c2.left()) && (c1.up() == c2.up() || c1.down() == c2.down())) ||
+                ((c1.up() == c2.down() || c1.down() == c2.up()) && (c1.left() == c2.left() || c1.right() == c2.right())));
+    }
+
+
+    void find_neighbours(const Cube &cube) const {
+        for(const auto& e: elements){
+            if (e.get_num() != cube.get_num()){
+                if (cubes_are_adjacent(cube, e)){
+                    cout << e.get_num() <<", ";
+                }
+            }
+        }
+    }
+
+    void define_all_neighbours() const {
+        for(const auto& e: elements){
+            if (e.non_empty()){
+                cout << e.get_num() << ": ";
+                find_neighbours(e);
+                cout << endl;
+            }
+        }
+    }
+
+private:
 
 	void add_vertex_2D(Coord x, Coord y) {
 		add_element_2D(x, x, y, y);
@@ -235,6 +292,9 @@ int main() {
 		edge_offset /= 2;
 		outer_box = inner_box;
 	}
+
+    domain.enumerate_all_elements();
+    //domain.define_all_neighbours();
 	domain.print_all_elements();
 
 
@@ -272,4 +332,3 @@ int main() {
 
 	return 0;
 }
-
