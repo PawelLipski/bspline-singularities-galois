@@ -10,7 +10,7 @@ SDL_Surface* screen;
 #define BLUE  0x0000ff
 #define WHITE 0xffffff
 
-void draw_element(int x, int y, int w, int h, int scale, int contour, int num) {
+void draw_element(int x, int y, int w, int h, int scale, int contour, int num, int lvl) {
 	SDL_Rect rect = { Sint16(x*scale), Sint16(y*scale), Uint16(w*scale), Uint16(h*scale) };
 
 	Uint32 color;
@@ -57,11 +57,11 @@ int main() {
 	int N;
 	cin >> N;
 	for (int i = 0; i < N; i++) {
-		int left, right, up, down, num;
-		cin >> left >> right >> up >> down >> num;
+		int left, right, up, down, num, lvl;
+		cin >> left >> right >> up >> down >> num >> lvl;
 		int w = right - left;
 		int h = down - up;
-		draw_element(left, up, w, h, 16, 2, num);
+		draw_element(left, up, w, h, 16, 2, num, lvl);
         if (num != -1){
             cout << num << endl;
         }
@@ -74,11 +74,11 @@ int main() {
 	int M;
 	cin >> M;
 	for (int i = 0; i < M; i++) {
-		int left, right, up, down, num;
-		cin >> left >> right >> up >> down >> num;
+		int left, right, up, down, num, lvl;
+		cin >> left >> right >> up >> down >> num >> lvl;
 		int w = right - left;
 		int h = down - up;
-		draw_element(left, up, w, h, 16, 0, num);
+		draw_element(left, up, w, h, 16, 0, num, lvl);
 		SDL_Delay(200);
 		SDL_Flip(screen);
 	}

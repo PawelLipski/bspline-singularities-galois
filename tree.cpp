@@ -1,5 +1,7 @@
 #include <iostream>
 #include <vector>
+#include <cmath>
+
 using namespace std;
 
 typedef int Coord;
@@ -24,8 +26,8 @@ class Cube {
 		limits = { l, r, u, d };
 	}
 
-    Cube(const Cube& cube, int n):
-        dimensions(cube.dimensions), limits(cube.limits), num(n) {
+    Cube(const Cube& cube, int n, int l):
+        dimensions(cube.dimensions), limits(cube.limits), num(n) , lvl(l){
 	}
 
 	// Whether this cube is fully contained within the given box.
@@ -62,7 +64,7 @@ class Cube {
 	void print() const {
 		for (int i = 0; i < dimensions * 2; i++)
 			cout << limits[i] << " ";
-		cout << num << endl;
+		cout << num << " " << get_lvl() << endl;
 	}
 
 	void set_limits(int dimension, Coord from, Coord to) {
@@ -100,8 +102,13 @@ public:
         return num;
     }
 
+    int get_lvl() const {
+        return lvl;
+    }
 private:
     int num;
+
+    int lvl;
 };
 
 class Domain {
@@ -182,15 +189,21 @@ class Domain {
 		print_elements_within_box(original_box);
 	}
 
+
+    int compute_lvl(const Cube &cube) {
+        int size = cube.get_size(0);
+        return (int) log2(size) + 1;
+    }
+
     void enumerate_all_elements() {
         vector<Cube> old_elements;
         elements.swap(old_elements);
         int i = 0;
         for (const auto& e: old_elements) {
             if (e.non_empty()){
-                elements.push_back(Cube(e, i++));
+                elements.push_back(Cube(e, i++, compute_lvl(e)));
             } else {
-                elements.push_back(Cube(e, -1));
+                elements.push_back(Cube(e, -1, -1));
             }
         }
     }
@@ -222,6 +235,11 @@ class Domain {
             }
         }
     }
+
+    void enumerate_elements_levels() {
+
+    }
+
 
 private:
 
@@ -294,6 +312,7 @@ int main() {
 	}
 
     domain.enumerate_all_elements();
+	domain.enumerate_elements_levels();
     //domain.define_all_neighbours();
 	domain.print_all_elements();
 
@@ -330,5 +349,12 @@ int main() {
 		box.print();
 	}
 
+	cout << "Desired output:" << endl;
+
+
+
+
+
 	return 0;
 }
+
