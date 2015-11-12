@@ -3,11 +3,11 @@
 #include <vector>
 using namespace std;
 
-void print_config() {
-	int size = 32;
+void print_config(int size) {
 	cout << "unset border; unset xtics; unset ytics; unset ztics; set key off" << endl;
 	cout << "set isosamples 50" << endl;
-	cout << "set xrange [0:" << size << "]; set yrange [0:" << size << "]" << endl;
+	cout << "set xrange [0:" << size << "]" << endl;
+	cout << "set yrange [0:" << size << "]" << endl;
 }
 
 void print_grid_line(int x1, int y1, int x2, int y2) {
@@ -37,7 +37,7 @@ void print_function(const string& name, const string& expr, int l, int r, int u,
 void print_conditional_function(
 		const string& name, const string& expr_if_defined, const string& expr_if_undefined,
 		int l, int r, int u, int d) {
-		print_function(name, "? " + expr_if_defined + " : " + expr_if_undefined, l, r, u, d);
+	print_function(name, "? " + expr_if_defined + " : " + expr_if_undefined, l, r, u, d);
 }
 
 void print_placeholder_function(int l, int r, int u, int d) {
@@ -72,7 +72,6 @@ void print_splot_command() {
 int main() {
 	int N;
 	cin >> N;
-	print_config();
 	for (int i = 0; i < N; i++) {
 		int left, right, up, down;
 		cin >> left >> right >> up >> down;
@@ -81,6 +80,9 @@ int main() {
 		print_grid_line(right, down, left,  down);
 		print_grid_line(left,  down, left,  up);
 	}
+	int size;
+	cin >> size;
+	print_config(size);
 	print_all_functions();
 	print_splot_command();
 }

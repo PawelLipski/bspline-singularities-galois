@@ -343,11 +343,12 @@ int main(int argc, char** argv) {
     domain.enumerate_all_elements();
 	domain.enumerate_elements_levels();
     //domain.define_all_neighbours();
-	if (output_format == GALOIS)
+	if (output_format == GALOIS) {
 		domain.print_all_elements(false /* require_non_empty */, true /* with_id */);
-	else // output_format == GNUPLOT
+	} else { // output_format == GNUPLOT		
 		domain.print_all_elements(true /* require_non_empty */, false /* with_id */);
-
+		cout << size << endl;
+	}
 
 	if (output_format == GALOIS) {
 		edge_offset = size / 4;
