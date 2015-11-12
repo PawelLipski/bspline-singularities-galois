@@ -38,6 +38,10 @@ class Cube {
 		return true;
 	}
 
+	bool empty() const {
+		return !non_empty();
+	}
+
 	inline Coord get_from(int dimension) const {
 		return limits[2*dimension];
 	}
@@ -61,10 +65,19 @@ class Cube {
 		return true;
 	}
 
-	void print() const {
+	void print_full() const {
+		print_limits();
+		print_id();
+		cout << endl;
+	}
+
+	void print_id() const {
+		cout << num << " " << get_lvl() << " ";
+	}
+
+	void print_limits() const {
 		for (int i = 0; i < dimensions * 2; i++)
 			cout << limits[i] << " ";
-		cout << num << " " << get_lvl() << endl;
 	}
 
 	void set_limits(int dimension, Coord from, Coord to) {
@@ -92,10 +105,11 @@ class Cube {
 
 	private:
 
-	vector<Coord> limits;
-
 	// Number of dimensions.
 	int dimensions;
+
+	vector<Coord> limits;
+
 
 public:
     int get_num() const {
@@ -174,19 +188,24 @@ class Domain {
 		add_vertex_2D(box.right(), box.down());
 	}
 
-	void print_elements_within_box(const Cube& box) const {
+	void print_elements_within_box(const Cube& box, bool require_non_empty, bool with_id) const {
 		cout << elements.size() << endl;
-		int i = 0;
-		for (const auto& e: elements){
-			if (e.contained_in_box(box)){
-                e.print();
-            }
+		for (const auto& e: elements) {
+			if (require_non_empty && e.empty())
+				continue;
+			if (!e.contained_in_box(box))
+				continue;
+
+			e.print_limits();
+			if (with_id)
+				e.print_id();
+			cout << endl;
 		}
 
 	}
 
-	void print_all_elements() const {
-		print_elements_within_box(original_box);
+	void print_all_elements(bool require_non_empty, bool with_id) const {
+		print_elements_within_box(original_box, require_non_empty, with_id);
 	}
 
 
@@ -278,7 +297,17 @@ void tree_process_box_2D(int dimension, const Cube& box) {
 	// box.split_halves(dimension, &first_half, &second_half);
 }
 
-int main() {
+int main(int argc, char** argv) {
+
+	enum OutputFormat {
+		GALOIS,
+		GNUPLOT
+	} output_format = GALOIS;
+
+	if (argc == 2 && string(argv[1]) == "--gnuplot") {
+		output_format = GNUPLOT;
+	}
+
 	int depth = 4; //atoi(argv[1])
 	//int order = 2; // atoi(argv[2])
 
@@ -314,46 +343,47 @@ int main() {
     domain.enumerate_all_elements();
 	domain.enumerate_elements_levels();
     //domain.define_all_neighbours();
-	domain.print_all_elements();
+	if (output_format == GALOIS)
+		domain.print_all_elements(false /* require_non_empty */, true /* with_id */);
+	else // output_format == GNUPLOT
+		domain.print_all_elements(true /* require_non_empty */, false /* with_id */);
 
 
-	edge_offset = size / 4;
-	outer_box = outmost_box;
+	if (output_format == GALOIS) {
+		edge_offset = size / 4;
+		outer_box = outmost_box;
 
-	// Generate elimination tree.
-	for (int i = 1; i < depth; i++) {
-		Cube inner_box(get_inner_box(middle, edge_offset));
-		Cube side_box, main_box;
-		
-		outer_box.split(X_DIM, inner_box.left(), &side_box, &main_box);
-		outer_box = main_box;
-		tree_process_box_2D(Y_DIM, side_box);
+		// Generate elimination tree.
+		for (int i = 1; i < depth; i++) {
+			Cube inner_box(get_inner_box(middle, edge_offset));
+			Cube side_box, main_box;
+			
+			outer_box.split(X_DIM, inner_box.left(), &side_box, &main_box);
+			outer_box = main_box;
+			tree_process_box_2D(Y_DIM, side_box);
 
-		outer_box.split(X_DIM, inner_box.right(), &main_box, &side_box);
-		outer_box = main_box;
-		tree_process_box_2D(Y_DIM, side_box);
+			outer_box.split(X_DIM, inner_box.right(), &main_box, &side_box);
+			outer_box = main_box;
+			tree_process_box_2D(Y_DIM, side_box);
 
-		outer_box.split(Y_DIM, inner_box.up(), &side_box, &main_box);
-		outer_box = main_box;
-		tree_process_box_2D(X_DIM, side_box);
+			outer_box.split(Y_DIM, inner_box.up(), &side_box, &main_box);
+			outer_box = main_box;
+			tree_process_box_2D(X_DIM, side_box);
 
-		outer_box.split(Y_DIM, inner_box.down(), &main_box, &side_box);
-		outer_box = main_box;
-		tree_process_box_2D(X_DIM, side_box);
+			outer_box.split(Y_DIM, inner_box.down(), &main_box, &side_box);
+			outer_box = main_box;
+			tree_process_box_2D(X_DIM, side_box);
 
-		edge_offset /= 2;
+			edge_offset /= 2;
+		}
+
+		cout << cut_off_boxes.size() << endl;
+		for (const Cube& box: cut_off_boxes) {
+			box.print_full();
+		}
+
+		cout << "Desired output:" << endl;
 	}
-
-	cout << cut_off_boxes.size() << endl;
-	for (const Cube& box: cut_off_boxes) {
-		box.print();
-	}
-
-	cout << "Desired output:" << endl;
-
-
-
-
 
 	return 0;
 }

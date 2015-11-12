@@ -1,4 +1,4 @@
-all: tree draw
+all: gnuplot tree draw
 
 CPPFLAGS=-std=c++11 -Wall -Wshadow -Wextra
 
