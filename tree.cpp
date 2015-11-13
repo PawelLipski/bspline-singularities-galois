@@ -348,7 +348,7 @@ int main(int argc, char** argv) {
 	if (output_format == GALOIS) {
 		domain.print_all_elements(false /* require_non_empty */, true /* with_id */);
 	} else { // output_format == GNUPLOT		
-		domain.print_all_elements(true /* require_non_empty */, false /* with_id */);
+		domain.print_all_elements(false /* require_non_empty */, false /* with_id */);
 	}
 
 	if (output_format == GALOIS) {

@@ -113,11 +113,12 @@ void print_config(int output_id) {
 	cout << "set output \"eps/bspline-" << output_id << ".eps\"" << endl;
 }
 
-void print_grid_line(int x1, int y1, int x2, int y2) {
+void print_grid_line(int x1, int y1, int x2, int y2, bool highlight) {
 	static int line_no = 1;
+	int line_width = highlight ? 5 : 2;
 	cout << "set arrow " << line_no << " from "
 			<< x1 << "," << y1 << ",0 to "
-			<< x2 << "," << y2 << ",0 nohead" << endl;
+			<< x2 << "," << y2 << ",0 nohead lc rgb \"gray\" lw " << line_width << endl;
 	line_no++;
 }
 
@@ -132,7 +133,7 @@ void print_splot_command() {
 
 
 int main(int argc, char** argv) {
-	int function_index = 0; 
+	int function_index = 0;
 	if (argc == 2) {
 		function_index = atoi(argv[1]);
 		if (function_index >= domain_def_cnt) {
@@ -146,10 +147,13 @@ int main(int argc, char** argv) {
 	for (int i = 0; i < N; i++) {
 		int left, right, up, down;
 		cin >> left >> right >> up >> down;
-		print_grid_line(left,  up,   right, up);
-		print_grid_line(right, up,   right, down);
-		print_grid_line(right, down, left,  down);
-		print_grid_line(left,  down, left,  up);
+		if (left == right && up == down)
+			continue;  // skip vertices
+		bool hl = left == right || up == down;  // highlight double edges
+		print_grid_line(left,  up,   right, up,   hl);
+		print_grid_line(right, up,   right, down, hl);
+		print_grid_line(right, down, left,  down, hl);
+		print_grid_line(left,  down, left,  up,   hl);
 	}
 	print_config(function_index);
 	print_predef_function(function_index);
