@@ -15,13 +15,17 @@ struct DomainDef {
 	{ {0, 2, 2, 4}, {0, 2, 2, 4} }, // 4x4
 	{ {2, 2, 6, 6}, {2, 2, 6, 6} }, // 4x4
 	{ {0, 2, 2, 4}, {2, 4, 6, 6} }, // 4x4
-	{ {0, 0, 2, 2}, {2, 4, 6, 6} }, // 2x4
+
+	{ {0, 0, 2, 2}, {0, 2, 2, 4} }, // 2x4
+	{ {0, 0, 2, 2}, {2, 4, 6, 6} }, // 4x2
+
 	{ {0, 0, 2, 2}, {0, 0, 2, 2} }, // 2x2
+
 	// depth = 2
 	{ {2, 3, 4, 5}, {2, 3, 4, 5} }, // 3x3
 };
 
-int domain_def_cnt = sizeof(domain_defs) / sizeof(domain_defs[0]);
+const int domain_def_cnt = sizeof(domain_defs) / sizeof(domain_defs[0]);
 
 
 /*** B-spline sampling ***/
@@ -88,7 +92,7 @@ void bspline_samples_2d(const vector<double>& nodes) {
 
 /*** Gnuplot script generation ***/
 
-void print_config() {
+void print_config(int output_id) {
 	cout << "unset border" << endl;
 	cout << "set key off" << endl;
 	cout << "unset xtics" << endl;
@@ -97,11 +101,16 @@ void print_config() {
 	//cout << "set xlabel 'x'" << endl;
 	//cout << "set ylabel 'y'" << endl;
 	//cout << "set zlabel 'z'" << endl;
-	cout << "set hidden3d" << endl;
-	cout << "set dgrid3d " << SAMPLES << ", " << SAMPLES << endl;
+	
 	cout << "set xrange [0:" << SIZE << "]" << endl;
 	cout << "set yrange [0:" << SIZE << "]" << endl;
-	cout << "set view 60,345" << endl;
+
+	cout << "set hidden3d" << endl;
+	cout << "set dgrid3d " << SAMPLES << ", " << SAMPLES << endl;
+	cout << "set view 60,75" << endl;
+
+	cout << "set terminal eps" << endl;
+	cout << "set output \"eps/bspline-" << output_id << ".eps\"" << endl;
 }
 
 void print_grid_line(int x1, int y1, int x2, int y2) {
@@ -118,12 +127,19 @@ void print_predef_function(int index) {
 
 void print_splot_command() {
 	cout << "splot \"" << data_file << "\" with lines" << endl;  // alternatively: with pm3d
-	cout << "pause 10" << endl;
+	//cout << "pause 10" << endl;
 }
 
 
 int main(int argc, char** argv) {
-	int function_index = argc == 2 ? atoi(argv[1]) : 0;
+	int function_index = 0; 
+	if (argc == 2) {
+		function_index = atoi(argv[1]);
+		if (function_index >= domain_def_cnt) {
+			cerr << "Allowed index range: 0..." << domain_def_cnt-1 << ", inclusively" << endl;
+			exit(1);
+		}
+	}
 
 	int N;
 	cin >> N;
@@ -135,7 +151,7 @@ int main(int argc, char** argv) {
 		print_grid_line(right, down, left,  down);
 		print_grid_line(left,  down, left,  up);
 	}
-	print_config();
+	print_config(function_index);
 	print_predef_function(function_index);
 	print_splot_command();
 }
