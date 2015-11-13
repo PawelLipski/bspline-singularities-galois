@@ -1,13 +1,82 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+
+#include "bsplines.cpp"
+
 using namespace std;
 
-void print_config(int size) {
+const int SIZE = 8;
+const int SAMPLES = SIZE * 4 - 1;
+
+
+/*** B-spline sampling ***/
+
+double bspline(const vector<double>& nodes, double point) {
+
+	int order = nodes.size() - 2;
+
+	// 0..order o's, 0..order b's
+	double* values = new double[(order+1)*(order+1)];
+	#define val(o,b) values[(o) * (order+1) + (b)]
+
+	for (int o = 0; o <= order; o++) {
+		for (int b = 0; b <= order-o; b++) {
+			if (o == 0) {
+				bool point_covered = nodes[b] <= point && point < nodes[b+1];
+				val(0, b) = point_covered ? 1.0 : 0.0;
+			} else {
+				double left_num  = point - nodes[b];
+				double left_den  = nodes[b+o] - nodes[b];
+				double right_num = nodes[b+o+1] - point;
+				double right_den = nodes[b+o+1] - nodes[b+1];
+			
+				double left = 0.0, right = 0.0;
+				if (left_den != 0.0)
+					left = left_num  / left_den * val(o-1, b); 
+				if (right_den != 0.0)
+					right = right_num / right_den * val(o-1, b+1);
+
+				val(o, b) = left + right;
+			}
+		}
+	}
+
+	double result = val(order, 0);
+	delete values;
+	return result;
+}
+double interpolate(double from, double to, int index, int interval_cnt) {
+	return from + (to - from) / interval_cnt * index;
+}
+
+void bspline_samples_2d(const vector<double>& x_nodes, const vector<double>& y_nodes, int sample_cnt, const char* data_file) {
+	ofstream fout(data_file);
+	int interval_cnt = sample_cnt - 1;
+	for (int xi = 0; xi < sample_cnt; xi++) {	
+		double x = interpolate(x_nodes.front(), x_nodes.back(), xi, interval_cnt);
+		double x_val = bspline(x_nodes, x);	
+
+		for (int yi = 0; yi < sample_cnt; yi++) {
+			double y = interpolate(y_nodes.front(), y_nodes.back(), yi, interval_cnt);
+			double y_val = bspline(y_nodes, y);	
+			fout << x << " " << y << " " << x_val * y_val << endl;
+		}
+	}
+	fout.close();
+}
+
+
+/*** Gnuplot script generation ***/
+
+const char* data_file = "bspline.dat";
+
+void print_config() {
 	cout << "unset border; unset xtics; unset ytics; unset ztics; set key off" << endl;
-	cout << "set isosamples 50" << endl;
-	cout << "set xrange [0:" << size << "]" << endl;
-	cout << "set yrange [0:" << size << "]" << endl;
+	cout << "set hidden3d" << endl;
+	cout << "set dgrid3d " << SAMPLES << ", " << SAMPLES << endl;
+	cout << "set xrange [0:" << SIZE << "]" << endl;
+	cout << "set yrange [0:" << SIZE << "]" << endl;
 }
 
 void print_grid_line(int x1, int y1, int x2, int y2) {
@@ -18,75 +87,15 @@ void print_grid_line(int x1, int y1, int x2, int y2) {
 	line_no++;
 }
 
-
-// TODO: to chyba najprosciej bedzie zrobic korzystajac z kodu juz gotowego w B-spline'ach z mgrki -
-// tzn. mamy kod, ktory liczy odpowiednie wspolczynniki
-string bspline_symbolic(const vector<double>& nodes, int node_from, const string& var) {
-	return "";
-}
-
-// TODO: node vectors - najlepiej chyba na pale jakos pisac, typu coords z jakims tam mnoznikiem
-// czyli tak jakby calosc byla 0;8 i tylko dajemy jeszce mnoznik w zaleznosci od depth
-// np. wigwam to bedzie 0,2,2,4 i 0,2,2,4
-// z drugiej strony, moze najprosciej hardkod zrobic - nie bawmy sie to w wszystko, to tylko kilka rysunkow
-// Po prostu depth = 2, i piszemy dokladne wspolrzedne
-string bspline_symbolic_2d(const vector<int>& x_nodes, const vector<int>& y_nodes) {
-	for (int xi = 0; xi < x_nodes.size() - 1; xi++) {
-		int x_from = x_nodes[xi];
-		int x_to = x_nodes[xi+1];
-		if (x_from == x_to)
-			continue;
-		for (int yi = 0; yi < y_nodes.size() - 1; yi++) {
-			int y_from = y_nodes[yi];
-			int y_to = y_nodes[yi+1];
-			if (y_from == y_to)
-				continue;
-			cout << "(" + bspline_symbolic(x_nodes, xi, "x") + ") * (" + bspline_symbolic(y_nodes, yi, "y") + ")" << endl;
-		}
-	}
-}
-
-
-void print_function(const string& name, const string& expr, int l, int r, int u, int d) {
-	cout << name << "(x,y) = "
-			<< l << " <= x && x <= " << r << " && "
-			<< u << " <= y && y <= " << d << " " << expr << endl;
-}
-
-void print_conditional_function(
-		const string& name, const string& expr_if_defined, const string& expr_if_undefined,
-		int l, int r, int u, int d) {
-	print_function(name, "? " + expr_if_defined + " : " + expr_if_undefined, l, r, u, d);
-}
-
-void print_placeholder_function(int l, int r, int u, int d) {
-	print_conditional_function("empty", "0", "1/0", l, r, u, d);
-}
-
-void print_numbered_function(int l, int r, int u, int d) {
-	static int function_no = 1;
-	print_conditional_function("f" + to_string(function_no), "x * (16 - x) * y * (16 - y)", "empty(x,y)", l, r, u, d);
-	function_no++;
-}
-
 void print_all_functions() {
-	print_placeholder_function(0, 16, 0, 16);
-	print_numbered_function(0, 8, 0, 8);
-	print_numbered_function(0, 8, 8, 16);
-	print_numbered_function(8, 16, 0, 8);
-	print_numbered_function(8, 16, 8, 16);
-}
-
-string sum_of_functions(int cnt) {
-	string res = "f1(x,y)";
-	for (int i = 2; i <= cnt; i++)
-		res += " + f" + to_string(i) + "(x,y)";
-	return res;
+	bspline_samples_2d({0, 2, 2, 4}, {0, 2, 2, 4}, SAMPLES, data_file);
 }
 
 void print_splot_command() {
-	cout << "splot " << sum_of_functions(4) << " with lines; pause 10" << endl;
+	cout << "splot \"" << data_file << "\" with lines" << endl;  // alternatively: with pm3d
+	cout << "pause 10" << endl;
 }
+
 
 int main() {
 	int N;
@@ -99,9 +108,7 @@ int main() {
 		print_grid_line(right, down, left,  down);
 		print_grid_line(left,  down, left,  up);
 	}
-	int size;
-	cin >> size;
-	print_config(size);
+	print_config();
 	print_all_functions();
 	print_splot_command();
 }

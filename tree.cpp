@@ -304,11 +304,13 @@ int main(int argc, char** argv) {
 		GNUPLOT
 	} output_format = GALOIS;
 
-	if (argc == 2 && string(argv[1]) == "--gnuplot") {
+	if (argc >= 2 && string(argv[1]) == "--gnuplot") {
 		output_format = GNUPLOT;
+		argc--;
+		argv++;
 	}
 
-	int depth = 4; //atoi(argv[1])
+	int depth = argc == 2 ? atoi(argv[1]) : 4;
 	//int order = 2; // atoi(argv[2])
 
 	Coord size = 2 << depth; // so that the smallest elements are of size 1x1
@@ -347,7 +349,6 @@ int main(int argc, char** argv) {
 		domain.print_all_elements(false /* require_non_empty */, true /* with_id */);
 	} else { // output_format == GNUPLOT		
 		domain.print_all_elements(true /* require_non_empty */, false /* with_id */);
-		cout << size << endl;
 	}
 
 	if (output_format == GALOIS) {
