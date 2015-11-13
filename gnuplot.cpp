@@ -8,6 +8,18 @@ const int SIZE = 8;
 const int SAMPLES = SIZE * 4 - 1;
 const char* data_file = "bspline.dat";
 
+struct DomainDef {
+	vector<double> x_nodes, y_nodes;
+} domain_defs[] = {
+	{ {0, 2, 2, 4}, {0, 2, 2, 4} },
+	{ {2, 2, 6, 6}, {2, 2, 6, 6} },
+	{ {0, 0, 2, 2}, {0, 0, 2, 2} },
+	{ {0, 0, 2, 2}, {2, 4, 6, 6} },
+	{ {0, 2, 2, 4}, {2, 4, 6, 6} },
+};
+
+int domain_def_cnt = sizeof(domain_defs) / sizeof(domain_defs[0]);
+
 
 /*** B-spline sampling ***/
 
@@ -45,6 +57,7 @@ double bspline(const vector<double>& nodes, double point) {
 	delete values;
 	return result;
 }
+
 double interpolate(double from, double to, int index, int interval_cnt) {
 	return from + (to - from) / interval_cnt * index;
 }
@@ -65,15 +78,26 @@ void bspline_samples_2d(const vector<double>& x_nodes, const vector<double>& y_n
 	fout.close();
 }
 
+void bspline_samples_2d(const vector<double>& nodes) {
+	bspline_samples_2d(nodes, nodes);
+}
 
 /*** Gnuplot script generation ***/
 
 void print_config() {
-	cout << "unset border; unset xtics; unset ytics; unset ztics; set key off" << endl;
+	cout << "unset border" << endl;
+	cout << "set key off" << endl;
+	cout << "unset xtics" << endl;
+	cout << "unset ytics" << endl;
+	cout << "unset ztics" << endl;
+	//cout << "set xlabel 'x'" << endl;
+	//cout << "set ylabel 'y'" << endl;
+	//cout << "set zlabel 'z'" << endl;
 	cout << "set hidden3d" << endl;
 	cout << "set dgrid3d " << SAMPLES << ", " << SAMPLES << endl;
 	cout << "set xrange [0:" << SIZE << "]" << endl;
 	cout << "set yrange [0:" << SIZE << "]" << endl;
+	cout << "set view 60,345" << endl;
 }
 
 void print_grid_line(int x1, int y1, int x2, int y2) {
@@ -84,8 +108,8 @@ void print_grid_line(int x1, int y1, int x2, int y2) {
 	line_no++;
 }
 
-void print_all_functions() {
-	bspline_samples_2d({0, 2, 2, 4}, {0, 2, 2, 4});
+void print_predef_function(int index) {
+	bspline_samples_2d(domain_defs[index].x_nodes, domain_defs[index].y_nodes);
 }
 
 void print_splot_command() {
@@ -94,7 +118,9 @@ void print_splot_command() {
 }
 
 
-int main() {
+int main(int argc, char** argv) {
+	int function_index = argc == 2 ? atoi(argv[1]) : 0;
+
 	int N;
 	cin >> N;
 	for (int i = 0; i < N; i++) {
@@ -106,7 +132,7 @@ int main() {
 		print_grid_line(left,  down, left,  up);
 	}
 	print_config();
-	print_all_functions();
+	print_predef_function(function_index);
 	print_splot_command();
 }
 
