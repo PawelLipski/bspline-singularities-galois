@@ -11,11 +11,14 @@ const char* data_file = "bspline.dat";
 struct DomainDef {
 	vector<double> x_nodes, y_nodes;
 } domain_defs[] = {
-	{ {0, 2, 2, 4}, {0, 2, 2, 4} },
-	{ {2, 2, 6, 6}, {2, 2, 6, 6} },
-	{ {0, 0, 2, 2}, {0, 0, 2, 2} },
-	{ {0, 0, 2, 2}, {2, 4, 6, 6} },
-	{ {0, 2, 2, 4}, {2, 4, 6, 6} },
+	// depth = 1
+	{ {0, 2, 2, 4}, {0, 2, 2, 4} }, // 4x4
+	{ {2, 2, 6, 6}, {2, 2, 6, 6} }, // 4x4
+	{ {0, 2, 2, 4}, {2, 4, 6, 6} }, // 4x4
+	{ {0, 0, 2, 2}, {2, 4, 6, 6} }, // 2x4
+	{ {0, 0, 2, 2}, {0, 0, 2, 2} }, // 2x2
+	// depth = 2
+	{ {2, 3, 4, 5}, {2, 3, 4, 5} }, // 3x3
 };
 
 int domain_def_cnt = sizeof(domain_defs) / sizeof(domain_defs[0]);
@@ -81,6 +84,7 @@ void bspline_samples_2d(const vector<double>& x_nodes, const vector<double>& y_n
 void bspline_samples_2d(const vector<double>& nodes) {
 	bspline_samples_2d(nodes, nodes);
 }
+
 
 /*** Gnuplot script generation ***/
 
