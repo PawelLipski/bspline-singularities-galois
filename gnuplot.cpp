@@ -2,12 +2,11 @@
 #include <iostream>
 #include <vector>
 
-#include "bsplines.cpp"
-
 using namespace std;
 
 const int SIZE = 8;
 const int SAMPLES = SIZE * 4 - 1;
+const char* data_file = "bspline.dat";
 
 
 /*** B-spline sampling ***/
@@ -33,7 +32,7 @@ double bspline(const vector<double>& nodes, double point) {
 			
 				double left = 0.0, right = 0.0;
 				if (left_den != 0.0)
-					left = left_num  / left_den * val(o-1, b); 
+					left = left_num  / left_den * val(o-1, b);
 				if (right_den != 0.0)
 					right = right_num / right_den * val(o-1, b+1);
 
@@ -50,14 +49,14 @@ double interpolate(double from, double to, int index, int interval_cnt) {
 	return from + (to - from) / interval_cnt * index;
 }
 
-void bspline_samples_2d(const vector<double>& x_nodes, const vector<double>& y_nodes, int sample_cnt, const char* data_file) {
+void bspline_samples_2d(const vector<double>& x_nodes, const vector<double>& y_nodes) {
 	ofstream fout(data_file);
-	int interval_cnt = sample_cnt - 1;
-	for (int xi = 0; xi < sample_cnt; xi++) {	
+	int interval_cnt = SAMPLES - 1;
+	for (int xi = 0; xi < SAMPLES; xi++) {	
 		double x = interpolate(x_nodes.front(), x_nodes.back(), xi, interval_cnt);
 		double x_val = bspline(x_nodes, x);	
 
-		for (int yi = 0; yi < sample_cnt; yi++) {
+		for (int yi = 0; yi < SAMPLES; yi++) {
 			double y = interpolate(y_nodes.front(), y_nodes.back(), yi, interval_cnt);
 			double y_val = bspline(y_nodes, y);	
 			fout << x << " " << y << " " << x_val * y_val << endl;
@@ -68,8 +67,6 @@ void bspline_samples_2d(const vector<double>& x_nodes, const vector<double>& y_n
 
 
 /*** Gnuplot script generation ***/
-
-const char* data_file = "bspline.dat";
 
 void print_config() {
 	cout << "unset border; unset xtics; unset ytics; unset ztics; set key off" << endl;
@@ -88,7 +85,7 @@ void print_grid_line(int x1, int y1, int x2, int y2) {
 }
 
 void print_all_functions() {
-	bspline_samples_2d({0, 2, 2, 4}, {0, 2, 2, 4}, SAMPLES, data_file);
+	bspline_samples_2d({0, 2, 2, 4}, {0, 2, 2, 4});
 }
 
 void print_splot_command() {
