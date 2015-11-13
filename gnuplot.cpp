@@ -13,8 +13,7 @@ struct DomainDef {
 } domain_defs[] = {
 	// depth = 1
 	{ {0, 2, 2, 4}, {0, 2, 2, 4} }, // 4x4
-	{ {2, 2, 6, 6}, {2, 2, 6, 6} }, // 4x4
-	{ {0, 2, 2, 4}, {2, 4, 6, 6} }, // 4x4
+	{ {2, 4, 6, 6}, {0, 2, 2, 4} }, // 4x4
 
 	{ {0, 0, 2, 2}, {0, 2, 2, 4} }, // 2x4
 	{ {0, 0, 2, 2}, {2, 4, 6, 6} }, // 4x2
@@ -83,10 +82,6 @@ void bspline_samples_2d(const vector<double>& x_nodes, const vector<double>& y_n
 		}
 	}
 	fout.close();
-}
-
-void bspline_samples_2d(const vector<double>& nodes) {
-	bspline_samples_2d(nodes, nodes);
 }
 
 
