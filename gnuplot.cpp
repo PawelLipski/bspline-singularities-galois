@@ -19,12 +19,31 @@ void print_grid_line(int x1, int y1, int x2, int y2) {
 }
 
 
-string bspline_symbolic(const vector<double>& nodes, const string& var) {
+// TODO: to chyba najprosciej bedzie zrobic korzystajac z kodu juz gotowego w B-spline'ach z mgrki -
+// tzn. mamy kod, ktory liczy odpowiednie wspolczynniki
+string bspline_symbolic(const vector<double>& nodes, int node_from, const string& var) {
 	return "";
 }
 
-string bspline_symbolic_2d(const vector<double>& x_nodes, const vector<double>& y_nodes, int x_elem, int y_elem) {
-	return "(" + bspline_symbolic(x_nodes, "x") + ") * (" + bspline_symbolic(y_nodes, "y") + ")";
+// TODO: node vectors - najlepiej chyba na pale jakos pisac, typu coords z jakims tam mnoznikiem
+// czyli tak jakby calosc byla 0;8 i tylko dajemy jeszce mnoznik w zaleznosci od depth
+// np. wigwam to bedzie 0,2,2,4 i 0,2,2,4
+// z drugiej strony, moze najprosciej hardkod zrobic - nie bawmy sie to w wszystko, to tylko kilka rysunkow
+// Po prostu depth = 2, i piszemy dokladne wspolrzedne
+string bspline_symbolic_2d(const vector<int>& x_nodes, const vector<int>& y_nodes) {
+	for (int xi = 0; xi < x_nodes.size() - 1; xi++) {
+		int x_from = x_nodes[xi];
+		int x_to = x_nodes[xi+1];
+		if (x_from == x_to)
+			continue;
+		for (int yi = 0; yi < y_nodes.size() - 1; yi++) {
+			int y_from = y_nodes[yi];
+			int y_to = y_nodes[yi+1];
+			if (y_from == y_to)
+				continue;
+			cout << "(" + bspline_symbolic(x_nodes, xi, "x") + ") * (" + bspline_symbolic(y_nodes, yi, "y") + ")" << endl;
+		}
+	}
 }
 
 

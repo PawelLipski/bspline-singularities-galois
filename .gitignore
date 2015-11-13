@@ -1,6 +1,7 @@
 *.dat
 *.out
 *.swp
+bsplines
 draw
 gnuplot
 tree

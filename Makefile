@@ -1,4 +1,4 @@
-all: gnuplot tree draw
+all: gnuplot tree draw bsplines
 
 CPPFLAGS=-std=c++11 -Wall -Wshadow -Wextra
 
