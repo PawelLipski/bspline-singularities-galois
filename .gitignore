@@ -1,6 +1,7 @@
 *.dat
 *.out
 *.swp
+*.zip
 
 bsplines
 draw
