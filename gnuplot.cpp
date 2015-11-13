@@ -6,25 +6,22 @@ using namespace std;
 
 const int SIZE = 8;
 const int SAMPLES = SIZE * 4 - 1;
-const char* data_file = "bspline.dat";
 
-struct DomainDef {
+struct FunctionDef {
 	vector<double> x_nodes, y_nodes;
-} domain_defs[] = {
+	string color;
+} function_defs[] = {
 	// depth = 1
-	{ {0, 2, 2, 4}, {0, 2, 2, 4} }, // 4x4
-	{ {2, 4, 6, 6}, {0, 2, 2, 4} }, // 4x4
-
-	{ {0, 0, 2, 2}, {0, 2, 2, 4} }, // 2x4
-	{ {0, 0, 2, 2}, {2, 4, 6, 6} }, // 4x2
-
-	{ {0, 0, 2, 2}, {0, 0, 2, 2} }, // 2x2
-
+	{ {0, 2, 2, 4}, {4, 6, 6, 8}, "red"     }, // 4x4
+	{ {2, 4, 6, 6}, {0, 2, 2, 4}, "navy"    }, // 4x4
+	{ {6, 6, 8, 8}, {4, 6, 6, 8}, "orange"  }, // 2x4
+	{ {2, 4, 6, 6}, {6, 6, 8, 8}, "blue"    }, // 4x2
+	{ {0, 0, 2, 2}, {0, 0, 2, 2}, "green"   }, // 2x2
 	// depth = 2
-	{ {2, 3, 4, 5}, {2, 3, 4, 5} }, // 3x3
+	{ {2, 3, 4, 5}, {2, 3, 4, 5}, "magenta" }, // 3x3
 };
 
-const int domain_def_cnt = sizeof(domain_defs) / sizeof(domain_defs[0]);
+const int function_def_cnt = sizeof(function_defs) / sizeof(function_defs[0]);
 
 
 /*** B-spline sampling ***/
@@ -68,7 +65,7 @@ double interpolate(double from, double to, int index, int interval_cnt) {
 	return from + (to - from) / interval_cnt * index;
 }
 
-void bspline_samples_2d(const vector<double>& x_nodes, const vector<double>& y_nodes) {
+void bspline_samples_2d(const string& data_file, const vector<double>& x_nodes, const vector<double>& y_nodes) {
 	ofstream fout(data_file);
 	int interval_cnt = SAMPLES - 1;
 	for (int xi = 0; xi < SAMPLES; xi++) {	
@@ -87,7 +84,7 @@ void bspline_samples_2d(const vector<double>& x_nodes, const vector<double>& y_n
 
 /*** Gnuplot script generation ***/
 
-void print_config(int output_id) {
+void print_config(const string& output_eps) {
 	cout << "unset border" << endl;
 	cout << "set key off" << endl;
 	cout << "unset xtics" << endl;
@@ -102,10 +99,10 @@ void print_config(int output_id) {
 
 	cout << "set hidden3d" << endl;
 	cout << "set dgrid3d " << SAMPLES << ", " << SAMPLES << endl;
-	cout << "set view 60,75" << endl;
+	cout << "set view 60,45" << endl;
 
 	cout << "set terminal eps" << endl;
-	cout << "set output \"eps/bspline-" << output_id << ".eps\"" << endl;
+	cout << "set output \"eps/" << output_eps << ".eps\"" << endl;
 }
 
 void print_grid_line(int x1, int y1, int x2, int y2, bool highlight) {
@@ -117,26 +114,20 @@ void print_grid_line(int x1, int y1, int x2, int y2, bool highlight) {
 	line_no++;
 }
 
-void print_predef_function(int index) {
-	bspline_samples_2d(domain_defs[index].x_nodes, domain_defs[index].y_nodes);
+void output_predef_function(const string& data_file, int index) {
+	bspline_samples_2d(data_file, function_defs[index].x_nodes, function_defs[index].y_nodes);
 }
 
-void print_splot_command() {
-	cout << "splot \"" << data_file << "\" with lines" << endl;  // alternatively: with pm3d
-	//cout << "pause 10" << endl;
+void print_plot_command(const string& data_file, const string& color, bool replot) {
+	// alternatively: with pm3d
+	cout << (replot ? ", " : "splot ") << "\"" << data_file << "\" with lines lc rgb \"" << color << "\"";
 }
 
+void print_pause() {
+	cout << "pause 10" << endl;
+}
 
 int main(int argc, char** argv) {
-	int function_index = 0;
-	if (argc == 2) {
-		function_index = atoi(argv[1]);
-		if (function_index >= domain_def_cnt) {
-			cerr << "Allowed index range: 0..." << domain_def_cnt-1 << ", inclusively" << endl;
-			exit(1);
-		}
-	}
-
 	int N;
 	cin >> N;
 	for (int i = 0; i < N; i++) {
@@ -150,8 +141,14 @@ int main(int argc, char** argv) {
 		print_grid_line(right, down, left,  down, hl);
 		print_grid_line(left,  down, left,  up,   hl);
 	}
-	print_config(function_index);
-	print_predef_function(function_index);
-	print_splot_command();
+	print_config(argv[1]);
+
+	for (int i = 2; i < argc; i++) {
+		string data_file = string("bspline") + argv[i] + ".dat";
+		int function_index = atoi(argv[i]);
+		output_predef_function(data_file, function_index);
+		print_plot_command(data_file, function_defs[function_index].color, i > 2);
+	}
+	cout << endl;
 }
 

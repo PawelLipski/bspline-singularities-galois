@@ -3,12 +3,13 @@
 make || exit 1
 ./tree --gnuplot 2 > grid.dat
 mkdir -p png eps
-i=0
-while :; do
-	./gnuplot $[i++] < grid.dat > gpl.out 2>/dev/null || break
-	gnuplot gpl.out
+
+./gnuplot bspline-012 0 1 2 < grid.dat | gnuplot
+./gnuplot bspline-345 3 4 5 < grid.dat | gnuplot
+for i in `seq 0 5`; do
+	./gnuplot bspline-$i $i < grid.dat | gnuplot
 done
-rm -rf bspline.dat grid.dat gpl.out
+rm -rf bspline*.dat grid.dat gpl.out
 
 for eps in eps/*.eps; do
     if [ -f "$eps" ]; then
