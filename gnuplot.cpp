@@ -4,21 +4,21 @@
 
 using namespace std;
 
-const int SIZE = 8;
-const int SAMPLES = SIZE * 4 - 1;
+const int SIZE = 16;
+const int SAMPLES = 31;
 
 struct FunctionDef {
 	vector<double> x_nodes, y_nodes;
 	string color;
 } function_defs[] = {
 	// depth = 1
-	{ {0, 2, 2, 3}, {5, 6, 6, 8}, "red"     }, // 4x4
-	{ {2, 3, 4, 5}, {0, 2, 2, 3}, "navy"    }, // 4x4
-	{ {6, 6, 8, 8}, {5, 6, 6, 8}, "orange"  }, // 2x4
-	{ {3, 4, 5, 6}, {6, 6, 8, 8}, "blue"    }, // 4x2
-	{ {0, 0, 2, 2}, {0, 0, 2, 2}, "green"   }, // 2x2
+	{ {0, 4, 4, 6},     {10, 12, 12, 16}, "red"     },
+	{ {4, 6, 8, 10},    {0, 4, 4, 6},     "navy"    },
+	{ {12, 12, 16, 16}, {10, 12, 12, 16}, "orange"  },
+	{ {6, 8, 10, 12},   {12, 12, 16, 16}, "blue"    },
+	{ {0, 0, 4, 4},     {0, 0, 4, 4},     "green"   },
 	// depth = 2
-	{ {2, 3, 4, 5}, {2, 3, 4, 5}, "magenta" }, // 3x3
+	{ {7, 8, 9, 10},    {6, 7, 8, 9},     "magenta" },
 };
 
 const int function_def_cnt = sizeof(function_defs) / sizeof(function_defs[0]);
@@ -126,7 +126,7 @@ void print_plot_command(const string& data_file, const string& color, bool replo
 }
 
 void print_pause() {
-	cout << "pause 10" << endl;
+	cout << "pause 15" << endl;
 }
 
 int main(int argc, char** argv) {

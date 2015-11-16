@@ -1,7 +1,7 @@
 #!/bin/bash
 
 make || exit 1
-./tree --gnuplot 2 > grid.dat
+./tree --gnuplot 3 > grid.dat
 mkdir -p png eps
 
 ./gnuplot bspline-012 0 1 2 < grid.dat | gnuplot
