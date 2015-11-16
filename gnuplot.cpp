@@ -12,10 +12,10 @@ struct FunctionDef {
 	string color;
 } function_defs[] = {
 	// depth = 1
-	{ {0, 2, 2, 4}, {4, 6, 6, 8}, "red"     }, // 4x4
-	{ {2, 4, 6, 6}, {0, 2, 2, 4}, "navy"    }, // 4x4
-	{ {6, 6, 8, 8}, {4, 6, 6, 8}, "orange"  }, // 2x4
-	{ {2, 4, 6, 6}, {6, 6, 8, 8}, "blue"    }, // 4x2
+	{ {0, 2, 2, 3}, {5, 6, 6, 8}, "red"     }, // 4x4
+	{ {2, 3, 4, 5}, {0, 2, 2, 3}, "navy"    }, // 4x4
+	{ {6, 6, 8, 8}, {5, 6, 6, 8}, "orange"  }, // 2x4
+	{ {3, 4, 5, 6}, {6, 6, 8, 8}, "blue"    }, // 4x2
 	{ {0, 0, 2, 2}, {0, 0, 2, 2}, "green"   }, // 2x2
 	// depth = 2
 	{ {2, 3, 4, 5}, {2, 3, 4, 5}, "magenta" }, // 3x3
@@ -84,7 +84,7 @@ void bspline_samples_2d(const string& data_file, const vector<double>& x_nodes, 
 
 /*** Gnuplot script generation ***/
 
-void print_config(const string& output_eps) {
+void print_config() {
 	cout << "unset border" << endl;
 	cout << "set key off" << endl;
 	cout << "unset xtics" << endl;
@@ -100,7 +100,9 @@ void print_config(const string& output_eps) {
 	cout << "set hidden3d" << endl;
 	cout << "set dgrid3d " << SAMPLES << ", " << SAMPLES << endl;
 	cout << "set view 60,45" << endl;
+}
 
+void print_eps_terminal(const string& output_eps) {
 	cout << "set terminal eps" << endl;
 	cout << "set output \"eps/" << output_eps << ".eps\"" << endl;
 }
@@ -128,6 +130,13 @@ void print_pause() {
 }
 
 int main(int argc, char** argv) {
+	enum OutputTerminal {
+		EPS,
+		SCREEN
+	} output = EPS;
+	if (string(argv[1]) == "-s") {
+		output = SCREEN;
+	}
 	int N;
 	cin >> N;
 	for (int i = 0; i < N; i++) {
@@ -141,7 +150,9 @@ int main(int argc, char** argv) {
 		print_grid_line(right, down, left,  down, hl);
 		print_grid_line(left,  down, left,  up,   hl);
 	}
-	print_config(argv[1]);
+	print_config();
+	if (output == EPS)
+		print_eps_terminal(argv[1]);
 
 	for (int i = 2; i < argc; i++) {
 		string data_file = string("bspline") + argv[i] + ".dat";
@@ -150,5 +161,7 @@ int main(int argc, char** argv) {
 		print_plot_command(data_file, function_defs[function_index].color, i > 2);
 	}
 	cout << endl;
+	if (output == SCREEN)
+		print_pause();
 }
 
