@@ -79,7 +79,7 @@ int main() {
 		int w = right - left;
 		int h = down - up;
 		draw_element(left, up, w, h, 16, 0, num, lvl);
-		SDL_Delay(200);
+		SDL_Delay(100);
 		SDL_Flip(screen);
 	}
 
@@ -87,7 +87,7 @@ int main() {
 		SDL_Event event;
 		if (SDL_PollEvent(&event) && happened(event, SDLK_ESCAPE))
 			break;
-		SDL_Delay(500);
+		SDL_Delay(200);
 	}
 	SDL_Quit();
 }

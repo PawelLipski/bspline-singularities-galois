@@ -20,6 +20,7 @@ class Cube {
 
 	Cube(int dims): dimensions(dims) {
 		limits.resize(dims * 2);
+        neighbours.resize(dims * 2);
 	}
 
 	Cube(Coord l, Coord r, Coord u, Coord d): dimensions(2) {
@@ -103,15 +104,25 @@ class Cube {
 	Coord up()    const { return limits[2]; }
 	Coord down()  const { return limits[3]; }
 
+    Coord get_coord(int dim) const {
+        return limits[dim];
+    }
+
 	private:
 
 	// Number of dimensions.
 	int dimensions;
-
 	vector<Coord> limits;
+
+    vector<Cube> neighbours;
+	
 
 
 public:
+    int get_dimensions() const {
+        return dimensions;
+    }
+
     int get_num() const {
         return num;
     }
@@ -162,6 +173,45 @@ class Domain {
 		split_elements_within_box_2D(original_box);
 	}
 
+	bool is_middle_element(const Cube &cube, Coord middle) {
+		return (cube.right() == middle || cube.left() == middle) &&
+			   (cube.up() == middle || cube.down() == middle);
+	}
+
+	bool is_horizontal_side_element(const Cube &cube, Coord middle) {
+		return (cube.down() == middle) || (cube.up() == middle);
+	}
+
+	bool is_vertical_side_element(const Cube &cube, Coord middle) {
+		return (cube.right() == middle) || (cube.left() == middle);
+	}
+
+	void split_eight_side_elements_within_box_2D(Cube cube) {
+		Coord size = cube.get_size(X_DIM);
+		Coord mid = cube.get_middle(X_DIM);
+		vector<Cube> old_elements;
+		elements.swap(old_elements);
+		for (const auto& e: old_elements) {
+			if (e.non_empty() && e.contained_in_box(cube) && !is_middle_element(e, mid)){
+				if(is_horizontal_side_element(e, mid)){
+					Cube el1, el2;
+					e.split_halves(Y_DIM, &el1, &el2);
+					add_element(el1);
+					add_element(el2);
+				} else if(is_vertical_side_element(e, mid)) {
+					Cube el1, el2;
+					e.split_halves(X_DIM, &el1, &el2);
+					add_element(el1);
+					add_element(el2);
+				} else {
+					add_element(e);
+				}
+			} else {
+				add_element(e);
+			}
+		}
+	}
+
 	// Inserts `count' of edge elements parallel to the given dimension's axis,
 	// spanning from one side of the `box' to the other in the given dimension.
 	// The other dimension is fixed at `coord'.
@@ -201,7 +251,6 @@ class Domain {
 				e.print_id();
 			cout << endl;
 		}
-
 	}
 
 	void print_all_elements(bool require_non_empty, bool with_id) const {
@@ -228,18 +277,27 @@ class Domain {
     }
 
 
-    bool cubes_are_adjacent(const Cube &c1, const Cube &c2) const {
-        return  c1.non_empty() && c2.non_empty() &&
-                (((c1.left() == c2.right() || c1.right() == c2.left()) && (c1.up() == c2.up() || c1.down() == c2.down())) ||
-                ((c1.up() == c2.down() || c1.down() == c2.up()) && (c1.left() == c2.left() || c1.right() == c2.right())));
+    bool cubes_are_adjacent(const Cube &c1, const Cube &c2, int acc_dim) const {
+        int opposite_acc_dim = acc_dim % 2 == 0 ? acc_dim + 1 : acc_dim - 1;
+        int dim = acc_dim / 2;
+        if (c1.get_coord(acc_dim) == c2.get_coord(opposite_acc_dim)){
+            int opposite_dim = dim ^ 1;
+            if(c1.get_coord(opposite_dim) >= c2.get_coord(opposite_dim)){
+
+            }
+
+        }
+
     }
 
 
     void find_neighbours(const Cube &cube) const {
-        for(const auto& e: elements){
-            if (e.get_num() != cube.get_num()){
-                if (cubes_are_adjacent(cube, e)){
-                    cout << e.get_num() <<", ";
+        for(int dim = 0; dim < cube.get_dimensions() * cube.get_dimensions(); dim++){
+            for(const auto& e: elements){
+                if (e.get_num() != cube.get_num()){
+                    if (cubes_are_adjacent(cube, e, dim)){
+                        cout << e.get_num() <<", ";
+                    }
                 }
             }
         }
@@ -247,16 +305,10 @@ class Domain {
 
     void define_all_neighbours() const {
         for(const auto& e: elements){
-            if (e.non_empty()){
-                cout << e.get_num() << ": ";
-                find_neighbours(e);
-                cout << endl;
-            }
+            cout << e.get_num() << ": ";
+            find_neighbours(e);
+            cout << endl;
         }
-    }
-
-    void enumerate_elements_levels() {
-
     }
 
 
@@ -320,10 +372,12 @@ int main(int argc, char** argv) {
 	// Build a regular 4x4 grid.
 	domain.split_all_elements_2D();  // 1 -> 4 elements
 	domain.split_all_elements_2D();  // 4 -> 16 elements
+	domain.split_eight_side_elements_within_box_2D(outmost_box);
 
 	Coord middle = size / 2;
 	Coord edge_offset = size / 4;
 	Cube outer_box = outmost_box;
+
 
 	// Generate the adapted grid.
 	for (int i = 1; i < depth; i++) {
@@ -337,13 +391,15 @@ int main(int argc, char** argv) {
 
 		// Internal 4 elements -> 16 elements
 		domain.split_elements_within_box_2D(inner_box);
+		domain.split_eight_side_elements_within_box_2D(inner_box);
 
 		edge_offset /= 2;
 		outer_box = inner_box;
 	}
 
     domain.enumerate_all_elements();
-	domain.enumerate_elements_levels();
+    //domain.define_all_neighbours();
+	//domain.print_all_elements();
     //domain.define_all_neighbours();
 	if (output_format == GALOIS) {
 		domain.print_all_elements(false /* require_non_empty */, true /* with_id */);
@@ -383,8 +439,6 @@ int main(int argc, char** argv) {
 		for (const Cube& box: cut_off_boxes) {
 			box.print_full();
 		}
-
-		cout << "Desired output:" << endl;
 	}
 
 	return 0;
