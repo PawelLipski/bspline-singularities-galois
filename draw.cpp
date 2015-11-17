@@ -65,11 +65,12 @@ int main() {
         if (num != -1){
             cout << num << endl;
         }
-        SDL_Delay(50);
+        SDL_Delay(100);
         SDL_Flip(screen);
 	}
 
 	SDL_Flip(screen);
+	//SDL_Delay(3000);
 
 	int M;
 	cin >> M;
@@ -79,7 +80,7 @@ int main() {
 		int w = right - left;
 		int h = down - up;
 		draw_element(left, up, w, h, 16, 0, num, lvl);
-		SDL_Delay(100);
+		SDL_Delay(1000);
 		SDL_Flip(screen);
 	}
 

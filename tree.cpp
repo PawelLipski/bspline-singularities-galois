@@ -16,7 +16,7 @@ class Cube {
 
 	public:
 
-	Cube() {}
+	Cube(): lvl(-1), num(-1) {}
 
 	Cube(int dims): dimensions(dims) {
 		limits.resize(dims * 2);
@@ -253,10 +253,17 @@ class Domain {
 		}
 	}
 
+	void print_el_lvl_id_within_box(const Cube& box){
+		for (const auto& e: elements) {
+			if(e.non_empty() && e.contained_in_box(box)){
+				cout << e.get_lvl() << " " << e.get_num() << " ";
+			}
+		}
+	}
+
 	void print_all_elements(bool require_non_empty, bool with_id) const {
 		print_elements_within_box(original_box, require_non_empty, with_id);
 	}
-
 
     int compute_lvl(const Cube &cube) {
         int size = cube.get_size(0);
@@ -311,6 +318,25 @@ class Domain {
         }
     }
 
+	void tree_process_box_2D(int dimension, const Cube& box) {
+		cut_off_boxes.push_back(box);
+
+		// TODO
+		// Cube first_half, second_half;
+		// box.split_halves(dimension, &first_half, &second_half);
+	}
+
+	const vector<Cube> get_cut_off_boxes() const {
+		return cut_off_boxes;
+	}
+
+	int count_elements_within_box(const Cube &cube) {
+		int count = 0;
+		for (const auto& e: elements) {
+			if (e.non_empty() && e.contained_in_box(cube)) count++;
+		}
+		return count;
+	}
 
 private:
 
@@ -328,6 +354,7 @@ private:
 
 	Cube original_box;
 	vector<Cube> elements;
+	vector<Cube> cut_off_boxes;
 };
 
 Cube get_outmost_box(Coord size) {
@@ -337,16 +364,6 @@ Cube get_outmost_box(Coord size) {
 Cube get_inner_box(Coord middle, Coord edge_offset) {
 	return Cube(middle - edge_offset, middle + edge_offset,
 			middle - edge_offset, middle + edge_offset);
-}
-
-vector<Cube> cut_off_boxes;
-
-void tree_process_box_2D(int dimension, const Cube& box) {
-	cut_off_boxes.push_back(box);
-
-	// TODO
-	// Cube first_half, second_half;
-	// box.split_halves(dimension, &first_half, &second_half);
 }
 
 int main(int argc, char** argv) {
@@ -372,7 +389,7 @@ int main(int argc, char** argv) {
 	// Build a regular 4x4 grid.
 	domain.split_all_elements_2D();  // 1 -> 4 elements
 	domain.split_all_elements_2D();  // 4 -> 16 elements
-	domain.split_eight_side_elements_within_box_2D(outmost_box);
+	//domain.split_eight_side_elements_within_box_2D(outmost_box);
 
 	Coord middle = size / 2;
 	Coord edge_offset = size / 4;
@@ -399,8 +416,7 @@ int main(int argc, char** argv) {
 
     domain.enumerate_all_elements();
     //domain.define_all_neighbours();
-	//domain.print_all_elements();
-    //domain.define_all_neighbours();
+
 	if (output_format == GALOIS) {
 		domain.print_all_elements(false /* require_non_empty */, true /* with_id */);
 	} else { // output_format == GNUPLOT		
@@ -418,29 +434,41 @@ int main(int argc, char** argv) {
 			
 			outer_box.split(X_DIM, inner_box.left(), &side_box, &main_box);
 			outer_box = main_box;
-			tree_process_box_2D(Y_DIM, side_box);
+			domain.tree_process_box_2D(Y_DIM, side_box);
 
 			outer_box.split(X_DIM, inner_box.right(), &main_box, &side_box);
 			outer_box = main_box;
-			tree_process_box_2D(Y_DIM, side_box);
+			domain.tree_process_box_2D(Y_DIM, side_box);
 
 			outer_box.split(Y_DIM, inner_box.up(), &side_box, &main_box);
 			outer_box = main_box;
-			tree_process_box_2D(X_DIM, side_box);
+			domain.tree_process_box_2D(X_DIM, side_box);
 
 			outer_box.split(Y_DIM, inner_box.down(), &main_box, &side_box);
 			outer_box = main_box;
-			tree_process_box_2D(X_DIM, side_box);
+			domain.tree_process_box_2D(X_DIM, side_box);
 
 			edge_offset /= 2;
 		}
 
-		cout << cut_off_boxes.size() << endl;
-		for (const Cube& box: cut_off_boxes) {
+		cout << domain.get_cut_off_boxes().size() << endl;
+		for (const Cube& box: domain.get_cut_off_boxes()) {
 			box.print_full();
+		}
+
+		cout << "desired elimination tree output" << endl;
+		cout << domain.get_cut_off_boxes().size() << endl;
+		int i = 0;
+		for (const Cube& box: domain.get_cut_off_boxes()) {
+			cout << i++ << " ";
+			int count = domain.count_elements_within_box(box);
+			cout << count << " ";
+			domain.print_el_lvl_id_within_box(box);
+			cout << endl;
 		}
 	}
 
 	return 0;
 }
+
 
