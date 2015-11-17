@@ -15,7 +15,7 @@ for eps in eps/*.eps; do
     if [ -f "$eps" ]; then
         png=`sed 's/eps/png/g' <<< "$eps"`
         echo $eps '->' $png
-		convert +antialias -density 300 $eps -resize 1024x768 -flatten $png
+		convert +antialias -density 300 $eps -resize 1920x1080 -flatten $png
     fi
 done
 
