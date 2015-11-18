@@ -375,33 +375,55 @@ class Domain {
 	}
 
     Node * add_el_tree_element(Cube cube, Node * parent) {
-		const Node &node = Node(cube, parent, el_tree_node_id++);
+		//cout << "add_el_tree_element: ";
+		//cube.print_limits();
+		//cout << endl;
+		Node* node = new Node(cube, parent, el_tree_node_id++);
 		el_tree_nodes.push_back(node);
-		return &el_tree_nodes.back();
+		//return &el_tree_nodes.back();
+		return node;
     }
 
-	void try_to_tree_process(int dimension, Node * node) {
-		cout << "***try_to_tree_process node : " << node->get_num() << endl;
+	void print_tabs(int cnt) {
+		for (int i = 0; i < cnt; i++)
+			cout << "  ";
+	}
+
+	void try_to_tree_process(int dimension, Node * node, int depth, const string& tag) {
+		print_tabs(depth);
+		cout << "try_to_tree_process: " << (dimension == X_DIM ? "X" : "Y") << " " << tag << " half, limits: ";
+		node->get_cube().print_limits();
+		cout << endl;
 		if(count_elements_within_box(node->get_cube()) > 1){
-			tree_process_cut_off_box(dimension, node);
+			tree_process_cut_off_box(dimension, node, depth+1);
 		}
+		print_tabs(depth);
 		cout << "after try_to_tree_process" << endl;
 	}
 
-	void tree_process_cut_off_box(int dimension, Node * node) {
-		Cube cut_off_cube = node -> get_cube();
+	void tree_process_cut_off_box(int dimension, Node * node, int depth = 0) {
+		print_tabs(depth);
+		cout << "try_process_cut_off_box: " << (dimension == X_DIM ? "X" : "Y") << ", limits: ";
+		node->get_cube().print_limits();
+		cout << endl;
+		Cube cut_off_cube = node->get_cube();
 		Cube first_half, second_half;
 		cut_off_cube.split_halves(dimension, &first_half, &second_half);
 
 		Node * first_half_node = this->add_el_tree_element(first_half, node);
 		Node * second_half_node = this->add_el_tree_element(second_half, node);
 
-		try_to_tree_process(dimension, first_half_node);
-		try_to_tree_process(dimension, second_half_node);
+		try_to_tree_process(dimension, first_half_node, depth+1, "first");
+		print_tabs(depth);
+		cout << "going on to the second half" << endl;
+		//second_half_node->get_cube().print_limits();
+		cout << endl;
+		try_to_tree_process(dimension, second_half_node, depth+1, "second");
+		print_tabs(depth);
 		cout << "after tree_process_cut_off_box" << endl;
 	}
 
-	const vector<Node> &get_el_tree_nodes() const {
+	const vector<Node*> &get_el_tree_nodes() const {
 		return el_tree_nodes;
 	}
 
@@ -422,7 +444,7 @@ private:
 	Cube original_box;
 	vector<Cube> elements;
 	vector<Cube> cut_off_boxes;
-	vector<Node> el_tree_nodes;
+	vector<Node*> el_tree_nodes;
     int el_tree_node_id;
 };
 
@@ -487,7 +509,7 @@ int main(int argc, char** argv) {
     //domain.define_all_neighbours();
 
 	if (output_format == GALOIS) {
-		domain.print_all_elements(false /* require_non_empty */, true /* with_id */);
+		//domain.print_all_elements(false /* require_non_empty */, true /* with_id */);
 	} else { // output_format == GNUPLOT		
 		domain.print_all_elements(false /* require_non_empty */, false /* with_id */);
 	}
@@ -503,7 +525,6 @@ int main(int argc, char** argv) {
 		for (int i = 1; i < depth; i++) {
 			Cube inner_box(get_inner_box(middle, edge_offset));
 			Cube side_box, main_box;
-
 
             outer_box.split(X_DIM, inner_box.left(), &side_box, &main_box);
 			side_node = domain.add_el_tree_element(side_box, outer_node);
@@ -545,8 +566,8 @@ int main(int argc, char** argv) {
 
 		cout << "desired elimination tree output:" << endl;
 		cout << domain.get_el_tree_nodes().size() << endl;
-		for (const Node &n: domain.get_el_tree_nodes()) {
-			cout << n.get_num() << " " << n.get_parent_num() << endl;
+		for (const Node* node: domain.get_el_tree_nodes()) {
+			cout << node->get_num() << " " << node->get_parent_num() << endl;
 		}
 	}
 

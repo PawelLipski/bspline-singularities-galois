@@ -1,6 +1,6 @@
 all: draw gnuplot tree
 
-CPPFLAGS=-std=c++11 -Wall -Wshadow -Wextra
+CPPFLAGS=-std=c++11 -Wall -Wshadow -Wextra -g
 
 %: %.cpp
 	g++ -o $@ $< $(CPPFLAGS)
