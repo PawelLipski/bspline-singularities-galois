@@ -16,7 +16,7 @@ class Cube {
 
 	public:
 
-	Cube(): lvl(-1), num(-1) {}
+	Cube(){}
 
 	Cube(int dims): dimensions(dims) {
 		limits.resize(dims * 2);
@@ -136,16 +136,45 @@ private:
     int lvl;
 };
 
+class Node{
+public:
+    Node() { }
+
+    Node(const Cube& node_cube, Node * node_parent, int node_num): num(node_num) {
+        cube = node_cube;
+        this->parent = node_parent;
+    }
+
+	const Cube &get_cube() const {
+		return cube;
+	}
+
+	int get_num() const {
+		return num;
+	}
+
+	int get_parent_num() const {
+		return &parent ? parent->get_num() : -1;
+	}
+
+private:
+	int num;
+	Cube cube;
+    Node * parent;
+};
+
 class Domain {
 	public:
 
-	Domain(const Cube& box) {
+	Domain(const Cube& box, int depth) {
 		add_element(box);
 		original_box = box;  // preserve for the object lifetime
+        //el_tree_nodes.resize(1 + 40 * (depth - 1) + 32);
+
 	}
 
-	Domain(Coord l, Coord r, Coord u, Coord d):
-		Domain(Cube(l, r, u, d)) { }
+	//Domain(Coord l, Coord r, Coord u, Coord d):
+	//	Domain(Cube(l, r, u, d)) { }
 
 	// Splits each element within the given box into 4 smaller ones.
 	void split_elements_within_box_2D(const Cube& box) {
@@ -320,10 +349,6 @@ class Domain {
 
 	void tree_process_box_2D(int dimension, const Cube& box) {
 		cut_off_boxes.push_back(box);
-
-		// TODO
-		// Cube first_half, second_half;
-		// box.split_halves(dimension, &first_half, &second_half);
 	}
 
 	const vector<Cube> get_cut_off_boxes() const {
@@ -338,6 +363,46 @@ class Domain {
 		return count;
 	}
 
+	int compute_elimination_tree_size() {
+		int count = 1; //root
+		for (const auto& e: cut_off_boxes) {
+			int cut_off_count = count_elements_within_box(e);
+			count += cut_off_count > 4 ? 10 : 6; // cut_off elem generates 10 or 6 additional tree nodes
+			count += 2; // cut_off elem and rest of the outmost box
+		}
+		count += 1; //inner most 16 elements
+		return count;
+	}
+
+    const Node & add_el_tree_element(Cube cube, Node parent) {
+		const Node &node = Node(cube, &parent, el_tree_node_id++);
+		el_tree_nodes.push_back(node);
+		//todo crashes after return
+		return node;
+    }
+
+	void try_to_tree_process(int dimension, Node node) {
+		if(count_elements_within_box(node.get_cube()) > 1){
+			tree_process_cut_off_box(dimension, node);
+		}
+	}
+
+	void tree_process_cut_off_box(int dimension, Node node) {
+		Cube cut_off_cube = node.get_cube();
+		Cube first_half, second_half;
+		cut_off_cube.split_halves(dimension, &first_half, &second_half);
+
+		Node first_half_node = this->add_el_tree_element(first_half, node);
+		Node second_half_node = this->add_el_tree_element(second_half, node);
+
+		try_to_tree_process(dimension, first_half_node);
+		try_to_tree_process(dimension, second_half_node);
+	}
+
+	const vector<Node> &get_el_tree_nodes() const {
+		return el_tree_nodes;
+	}
+
 private:
 
 	void add_vertex_2D(Coord x, Coord y) {
@@ -350,11 +415,13 @@ private:
 
 	void add_element(const Cube& e) {
 		elements.push_back(e);
-	}	
+	}
 
 	Cube original_box;
 	vector<Cube> elements;
 	vector<Cube> cut_off_boxes;
+	vector<Node> el_tree_nodes;
+    int el_tree_node_id;
 };
 
 Cube get_outmost_box(Coord size) {
@@ -384,12 +451,12 @@ int main(int argc, char** argv) {
 
 	Coord size = 2 << depth; // so that the smallest elements are of size 1x1
 	Cube outmost_box(get_outmost_box(size));
-	Domain domain(outmost_box);
+	Domain domain(outmost_box, depth);
 
 	// Build a regular 4x4 grid.
 	domain.split_all_elements_2D();  // 1 -> 4 elements
 	domain.split_all_elements_2D();  // 4 -> 16 elements
-	//domain.split_eight_side_elements_within_box_2D(outmost_box);
+	domain.split_eight_side_elements_within_box_2D(outmost_box);
 
 	Coord middle = size / 2;
 	Coord edge_offset = size / 4;
@@ -423,52 +490,68 @@ int main(int argc, char** argv) {
 		domain.print_all_elements(false /* require_non_empty */, false /* with_id */);
 	}
 
+	cout << "after print";
+
 	if (output_format == GALOIS) {
 		edge_offset = size / 4;
 		outer_box = outmost_box;
+
+		//todo it crashes after this line
+        Node outer_node = domain.add_el_tree_element(outer_box, Node());
+		Node side_node;
+
+		cout << "after first element";
 
 		// Generate elimination tree.
 		for (int i = 1; i < depth; i++) {
 			Cube inner_box(get_inner_box(middle, edge_offset));
 			Cube side_box, main_box;
-			
-			outer_box.split(X_DIM, inner_box.left(), &side_box, &main_box);
+
+
+            outer_box.split(X_DIM, inner_box.left(), &side_box, &main_box);
+			side_node = domain.add_el_tree_element(side_box, outer_node);
+			domain.tree_process_cut_off_box(Y_DIM, side_node);
+			outer_node = domain.add_el_tree_element(main_box, outer_node);
 			outer_box = main_box;
 			domain.tree_process_box_2D(Y_DIM, side_box);
+            //process side_box
 
-			outer_box.split(X_DIM, inner_box.right(), &main_box, &side_box);
-			outer_box = main_box;
-			domain.tree_process_box_2D(Y_DIM, side_box);
+            outer_box.split(X_DIM, inner_box.right(), &main_box, &side_box);
+			side_node = domain.add_el_tree_element(side_box, outer_node);
+			outer_node = domain.add_el_tree_element(main_box, outer_node);
+			domain.tree_process_cut_off_box(Y_DIM, side_node);
+            outer_box = main_box;
+            domain.tree_process_box_2D(Y_DIM, side_box);
 
-			outer_box.split(Y_DIM, inner_box.up(), &side_box, &main_box);
+            outer_box.split(Y_DIM, inner_box.up(), &side_box, &main_box);
+			side_node = domain.add_el_tree_element(side_box, outer_node);
+			outer_node = domain.add_el_tree_element(main_box, outer_node);
+			domain.tree_process_cut_off_box(X_DIM, side_node);
 			outer_box = main_box;
-			domain.tree_process_box_2D(X_DIM, side_box);
+            domain.tree_process_box_2D(X_DIM, side_box);
 
-			outer_box.split(Y_DIM, inner_box.down(), &main_box, &side_box);
+            outer_box.split(Y_DIM, inner_box.down(), &main_box, &side_box);
+			side_node = domain.add_el_tree_element(side_box, outer_node);
+			outer_node = domain.add_el_tree_element(main_box, outer_node);
+			domain.tree_process_cut_off_box(X_DIM, side_node);
 			outer_box = main_box;
-			domain.tree_process_box_2D(X_DIM, side_box);
+            domain.tree_process_box_2D(X_DIM, side_box);
 
 			edge_offset /= 2;
 		}
+
 
 		cout << domain.get_cut_off_boxes().size() << endl;
 		for (const Cube& box: domain.get_cut_off_boxes()) {
 			box.print_full();
 		}
 
-		cout << "desired elimination tree output" << endl;
-		cout << domain.get_cut_off_boxes().size() << endl;
-		int i = 0;
-		for (const Cube& box: domain.get_cut_off_boxes()) {
-			cout << i++ << " ";
-			int count = domain.count_elements_within_box(box);
-			cout << count << " ";
-			domain.print_el_lvl_id_within_box(box);
-			cout << endl;
+		cout << "desired elimination tree output:" << endl;
+		cout << domain.get_el_tree_nodes().size() << endl;
+		for (const Node &n: domain.get_el_tree_nodes()) {
+			cout << n.get_num() << " " << n.get_parent_num();
 		}
 	}
 
 	return 0;
 }
-
-
