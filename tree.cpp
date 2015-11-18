@@ -138,7 +138,7 @@ private:
 
 class Node{
 public:
-    Node() { }
+    Node(): num(-1){ }
 
     Node(const Cube& node_cube, Node * node_parent, int node_num): num(node_num) {
         cube = node_cube;
@@ -154,7 +154,7 @@ public:
 	}
 
 	int get_parent_num() const {
-		return &parent ? parent->get_num() : -1;
+		return parent ? parent->get_num() : -1;
 	}
 
 private:
@@ -374,29 +374,31 @@ class Domain {
 		return count;
 	}
 
-    const Node & add_el_tree_element(Cube cube, Node parent) {
-		const Node &node = Node(cube, &parent, el_tree_node_id++);
+    Node * add_el_tree_element(Cube cube, Node * parent) {
+		const Node &node = Node(cube, parent, el_tree_node_id++);
 		el_tree_nodes.push_back(node);
-		//todo crashes after return
-		return node;
+		return &el_tree_nodes.back();
     }
 
-	void try_to_tree_process(int dimension, Node node) {
-		if(count_elements_within_box(node.get_cube()) > 1){
+	void try_to_tree_process(int dimension, Node * node) {
+		cout << "***try_to_tree_process node : " << node->get_num() << endl;
+		if(count_elements_within_box(node->get_cube()) > 1){
 			tree_process_cut_off_box(dimension, node);
 		}
+		cout << "after try_to_tree_process" << endl;
 	}
 
-	void tree_process_cut_off_box(int dimension, Node node) {
-		Cube cut_off_cube = node.get_cube();
+	void tree_process_cut_off_box(int dimension, Node * node) {
+		Cube cut_off_cube = node -> get_cube();
 		Cube first_half, second_half;
 		cut_off_cube.split_halves(dimension, &first_half, &second_half);
 
-		Node first_half_node = this->add_el_tree_element(first_half, node);
-		Node second_half_node = this->add_el_tree_element(second_half, node);
+		Node * first_half_node = this->add_el_tree_element(first_half, node);
+		Node * second_half_node = this->add_el_tree_element(second_half, node);
 
 		try_to_tree_process(dimension, first_half_node);
 		try_to_tree_process(dimension, second_half_node);
+		cout << "after tree_process_cut_off_box" << endl;
 	}
 
 	const vector<Node> &get_el_tree_nodes() const {
@@ -490,17 +492,12 @@ int main(int argc, char** argv) {
 		domain.print_all_elements(false /* require_non_empty */, false /* with_id */);
 	}
 
-	cout << "after print";
-
 	if (output_format == GALOIS) {
 		edge_offset = size / 4;
 		outer_box = outmost_box;
 
-		//todo it crashes after this line
-        Node outer_node = domain.add_el_tree_element(outer_box, Node());
-		Node side_node;
-
-		cout << "after first element";
+        Node * outer_node = domain.add_el_tree_element(outer_box, NULL);
+		Node * side_node;
 
 		// Generate elimination tree.
 		for (int i = 1; i < depth; i++) {
@@ -549,7 +546,7 @@ int main(int argc, char** argv) {
 		cout << "desired elimination tree output:" << endl;
 		cout << domain.get_el_tree_nodes().size() << endl;
 		for (const Node &n: domain.get_el_tree_nodes()) {
-			cout << n.get_num() << " " << n.get_parent_num();
+			cout << n.get_num() << " " << n.get_parent_num() << endl;
 		}
 	}
 
