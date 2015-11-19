@@ -4,8 +4,7 @@ make || exit 1
 ./tree --gnuplot 3 > grid.dat
 mkdir -p png eps
 
-./gnuplot bspline-012 0 1 2 < grid.dat | gnuplot
-./gnuplot bspline-345 3 4 5 < grid.dat | gnuplot
+./gnuplot bspline-overview 0 2 3 6 7 12 < grid.dat | gnuplot
 for i in `seq 0 12`; do
 	./gnuplot bspline-$i $i < grid.dat | gnuplot
 done
