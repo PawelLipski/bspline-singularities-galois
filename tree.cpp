@@ -61,9 +61,9 @@ class Cube {
 		return get_to(dimension) - get_from(dimension);
 	}
 
-    bool is_smaller_than_2D(const Cube * box) const {
-        return get_size(0) < box->get_size(0) || get_size(1) < box->get_size(1);
-    }
+	bool is_point() const {
+		return get_size(X_DIM) + get_size(Y_DIM) == 0;
+	}
 
 	inline Coord get_to(int dimension) const {
 		return limits[2*dimension+1];
@@ -350,37 +350,62 @@ class Domain {
     }
 
 
-    bool cubes_are_adjacent(const Cube &cube, const Cube &potential_neighbour, int dim) const {
+    bool cubes_are_adjacent(const Cube &cube, const Cube &potential_neighbour, int dim/*0..3*/) const {
         int opposite_acc_dim = dim % 2 == 0 ? dim + 1 : dim - 1;
-        if(cube.get_coord(dim) == potential_neighbour.get_coord(opposite_acc_dim)){
-
+        bool are_adjacent = false;
+		if(cube.get_coord(dim) == potential_neighbour.get_coord(opposite_acc_dim)){
+			for (int i = 0; i < 4; ++i){
+				if(i != dim && i != opposite_acc_dim){
+					if (cube.get_coord(i) == potential_neighbour.get_coord(i)){
+						are_adjacent = true;
+					}
+				}
+			}
         }
+		return are_adjacent;
     }
 
 
     vector<const Cube *> find_neighbours(const Cube &cube, Coord size) {
         vector<const  Cube *> neighbours;
-        neighbours.resize(cube.get_dimensions() * cube.get_dimensions());
+        neighbours.resize(cube.get_dimensions() * 2);
         for(int dim = 0; dim < cube.get_dimensions() * cube.get_dimensions(); dim++){
             if(cube.get_coord(dim) == 0 || cube.get_coord(dim) == size){
                 neighbours[dim] = NULL; // cube doesn't have neighbours on this dimension
             } else {
                 bool has_empty_neighbour = false;
-                //int neighbour_longest_edge = size; //set to MAX, we want to detect the smallest neighbour (empty cubes too)
                 for(const auto& e: elements){
                     if (e.get_num() != cube.get_num()){
-                        if (cubes_are_adjacent(cube, e, dim)){
-                            if (e.empty()){
-                                has_empty_neighbour = true;
-                                if (neighbours[dim] == NULL){
-                                    neighbours[dim] = &e;
-                                } else if (e.is_smaller_than_2D(neighbours[dim])){
-                                    neighbours[dim] = &e;
-                                }
-                            } else if (!has_empty_neighbour){
-                                neighbours[dim] = &e;
-                            }
-                        }
+                        if (cube.is_point()){ // infinite small vertex
+							if(!e.is_point()){
+								if(cubes_are_adjacent(cube, e, dim)){
+									neighbours[dim] = &e;
+								}
+							}
+						} else if (cube.empty()){ // infinite thin, but long element
+							if(e.empty()){
+								//??
+							}
+						} else { //regular cube
+							if (!e.is_point()){
+								if(e.empty()){
+									if(cubes_are_adjacent(cube, e, dim)){
+										int general_dim = 0;
+										if (dim > 1) general_dim = 1;
+										if (cube.get_size(general_dim) <= e.get_size(general_dim)){
+											neighbours[dim] = &e;
+											has_empty_neighbour = true;
+										}
+									}
+								} else {
+									if(!has_empty_neighbour){
+										if(cubes_are_adjacent(cube, e, dim)){
+											neighbours[dim] = &e;
+										}
+									}
+								}
+							}
+						}
                     }
                 }
             }
