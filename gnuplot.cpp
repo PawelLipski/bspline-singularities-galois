@@ -8,17 +8,22 @@ const int SIZE = 16;
 const int SAMPLES = 31;
 
 struct FunctionDef {
-	vector<double> x_nodes, y_nodes;
+	vector<double> x_knots, y_knots;
 	string color;
 } function_defs[] = {
-	// depth = 1
-	{ {0, 4, 4, 6},     {10, 12, 12, 16}, "red"     },
-	{ {4, 6, 8, 10},    {0, 4, 4, 6},     "navy"    },
+	{ {0, 0, 4, 4},     {0, 0, 4, 4},     "green" },
+	{ {0, 0, 4, 4},     {4, 4, 6, 8},     "brown" },
+	{ {0, 4, 4, 6},     {10, 12, 12, 16}, "red" },
+	{ {4, 4, 6, 8},     {0, 4, 4, 6},     "navy" },
+	{ {6, 6, 7, 8},     {8, 9, 10, 10},   "purple" },
+	{ {6, 6, 7, 8},     {7, 8, 9, 10},    "dark-blue" },
+	{ {6, 7, 8, 9},     {7, 8, 9, 10},    "magenta" },
+	{ {6, 8, 10, 12},   {12, 12, 16, 16}, "blue" },
+	{ {9, 10, 10, 12},  {10, 10, 12, 12}, "turquoise" },
+	{ {10, 10, 12, 12}, {0, 4, 4, 6},     "dark-green" },
+	{ {10, 12, 12, 16}, {6, 6, 8, 10},    "cyan" },
+	{ {10, 12, 12, 16}, {6, 8, 10, 10},   "cyan" },
 	{ {12, 12, 16, 16}, {10, 12, 12, 16}, "orange"  },
-	{ {6, 8, 10, 12},   {12, 12, 16, 16}, "blue"    },
-	{ {0, 0, 4, 4},     {0, 0, 4, 4},     "green"   },
-	// depth = 2
-	{ {7, 8, 9, 10},    {6, 7, 8, 9},     "magenta" },
 };
 
 const int function_def_cnt = sizeof(function_defs) / sizeof(function_defs[0]);
@@ -26,9 +31,9 @@ const int function_def_cnt = sizeof(function_defs) / sizeof(function_defs[0]);
 
 /*** B-spline sampling ***/
 
-double bspline(const vector<double>& nodes, double point) {
+double bspline(const vector<double>& knots, double point) {
 
-	int order = nodes.size() - 2;
+	int order = knots.size() - 2;
 
 	// 0..order o's, 0..order b's
 	double* values = new double[(order+1)*(order+1)];
@@ -37,13 +42,13 @@ double bspline(const vector<double>& nodes, double point) {
 	for (int o = 0; o <= order; o++) {
 		for (int b = 0; b <= order-o; b++) {
 			if (o == 0) {
-				bool point_covered = nodes[b] <= point && point < nodes[b+1];
+				bool point_covered = knots[b] <= point && point < knots[b+1];
 				val(0, b) = point_covered ? 1.0 : 0.0;
 			} else {
-				double left_num  = point - nodes[b];
-				double left_den  = nodes[b+o] - nodes[b];
-				double right_num = nodes[b+o+1] - point;
-				double right_den = nodes[b+o+1] - nodes[b+1];
+				double left_num  = point - knots[b];
+				double left_den  = knots[b+o] - knots[b];
+				double right_num = knots[b+o+1] - point;
+				double right_den = knots[b+o+1] - knots[b+1];
 			
 				double left = 0.0, right = 0.0;
 				if (left_den != 0.0)
@@ -65,16 +70,16 @@ double interpolate(double from, double to, int index, int interval_cnt) {
 	return from + (to - from) / interval_cnt * index;
 }
 
-void bspline_samples_2d(const string& data_file, const vector<double>& x_nodes, const vector<double>& y_nodes) {
+void bspline_samples_2d(const string& data_file, const vector<double>& x_knots, const vector<double>& y_knots) {
 	ofstream fout(data_file);
 	int interval_cnt = SAMPLES - 1;
 	for (int xi = 0; xi < SAMPLES; xi++) {	
-		double x = interpolate(x_nodes.front(), x_nodes.back(), xi, interval_cnt);
-		double x_val = bspline(x_nodes, x);	
+		double x = interpolate(x_knots.front(), x_knots.back(), xi, interval_cnt);
+		double x_val = bspline(x_knots, x);	
 
 		for (int yi = 0; yi < SAMPLES; yi++) {
-			double y = interpolate(y_nodes.front(), y_nodes.back(), yi, interval_cnt);
-			double y_val = bspline(y_nodes, y);	
+			double y = interpolate(y_knots.front(), y_knots.back(), yi, interval_cnt);
+			double y_val = bspline(y_knots, y);	
 			fout << x << " " << y << " " << x_val * y_val << endl;
 		}
 	}
@@ -117,7 +122,7 @@ void print_grid_line(int x1, int y1, int x2, int y2, bool highlight) {
 }
 
 void output_predef_function(const string& data_file, int index) {
-	bspline_samples_2d(data_file, function_defs[index].x_nodes, function_defs[index].y_nodes);
+	bspline_samples_2d(data_file, function_defs[index].x_knots, function_defs[index].y_knots);
 }
 
 void print_plot_command(const string& data_file, const string& color, bool replot) {
@@ -145,7 +150,7 @@ int main(int argc, char** argv) {
 		if (left == right && up == down)
 			continue;  // skip vertices
 		if (right - left + down - up == 1)
-			continue;  // FIXME workaround for bogus edges
+			continue;  // TODO workaround for bogus edges
 		bool hl = left == right || up == down;  // highlight double edges
 		print_grid_line(left,  up,   right, up,   hl);
 		print_grid_line(right, up,   right, down, hl);
