@@ -30,6 +30,10 @@ void draw_element(int x, int y, int w, int h, int scale, int contour, int num, i
 		(w == 0 ? rect.w : rect.h) = 1;
 		color = WHITE;
 	} else {
+		rect.x++;
+		rect.y++;
+		rect.w -= 2;
+		rect.h -= 2;
 		type = FULL;
 		color = RED;
 	}
@@ -61,7 +65,7 @@ int main() {
 		cin >> left >> right >> up >> down >> num >> lvl;
 		int w = right - left;
 		int h = down - up;
-		draw_element(left, up, w, h, 16, 2, num, lvl);
+		draw_element(left, up, w, h, 32, 2, num, lvl);
         if (num != -1){
             cout << num << endl;
         }
@@ -72,6 +76,7 @@ int main() {
 	SDL_Flip(screen);
 	//SDL_Delay(3000);
 
+	/*
 	int M;
 	cin >> M;
 	for (int i = 0; i < M; i++) {
@@ -83,6 +88,7 @@ int main() {
 		SDL_Delay(1000);
 		SDL_Flip(screen);
 	}
+	*/
 
 	while (true) {
 		SDL_Event event;
