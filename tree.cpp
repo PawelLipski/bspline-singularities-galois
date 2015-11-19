@@ -526,14 +526,15 @@ int main(int argc, char** argv) {
 	int depth = argc == 2 ? atoi(argv[1]) : 4;
 	//int order = 2; // atoi(argv[2])
 
-	Coord size = 2 << depth; // so that the smallest elements are of size 1x1
+	Coord size = 4 << depth; // so that the smallest elements are of size 1x1
 	Cube outmost_box(get_outmost_box(size));
 	Domain domain(outmost_box, depth);
 
 	// Build a regular 4x4 grid.
 	domain.split_all_elements_2D();  // 1 -> 4 elements
 	domain.split_all_elements_2D();  // 4 -> 16 elements
-	domain.split_eight_side_elements_within_box_2D(outmost_box);
+	if (depth > 1)
+		domain.split_eight_side_elements_within_box_2D(outmost_box);
 
 	Coord middle = size / 2;
 	Coord edge_offset = size / 4;
@@ -552,7 +553,8 @@ int main(int argc, char** argv) {
 
 		// Internal 4 elements -> 16 elements
 		domain.split_elements_within_box_2D(inner_box);
-		domain.split_eight_side_elements_within_box_2D(inner_box);
+		if (i < depth-1)
+			domain.split_eight_side_elements_within_box_2D(inner_box);
 
 		edge_offset /= 2;
 		outer_box = inner_box;
