@@ -122,6 +122,22 @@ class Cube {
 		neighbours[dimension] = cube;
 	}
 
+	void tweak_coords() {
+		for (int i = 0; i < dimensions*2; i++) {
+			limits[i] *= 4;
+		}
+		for (int i = 0; i < dimensions; i++) {
+			if (limits[2*i] == limits[2*i+1]) {
+				limits[2*i]--;
+				limits[2*i+1]++;
+			} else {
+				limits[2*i]++;
+				limits[2*i+1]--;
+			}
+		}
+	}
+
+
 	private:
 
 	// Number of dimensions.
@@ -309,8 +325,8 @@ class Domain {
 		for (const auto& e: elements) {
 			if (require_non_empty && e.empty())
 				continue;
-			if (!e.contained_in_box(box))
-				continue;
+			//if (!e.contained_in_box(box))
+			//	continue;
 
 			e.print_limits();
 			if (with_id)
@@ -478,6 +494,11 @@ class Domain {
 		return el_tree_nodes;
 	}
 
+	void tweak_coords() {
+		for (auto& e: elements)
+			e.tweak_coords();
+	}
+
 private:
 
 	void add_vertex_2D(Coord x, Coord y) {
@@ -561,6 +582,7 @@ int main(int argc, char** argv) {
 	}
 
     domain.enumerate_all_elements();
+    domain.tweak_coords();
 	domain.define_all_neighbours(size);
 
 	if (output_format == GALOIS) {

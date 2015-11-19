@@ -65,7 +65,7 @@ int main() {
 		cin >> left >> right >> up >> down >> num >> lvl;
 		int w = right - left;
 		int h = down - up;
-		draw_element(left, up, w, h, 16, 2, num, lvl);
+		draw_element(left, up, w, h, 8, 2, num, lvl);
         if (num != -1){
             cout << num << endl;
         }
