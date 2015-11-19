@@ -52,6 +52,23 @@ bool happened(SDL_Event& event, int key) {
 	return event.type == SDL_KEYUP && event.key.keysym.sym == key;
 }
 
+void put_pixel(int x, int y, Uint32 color) {
+	SDL_Rect rect = { (Sint16)x, (Sint16)y, (Uint16)1, (Uint16)1 };
+	SDL_FillRect(screen, &rect, color);
+}
+
+void draw_line(int x1, int y1, int x2, int y2, Uint32 color, int scale) {
+	x1 *= scale;
+	y1 *= scale;
+	x2 *= scale;
+	y2 *= scale;
+	for (int i = 0; i < 500; i++) {
+		int x = x1 + (x2 - x1) * i / 500;
+		int y = y1 + (y2 - y1) * i / 500;
+		put_pixel(x, y, color);
+	}
+}
+
 int main() {
 	SDL_Init(SDL_INIT_VIDEO);
 	screen = SDL_SetVideoMode(512, 512, 0, SDL_ANYFORMAT);
@@ -66,11 +83,17 @@ int main() {
 		int w = right - left;
 		int h = down - up;
 		draw_element(left, up, w, h, 8, 2, num, lvl);
-        if (num != -1){
-            cout << num << endl;
-        }
-        SDL_Delay(100);
-        SDL_Flip(screen);
+        //if (num != -1){
+        //    cout << num << endl;
+        //}
+        //SDL_Delay(100);
+        //SDL_Flip(screen);
+	}
+
+	for (int i = 0; i < 160; i++) {
+		int left, up, right, down;
+		cin >> left >> up >> right >> down;
+		draw_line(left, up, right, down, BLUE, 8);
 	}
 
 	SDL_Flip(screen);

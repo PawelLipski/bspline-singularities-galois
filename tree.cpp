@@ -19,23 +19,18 @@ class Cube {
 	Cube(){}
 
 	Cube(int dims): dimensions(dims) {
-		limits.resize(dims * 2);
-        neighbours.resize(dims * 2);
+		bounds.resize(dims * 2);
+        neighbors.resize(dims * 2);
 	}
 
 	Cube(Coord l, Coord r, Coord u, Coord d): dimensions(2) {
-		limits = { l, r, u, d };
-		neighbours.resize(4);
+		bounds = { l, r, u, d };
+		neighbors.resize(4);
 	}
 
     Cube(const Cube& cube, int n, int l):
-        dimensions(cube.dimensions), limits(cube.limits), num(n) , lvl(l), neighbours(cube.neighbours){
+        dimensions(cube.dimensions), bounds(cube.bounds), num(n) , lvl(l), neighbors(cube.neighbors){
 	}
-
-    Cube(const Cube &cube, const vector<const Cube *> &neighbours):
-            dimensions(cube.dimensions), limits(cube.limits), num(cube.num) , lvl(cube.lvl), neighbours(neighbours){
-    }
-
 
     // Whether this cube is fully contained within the given box.
 	bool contained_in_box(const Cube& box) const {
@@ -50,7 +45,7 @@ class Cube {
 	}
 
 	inline Coord get_from(int dimension) const {
-		return limits[2*dimension];
+		return bounds[2*dimension];
 	}
 
 	Coord get_middle(int dimension) const {
@@ -66,7 +61,7 @@ class Cube {
 	}
 
 	inline Coord get_to(int dimension) const {
-		return limits[2*dimension+1];
+		return bounds[2*dimension+1];
 	}
 
 	bool non_empty() const {
@@ -77,7 +72,7 @@ class Cube {
 	}
 
 	void print_full() const {
-		print_limits();
+		print_bounds();
 		print_id();
 		cout << endl;
 	}
@@ -86,14 +81,14 @@ class Cube {
 		cout << num << " " << get_lvl() << " ";
 	}
 
-	void print_limits() const {
+	void print_bounds() const {
 		for (int i = 0; i < dimensions * 2; i++)
-			cout << limits[i] << " ";
+			cout << bounds[i] << " ";
 	}
 
-	void set_limits(int dimension, Coord from, Coord to) {
-		limits[dimension * 2] = from;
-		limits[dimension * 2 + 1] = to;
+	void set_bounds(int dimension, Coord from, Coord to) {
+		bounds[dimension * 2] = from;
+		bounds[dimension * 2 + 1] = to;
 	}
 
 	// Splits this cube into two cubes, along the given dimension at the given
@@ -101,38 +96,42 @@ class Cube {
 	void split(int dimension, Coord coord, Cube* first, Cube* second) const {
 		*first = *this;
 		*second = *this;
-		first->set_limits(dimension, get_from(dimension), coord);
-		second->set_limits(dimension, coord, get_to(dimension));
+		first->set_bounds(dimension, get_from(dimension), coord);
+		second->set_bounds(dimension, coord, get_to(dimension));
 	}
 
 	void split_halves(int dimension, Cube* first, Cube* second) const {
 		split(dimension, get_middle(dimension), first, second);
 	}
 
-	Coord left()  const { return limits[0]; }
-	Coord right() const { return limits[1]; }
-	Coord up()    const { return limits[2]; }
-	Coord down()  const { return limits[3]; }
+	Coord left()  const { return bounds[0]; }
+	Coord right() const { return bounds[1]; }
+	Coord up()    const { return bounds[2]; }
+	Coord down()  const { return bounds[3]; }
 
-    Coord get_coord(int dim) const {
-        return limits[dim];
+    Coord get_bound(int bound_no) const {
+        return bounds[bound_no];
     }
 
-	void set_neighbour(int dimension, const Cube * cube) {
-		neighbours[dimension] = cube;
+	Cube* get_neighbor(int bound_no) const {
+		return neighbors[bound_no];
+	}
+
+	void set_neighbor(int bound_no, Cube* cube) {
+		neighbors[bound_no] = cube;
 	}
 
 	void tweak_coords() {
 		for (int i = 0; i < dimensions*2; i++) {
-			limits[i] *= 4;
+			bounds[i] *= 4;
 		}
 		for (int i = 0; i < dimensions; i++) {
-			if (limits[2*i] == limits[2*i+1]) {
-				limits[2*i]--;
-				limits[2*i+1]++;
+			if (bounds[2*i] == bounds[2*i+1]) {
+				bounds[2*i]--;
+				bounds[2*i+1]++;
 			} else {
-				limits[2*i]++;
-				limits[2*i+1]--;
+				bounds[2*i]++;
+				bounds[2*i+1]--;
 			}
 		}
 	}
@@ -142,9 +141,9 @@ class Cube {
 
 	// Number of dimensions.
 	int dimensions;
-	vector<Coord> limits;
-    vector<const Cube *> neighbours;
-	
+	vector<Coord> bounds;
+public:
+    vector<Cube*> neighbors;
 
 
 public:
@@ -285,11 +284,11 @@ class Domain {
 				if (i == count / 2 || i == (count / 2 - 1)){
 					Cube e1(2), e2(2);
 					Coord mid = (element_from + element_to) / 2;
-					e1.set_limits(dimension, element_from, mid);
-					e1.set_limits(dimension ^ 1, coord, coord);  // the other dimension
+					e1.set_bounds(dimension, element_from, mid);
+					e1.set_bounds(dimension ^ 1, coord, coord);  // the other dimension
 					elements.push_back(e1);
-					e2.set_limits(dimension, mid, element_to);
-					e2.set_limits(dimension ^ 1, coord, coord);  // the other dimension
+					e2.set_bounds(dimension, mid, element_to);
+					e2.set_bounds(dimension ^ 1, coord, coord);  // the other dimension
 					elements.push_back(e2);
 					if(dimension == X_DIM){
 						add_vertex_2D(mid, coord);
@@ -298,14 +297,14 @@ class Domain {
 					}
 				} else {
 					Cube e(2);
-					e.set_limits(dimension, element_from, element_to);
-					e.set_limits(dimension ^ 1, coord, coord);  // the other dimension
+					e.set_bounds(dimension, element_from, element_to);
+					e.set_bounds(dimension ^ 1, coord, coord);  // the other dimension
 					elements.push_back(e);
 				}
 			} else {
 				Cube e(2);
-				e.set_limits(dimension, element_from, element_to);
-				e.set_limits(dimension ^ 1, coord, coord);  // the other dimension
+				e.set_bounds(dimension, element_from, element_to);
+				e.set_bounds(dimension ^ 1, coord, coord);  // the other dimension
 				elements.push_back(e);
 			}
 		}
@@ -328,7 +327,7 @@ class Domain {
 			//if (!e.contained_in_box(box))
 			//	continue;
 
-			e.print_limits();
+			e.print_bounds();
 			if (with_id)
 				e.print_id();
 			cout << endl;
@@ -345,6 +344,24 @@ class Domain {
 
 	void print_all_elements(bool require_non_empty, bool with_id) const {
 		print_elements_within_box(original_box, require_non_empty, with_id);
+	}
+
+	void print_line(Coord x1, Coord y1, Coord x2, Coord y2) const {
+		cout << x1 << " " << y1 << " " << x2 << " " << y2 << endl;
+	}
+
+	void print_all_neighbors() const {
+		for (const Cube& that: elements) {
+			for (int bound_no = 0; bound_no < that.get_dimensions() * 2; bound_no++) {
+				Cube* other = that.get_neighbor(bound_no);
+				if (other != nullptr) {
+					print_line(
+						that.get_middle(X_DIM), that.get_middle(Y_DIM),
+						other->get_middle(X_DIM), other->get_middle(Y_DIM)
+					);
+				}
+			}
+		}
 	}
 
     int compute_lvl(const Cube &cube) {
@@ -365,77 +382,35 @@ class Domain {
         }
     }
 
+    bool cubes_are_adjacent(const Cube& that, const Cube& other, int bound_no) const {
+		int given_dim_no = bound_no >> 1;
+        int opposite_bound_no = bound_no ^ 1;
+		if (that.get_bound(bound_no) != other.get_bound(opposite_bound_no))
+			return false;
 
-    bool cubes_are_adjacent(const Cube &cube, const Cube &potential_neighbour, int dim/*0..3*/) const {
-        int opposite_acc_dim = dim % 2 == 0 ? dim + 1 : dim - 1;
-        bool are_adjacent = false;
-		if(cube.get_coord(dim) == potential_neighbour.get_coord(opposite_acc_dim)){
-			for (int i = 0; i < 4; ++i){
-				if(i != dim && i != opposite_acc_dim){
-					if (cube.get_coord(i) == potential_neighbour.get_coord(i)){
-						are_adjacent = true;
-					}
-				}
-			}
-        }
-		return are_adjacent;
+		for (int dim_no = 0; dim_no < that.get_dimensions(); dim_no++) {
+			if (dim_no == given_dim_no)
+				continue;
+			if (that.get_to(dim_no) <= other.get_from(dim_no))
+				return false;
+			if (other.get_to(dim_no) <= that.get_from(dim_no))
+				return false;
+		}
+		return true;
     }
 
 
-    vector<const Cube *> find_neighbours(const Cube &cube, Coord size) {
-        vector<const  Cube *> neighbours;
-        neighbours.resize(cube.get_dimensions() * 2);
-        for(int dim = 0; dim < cube.get_dimensions() * cube.get_dimensions(); dim++){
-            if(cube.get_coord(dim) == 0 || cube.get_coord(dim) == size){
-                neighbours[dim] = NULL; // cube doesn't have neighbours on this dimension
-            } else {
-                bool has_empty_neighbour = false;
-                for(const auto& e: elements){
-                    if (e.get_num() != cube.get_num()){
-                        if (cube.is_point()){ // infinite small vertex
-							if(!e.is_point()){
-								if(cubes_are_adjacent(cube, e, dim)){
-									neighbours[dim] = &e;
-								}
-							}
-						} else if (cube.empty()){ // infinite thin, but long element
-							if(e.empty()){
-								//??
-							}
-						} else { //regular cube
-							if (!e.is_point()){
-								if(e.empty()){
-									if(cubes_are_adjacent(cube, e, dim)){
-										int general_dim = 0;
-										if (dim > 1) general_dim = 1;
-										if (cube.get_size(general_dim) <= e.get_size(general_dim)){
-											neighbours[dim] = &e;
-											has_empty_neighbour = true;
-										}
-									}
-								} else {
-									if(!has_empty_neighbour){
-										if(cubes_are_adjacent(cube, e, dim)){
-											neighbours[dim] = &e;
-										}
-									}
-								}
-							}
-						}
-                    }
-                }
-            }
-        }
-        return neighbours;
+    void compute_neighbors(Cube& that) {
+        //neighbors.resize(cube.get_dimensions() * 2);
+        for (auto& other: elements)
+			for (int bound_no = 0; bound_no < that.get_dimensions() * 2; bound_no++)
+				if (cubes_are_adjacent(that, other, bound_no))
+					that.set_neighbor(bound_no, &other);
     }
 
-    void define_all_neighbours(Coord size) {
-        vector<Cube> old_elements;
-        elements.swap(old_elements);
-        for(const auto& e: old_elements){
-            const vector<const Cube *> &neighbours = find_neighbours(e, size);
-            elements.push_back(Cube(e, neighbours));
-        }
+    void compute_all_neighbors() {
+        for (auto& e: elements)
+			compute_neighbors(e);
     }
 
 	void tree_process_box_2D(int dimension, const Cube& box) {
@@ -583,14 +558,16 @@ int main(int argc, char** argv) {
 
     domain.enumerate_all_elements();
     domain.tweak_coords();
-	domain.define_all_neighbours(size);
+	domain.compute_all_neighbors();
 
 	if (output_format == GALOIS) {
 		domain.print_all_elements(false /* require_non_empty */, true /* with_id */);
+		domain.print_all_neighbors();
 	} else { // output_format == GNUPLOT		
 		domain.print_all_elements(false /* require_non_empty */, false /* with_id */);
 	}
 
+	/*
 	if (output_format == GALOIS) {
 		edge_offset = size / 4;
 		outer_box = outmost_box;
@@ -656,6 +633,7 @@ int main(int argc, char** argv) {
 			cout << endl;
 		}
 	}
+	*/
 
 	return 0;
 }
