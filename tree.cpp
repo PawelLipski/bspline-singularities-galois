@@ -510,7 +510,6 @@ class Domain {
 			e.pump_or_squeeze();
 
 		// Try pump back non-empty elements (only if they overlap with now pumped-up empty elements).
-		/*
 		for (auto& e: elements) {
 			for (int bound_no = 0; bound_no < 2 * e.get_dimension(); bound_no++) {
 				e.spread(bound_no, 1);
@@ -518,7 +517,6 @@ class Domain {
 					e.spread(bound_no, -1);
 			}
 		}
-		*/
 	}
 
 private:
