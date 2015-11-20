@@ -150,6 +150,12 @@ class Cube {
 		}
 	}
 
+	Coord get_overlapping_part(const Cube& other, int dim_no) const {
+		Coord from = max(get_from(dim_no), other.get_from(dim_no));
+		Coord to = min(get_to(dim_no), other.get_to(dim_no));
+		return max(to - from, 0);
+	}
+
 	private:
 
 	// Number of dimensions.
@@ -415,9 +421,9 @@ class Domain {
 		for (int dim_no = 0; dim_no < that.get_dimensions(); dim_no++) {
 			if (dim_no == given_dim_no)
 				continue;
-			if (that.get_to(dim_no) <= other.get_from(dim_no))
-				return false;
-			if (other.get_to(dim_no) <= that.get_from(dim_no))
+
+			Coord overlap = that.get_overlapping_part(other, dim_no);
+			if (overlap != that.get_size(dim_no) && overlap != other.get_size(dim_no))
 				return false;
 		}
 		return true;
@@ -495,7 +501,7 @@ class Domain {
 
 	bool overlaps_with_any_other(const Cube& that) const {
 		for (const auto& other: elements)
-			if (that.overlaps_with(other))
+			if (&that != &other && that.overlaps_with(other))
 				return true;
 		return false;
 	}
@@ -511,10 +517,13 @@ class Domain {
 
 		// Try pump back non-empty elements (only if they overlap with now pumped-up empty elements).
 		for (auto& e: elements) {
-			for (int bound_no = 0; bound_no < 2 * e.get_dimension(); bound_no++) {
+			for (int bound_no = 0; bound_no < 2 * e.get_dimensions(); bound_no++) {
+				if (e.get_size(bound_no / 2) == 2)
+					continue;
 				e.spread(bound_no, 1);
-				if (overlaps_with_any_other(e))
+				if (overlaps_with_any_other(e)) {
 					e.spread(bound_no, -1);
+				}
 			}
 		}
 	}

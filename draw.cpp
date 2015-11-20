@@ -57,7 +57,7 @@ void put_pixel(int x, int y, Uint32 color) {
 	SDL_FillRect(screen, &rect, color);
 }
 
-void draw_line(int x1, int y1, int x2, int y2, Uint32 color, int scale) {
+void draw_line(int x1, int y1, int x2, int y2, int scale) {
 	x1 *= scale;
 	y1 *= scale;
 	x2 *= scale;
@@ -65,7 +65,7 @@ void draw_line(int x1, int y1, int x2, int y2, Uint32 color, int scale) {
 	for (int i = 0; i < 500; i++) {
 		int x = x1 + (x2 - x1) * i / 500;
 		int y = y1 + (y2 - y1) * i / 500;
-		put_pixel(x, y, color);
+		put_pixel(x, y, BLUE);
 	}
 }
 
@@ -90,10 +90,10 @@ int main() {
         //SDL_Flip(screen);
 	}
 
-	for (int i = 0; i < 160; i++) {
+	for (int i = 0; i < 256; i++) {
 		int left, up, right, down;
 		cin >> left >> up >> right >> down;
-		draw_line(left, up, right, down, BLUE, 8);
+		draw_line(left, up, right, down, 8);
 	}
 
 	SDL_Flip(screen);
