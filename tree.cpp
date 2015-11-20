@@ -121,21 +121,34 @@ class Cube {
 		neighbors[bound_no] = cube;
 	}
 
-	void tweak_coords() {
-		for (int i = 0; i < dimensions*2; i++) {
-			bounds[i] *= 4;
-		}
-		for (int i = 0; i < dimensions; i++) {
-			if (bounds[2*i] == bounds[2*i+1]) {
-				bounds[2*i]--;
-				bounds[2*i+1]++;
+	void scale_up(int factor) {
+		for (int bound_no = 0; bound_no < 2 * dimensions; bound_no++)
+			bounds[bound_no] *= factor;		
+	}
+
+	void spread(int bound_no, int shift) {
+		if (bound_no % 2 == 0)
+			bounds[bound_no] -= shift; // from
+		else
+			bounds[bound_no] += shift; // to
+	}
+
+	void spread(int shift) {
+		for (int bound_no = 0; bound_no < 2 * dimensions; bound_no++)
+			spread(bound_no, shift);
+	}
+
+	void pump_or_squeeze() {
+		for (int dim_no = 0; dim_no < dimensions; dim_no++) {
+			if (get_size(dim_no) == 0) {
+				spread(2*dim_no,   +1);
+				spread(2*dim_no+1, +1);
 			} else {
-				bounds[2*i]++;
-				bounds[2*i+1]--;
+				spread(2*dim_no,   -1);
+				spread(2*dim_no+1, -1);
 			}
 		}
 	}
-
 
 	private:
 
@@ -158,6 +171,17 @@ public:
     int get_lvl() const {
         return lvl;
     }
+
+	bool overlaps_with(const Cube& other) const {
+		for (int dim_no = 0; dim_no < dimensions; dim_no++) {
+			if (get_to(dim_no) <= other.get_from(dim_no))
+				return false;
+			if (other.get_to(dim_no) <= get_from(dim_no))
+				return false;
+		}
+		return true;
+	}
+
 private:
     int num;
 
@@ -444,7 +468,7 @@ class Domain {
 	}
 
 	void try_to_tree_process(int dimension, Node * node, const string& tag, bool toggle_dim) {
-		if(count_elements_within_box(node->get_cube()) > 1){
+		if (count_elements_within_box(node->get_cube()) > 1){
 			tree_process_cut_off_box(dimension, node, toggle_dim);
 		}
 	}
@@ -469,9 +493,32 @@ class Domain {
 		return el_tree_nodes;
 	}
 
+	bool overlaps_with_any_other(const Cube& that) const {
+		for (const auto& other: elements)
+			if (that.overlaps_with(other))
+				return true;
+		return false;
+	}
+
 	void tweak_coords() {
+		// Scale up all elements.
 		for (auto& e: elements)
-			e.tweak_coords();
+			e.scale_up(4); 
+
+		// Squeeze non-empty dims, pump up empty dims.
+		for (auto& e: elements)
+			e.pump_or_squeeze();
+
+		// Try pump back non-empty elements (only if they overlap with now pumped-up empty elements).
+		/*
+		for (auto& e: elements) {
+			for (int bound_no = 0; bound_no < 2 * e.get_dimension(); bound_no++) {
+				e.spread(bound_no, 1);
+				if (overlaps_with_any_other(e))
+					e.spread(bound_no, -1);
+			}
+		}
+		*/
 	}
 
 private:
