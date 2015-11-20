@@ -69,9 +69,9 @@ void draw_line(int x1, int y1, int x2, int y2, int scale) {
 	}
 }
 
-int main() {
+int main(int argc, char** argv) {
 	const int SIZE = 512;
-	const int SCALE = 4;
+	int scale = argc == 1 ? 4 : (16 >> atoi(argv[1]));
 
 	SDL_Init(SDL_INIT_VIDEO);
 	screen = SDL_SetVideoMode(SIZE, SIZE, 0, SDL_ANYFORMAT);
@@ -85,7 +85,7 @@ int main() {
 		cin >> left >> right >> up >> down >> num >> lvl;
 		int w = right - left;
 		int h = down - up;
-		draw_element(left, up, w, h, SCALE, 2, num, lvl);
+		draw_element(left, up, w, h, scale, 2, num, lvl);
         //if (num != -1){
         //    cout << num << endl;
         //}
@@ -93,10 +93,12 @@ int main() {
         //SDL_Flip(screen);
 	}
 
-	for (int i = 0; i < 256; i++) {
+	int M;
+	cin >> M;
+	for (int i = 0; i < M; i++) {
 		int left, up, right, down;
 		cin >> left >> up >> right >> down;
-		draw_line(left, up, right, down, SCALE);
+		draw_line(left, up, right, down, scale);
 	}
 
 	SDL_Flip(screen);

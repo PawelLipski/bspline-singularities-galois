@@ -117,6 +117,14 @@ class Cube {
 		return neighbors[bound_no];
 	}
 
+	int get_neighbor_count() const {
+		int cnt = 0;
+		for (int bound_no = 0; bound_no < 2 * dimensions; bound_no++)
+			if (neighbors[bound_no] != nullptr)
+				cnt++;
+		return cnt;
+	}
+
 	void set_neighbor(int bound_no, Cube* cube) {
 		neighbors[bound_no] = cube;
 	}
@@ -390,6 +398,11 @@ class Domain {
 	}
 
 	void print_all_neighbors() const {
+		
+		int total_cnt = 0;
+		for (const Cube& e: elements)
+			total_cnt += e.get_neighbor_count();
+		cout << total_cnt << endl;
 		for (const Cube& that: elements) {
 			for (int bound_no = 0; bound_no < that.get_dimensions() * 2; bound_no++) {
 				Cube* other = that.get_neighbor(bound_no);
