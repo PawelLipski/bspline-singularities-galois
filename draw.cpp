@@ -62,7 +62,7 @@ void draw_line(int x1, int y1, int x2, int y2, int scale) {
 	y1 *= scale;
 	x2 *= scale;
 	y2 *= scale;
-	for (int i = 0; i < 500; i++) {
+	for (int i = 50; i < 450; i++) {
 		int x = x1 + (x2 - x1) * i / 500;
 		int y = y1 + (y2 - y1) * i / 500;
 		put_pixel(x, y, BLUE);
@@ -70,8 +70,11 @@ void draw_line(int x1, int y1, int x2, int y2, int scale) {
 }
 
 int main() {
+	const int SIZE = 512;
+	const int SCALE = 4;
+
 	SDL_Init(SDL_INIT_VIDEO);
-	screen = SDL_SetVideoMode(512, 512, 0, SDL_ANYFORMAT);
+	screen = SDL_SetVideoMode(SIZE, SIZE, 0, SDL_ANYFORMAT);
 	SDL_WM_SetCaption("Esc to exit", NULL);
 	SDL_FillRect(screen, NULL, BLACK);
 
@@ -82,7 +85,7 @@ int main() {
 		cin >> left >> right >> up >> down >> num >> lvl;
 		int w = right - left;
 		int h = down - up;
-		draw_element(left, up, w, h, 8, 2, num, lvl);
+		draw_element(left, up, w, h, SCALE, 2, num, lvl);
         //if (num != -1){
         //    cout << num << endl;
         //}
@@ -93,7 +96,7 @@ int main() {
 	for (int i = 0; i < 256; i++) {
 		int left, up, right, down;
 		cin >> left >> up >> right >> down;
-		draw_line(left, up, right, down, 8);
+		draw_line(left, up, right, down, SCALE);
 	}
 
 	SDL_Flip(screen);

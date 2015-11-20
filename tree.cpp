@@ -138,14 +138,14 @@ class Cube {
 			spread(bound_no, shift);
 	}
 
-	void pump_or_squeeze() {
+	void pump_or_squeeze(int shift) {
 		for (int dim_no = 0; dim_no < dimensions; dim_no++) {
 			if (get_size(dim_no) == 0) {
-				spread(2*dim_no,   +1);
-				spread(2*dim_no+1, +1);
+				spread(2*dim_no,   +shift);
+				spread(2*dim_no+1, +shift);
 			} else {
-				spread(2*dim_no,   -1);
-				spread(2*dim_no+1, -1);
+				spread(2*dim_no,   -shift);
+				spread(2*dim_no+1, -shift);
 			}
 		}
 	}
@@ -521,20 +521,20 @@ class Domain {
 
 		// Scale up all elements.
 		for (auto& e: elements)
-			e.scale_up(4); 
+			e.scale_up(8); 
 
 		// Squeeze non-empty dims, pump up empty dims.
 		for (auto& e: elements)
-			e.pump_or_squeeze();
+			e.pump_or_squeeze(2);
 
 		// Try pump back non-empty dims (only if they overlap with now pumped-up empty elements).
 		for (auto& e: elements) {
 			for (int bound_no = 0; bound_no < 2 * e.get_dimensions(); bound_no++) {
 				if (e.get_size(bound_no / 2) == 2)
 					continue;
-				e.spread(bound_no, 1);
+				e.spread(bound_no, 2);
 				if (overlaps_with_any_other(e)) {
-					e.spread(bound_no, -1);
+					e.spread(bound_no, -2);
 				}
 			}
 		}
