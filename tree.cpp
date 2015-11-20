@@ -161,6 +161,7 @@ class Cube {
 	// Number of dimensions.
 	int dimensions;
 	vector<Coord> bounds;
+	vector<Coord> backed_up_bounds;
 public:
     vector<Cube*> neighbors;
 
@@ -186,6 +187,14 @@ public:
 				return false;
 		}
 		return true;
+	}
+
+	void back_up_bounds() {
+		backed_up_bounds = bounds;
+	}
+
+	void restore_bounds() {
+		bounds = backed_up_bounds;
 	}
 
 private:
@@ -507,6 +516,9 @@ class Domain {
 	}
 
 	void tweak_coords() {
+		for (auto& e: elements)
+			e.back_up_bounds();
+
 		// Scale up all elements.
 		for (auto& e: elements)
 			e.scale_up(4); 
@@ -515,7 +527,7 @@ class Domain {
 		for (auto& e: elements)
 			e.pump_or_squeeze();
 
-		// Try pump back non-empty elements (only if they overlap with now pumped-up empty elements).
+		// Try pump back non-empty dims (only if they overlap with now pumped-up empty elements).
 		for (auto& e: elements) {
 			for (int bound_no = 0; bound_no < 2 * e.get_dimensions(); bound_no++) {
 				if (e.get_size(bound_no / 2) == 2)
@@ -526,6 +538,11 @@ class Domain {
 				}
 			}
 		}
+	}
+	
+	void untweak_coords() {
+		for (auto& e: elements)
+			e.restore_bounds();
 	}
 
 private:
@@ -613,6 +630,7 @@ int main(int argc, char** argv) {
     domain.enumerate_all_elements();
     domain.tweak_coords();
 	domain.compute_all_neighbors();
+    // domain.untweak_coords(); // Uncomment when tweaked coords no longer needed for rendering.
 
 	if (output_format == GALOIS) {
 		domain.print_all_elements(false /* require_non_empty */, true /* with_id */);
