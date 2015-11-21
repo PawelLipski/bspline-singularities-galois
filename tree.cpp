@@ -164,6 +164,32 @@ class Cube {
 		return max(to - from, 0);
 	}
 
+    vector<int> compute_b_spline_support_2D() {
+        vector<int> support_bounds;
+        support_bounds.resize(dimensions * 2);
+        for(int i = 0; i < dimensions * 2; ++i){
+            if (neighbors[i]){
+                support_bounds[i] = neighbors[i]->get_bound(i);
+            } else {
+                support_bounds[i] = bounds[i];
+            }
+        }
+        return support_bounds;
+    };
+
+    void add_b_spline(int b_spline_num){
+        b_splines.push_back(b_spline_num);
+    }
+
+    void print_lvl_id_and_b_splines(){
+        cout << get_lvl() << " ";
+        cout << get_num() << " ";
+        cout << b_splines.size();
+        for (int b_spline: b_splines)
+            cout << " " << b_spline;
+        cout << endl;
+    }
+
 	private:
 
 	// Number of dimensions.
@@ -172,6 +198,7 @@ class Cube {
 	vector<Coord> backed_up_bounds;
 public:
     vector<Cube*> neighbors;
+    vector<int> b_splines;
 
 
 public:
@@ -234,6 +261,10 @@ public:
 	const vector<Node *> &get_children() const {
 		return children;
 	}
+
+    void print_num() const{
+        cout << get_num() << " ";
+    }
 
 private:
 	int num;
@@ -381,9 +412,9 @@ class Domain {
 		}
 	}
 
-	void print_el_lvl_id_within_box(const Cube& box){
+	void print_elements_lvl_and_id_within_box(const Node *node){
 		for (const auto& e: elements) {
-			if(e.non_empty() && e.contained_in_box(box)){
+			if(e.non_empty() && e.contained_in_box(node->get_cube())){
 				cout << e.get_lvl() << " " << e.get_num() << " ";
 			}
 		}
@@ -404,21 +435,25 @@ class Domain {
 			total_cnt += e.get_neighbor_count();
 		cout << total_cnt << endl;
 		for (const Cube& that: elements) {
+            cout << "current node: ";
+            that.print_full();
 			for (int bound_no = 0; bound_no < that.get_dimensions() * 2; bound_no++) {
 				Cube* other = that.get_neighbor(bound_no);
 				if (other != nullptr) {
-					print_line(
+/*					print_line(
 						that.get_middle(X_DIM), that.get_middle(Y_DIM),
 						other->get_middle(X_DIM), other->get_middle(Y_DIM)
-					);
+					);*/
+                    other->print_full();
 				}
 			}
 		}
 	}
 
     int compute_lvl(const Cube &cube) {
-        int size = cube.get_size(0);
-        return (int) log2(size) + 1;
+        int size = max(cube.get_size(0), cube.get_size(1));
+        //return (int) log2(size) + 1;
+        return (int) log2((original_box.get_size(0) / size)) - 1;
     }
 
     void enumerate_all_elements() {
@@ -429,7 +464,7 @@ class Domain {
             if (e.non_empty()){
                 elements.push_back(Cube(e, i++, compute_lvl(e)));
             } else {
-                elements.push_back(Cube(e, -1, -1));
+                elements.push_back(Cube(e, i++, -1));
             }
         }
     }
@@ -574,6 +609,77 @@ class Domain {
 			e.restore_bounds();
 	}
 
+    void compute_b_splines_supports() {
+        for (auto& e: elements){
+            const vector<int> &support_bounds = e.compute_b_spline_support_2D();
+            const Cube &support_cube = Cube(support_bounds[0], support_bounds[1], support_bounds[2], support_bounds[3]);
+            for(auto&support_candidate: elements){
+                if (support_candidate.non_empty() && support_candidate.contained_in_box(support_cube)){
+                    support_candidate.add_b_spline(e.get_num());
+                }
+            }
+        }
+    }
+
+    void print_b_splines_per_elements() {
+        println_non_empty_elements_count();
+        for(auto& e : elements){
+            if (e.non_empty()){
+                e.print_lvl_id_and_b_splines();
+            }
+        }
+    }
+
+    void print_b_splines_line_by_line() {
+        cout << elements.size() << endl;
+        for (const auto &e: elements){
+            cout << e.get_num() << " " << 1 << endl;
+        }
+    }
+
+    int count_non_empty_elements() {
+        int count = 0;
+        for (const auto &e: elements)
+            if (e.non_empty())
+                count++;
+        return count;
+    }
+
+    void println_non_empty_elements_count(){
+        cout << count_non_empty_elements() << endl;
+    }
+
+    void print_el_tree_nodes_count() {
+        cout << get_el_tree_nodes().size() << endl;
+    }
+
+    void print_elements_count_within_node(const Node *node){
+        cout << count_elements_within_box(node->get_cube()) << " ";
+    }
+
+    void print_node_children(const Node *node){
+        for (const Node* n: node->get_children()) {
+            cout << n->get_num() << " ";
+        }
+        cout << endl;
+    }
+
+    void print_elements_per_el_tree_nodes() {
+        print_el_tree_nodes_count();
+        for (const Node* node: get_el_tree_nodes()) {
+            node->print_num();
+            print_elements_count_within_node(node);
+            print_elements_lvl_and_id_within_box(node);
+            print_node_children(node);
+        }
+    }
+
+    void print_output() {
+        print_b_splines_line_by_line();
+        print_b_splines_per_elements();
+        print_elements_per_el_tree_nodes();
+    }
+
 private:
 
 	void add_vertex_2D(Coord x, Coord y) {
@@ -659,19 +765,17 @@ int main(int argc, char** argv) {
     domain.enumerate_all_elements();
     domain.tweak_coords();
 	domain.compute_all_neighbors(size);
-    // domain.untweak_coords(); // Uncomment when tweaked coords no longer needed for rendering.
+    domain.untweak_coords(); // Uncomment when tweaked coords no longer needed for rendering.
+    domain.compute_b_splines_supports();
 
-	if (output_format == GALOIS) {
-		domain.tweak_coords();
-		domain.compute_all_neighbors();
+/*	if (output_format == GALOIS) {
 		// domain.untweak_coords(); // Uncomment when tweaked coords no longer needed for rendering.
-		domain.print_all_elements(false /* require_non_empty */, true /* with_id */);
+		domain.print_all_elements(false *//* require_non_empty *//*, true *//* with_id *//*);
 		domain.print_all_neighbors();
-	} else { // output_format == GNUPLOT		
-		domain.print_all_elements(false /* require_non_empty */, false /* with_id */);
-	}
+	} else { // output_format == GNUPLOT
+		domain.print_all_elements(false *//* require_non_empty *//*, false *//* with_id *//*);
+	}*/
 
-	/*
 	if (output_format == GALOIS) {
 		edge_offset = size / 4;
 		outer_box = outmost_box;
@@ -690,7 +794,6 @@ int main(int argc, char** argv) {
 			outer_node = domain.add_el_tree_element(main_box, outer_node);
 			outer_box = main_box;
 			domain.tree_process_box_2D(Y_DIM, side_box);
-            //process side_box
 
             outer_box.split(X_DIM, inner_box.right(), &main_box, &side_box);
 			side_node = domain.add_el_tree_element(side_box, outer_node);
@@ -720,24 +823,16 @@ int main(int argc, char** argv) {
 		}
 
 
+/*
 		cout << domain.get_cut_off_boxes().size() << endl;
 		for (const Cube& box: domain.get_cut_off_boxes()) {
 			box.print_full();
 		}
+*/
 
-		cout << "desired elimination tree output:" << endl;
-		cout << endl << domain.get_el_tree_nodes().size() << endl;
-		for (const Node* node: domain.get_el_tree_nodes()) {
-			cout << node->get_num() << " ";
-			cout << domain.count_elements_within_box(node->get_cube()) << " ";
-			domain.print_el_lvl_id_within_box(node->get_cube());
-			for (const Node* n: node->get_children()) {
-				cout << n->get_num() << " ";
-			}
-			cout << endl;
-		}
+        domain.print_output();
+
 	}
-	*/
 
 	return 0;
 }
