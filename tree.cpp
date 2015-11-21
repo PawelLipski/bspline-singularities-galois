@@ -434,7 +434,7 @@ class Domain {
         }
     }
 
-    bool cubes_are_adjacent(const Cube& that, const Cube& other, int bound_no) const {
+    bool cubes_are_adjacent(const Cube& that, const Cube& other, int bound_no, bool looseened_conds) const {
 		int given_dim_no = bound_no >> 1;
         int opposite_bound_no = bound_no ^ 1;
 		if (that.get_bound(bound_no) != other.get_bound(opposite_bound_no))
@@ -445,24 +445,40 @@ class Domain {
 				continue;
 
 			Coord overlap = that.get_overlapping_part(other, dim_no);
-			if (overlap != that.get_size(dim_no) && overlap != other.get_size(dim_no))
-				return false;
+			if (!looseened_conds){
+                if (overlap != that.get_size(dim_no) && overlap != other.get_size(dim_no))
+                    return false;
+            } else {
+                if (overlap == 0)
+                    return false;
+            }
 		}
 		return true;
     }
 
 
-    void compute_neighbors(Cube& that) {
+    void compute_neighbors(Cube& that, int size) {
         //neighbors.resize(cube.get_dimensions() * 2);
+        //check regular neighbors
         for (auto& other: elements)
 			for (int bound_no = 0; bound_no < that.get_dimensions() * 2; bound_no++)
-				if (cubes_are_adjacent(that, other, bound_no))
+				if (cubes_are_adjacent(that, other, bound_no, false))
 					that.set_neighbor(bound_no, &other);
+        //check extra neigbors if regular are not found
+        for (int bound_no = 0; bound_no < that.get_dimensions() * 2; bound_no++){
+            if(that.get_neighbor(bound_no) == nullptr &&
+                    that.get_bound(bound_no) != 0 && that.get_bound(bound_no) != size){
+                for (auto& other: elements){
+                    if (cubes_are_adjacent(that, other, bound_no, true))
+                        that.set_neighbor(bound_no, &other);
+                }
+            }
+        }
     }
 
-    void compute_all_neighbors() {
+    void compute_all_neighbors(int size) {
         for (auto& e: elements)
-			compute_neighbors(e);
+			compute_neighbors(e, size);
     }
 
 	void tree_process_box_2D(int dimension, const Cube& box) {
@@ -642,7 +658,7 @@ int main(int argc, char** argv) {
 
     domain.enumerate_all_elements();
     domain.tweak_coords();
-	domain.compute_all_neighbors();
+	domain.compute_all_neighbors(size);
     // domain.untweak_coords(); // Uncomment when tweaked coords no longer needed for rendering.
 
 	if (output_format == GALOIS) {
