@@ -622,7 +622,7 @@ int main(int argc, char** argv) {
 	int depth = argc == 2 ? atoi(argv[1]) : 4;
 	//int order = 2; // atoi(argv[2])
 
-	Coord size = 4 << depth; // so that the smallest elements are of size 1x1
+	Coord size = (output_format == GALOIS ? 4 : 2) << depth; // so that the smallest elements are of size 1x1
 	Cube outmost_box(get_outmost_box(size));
 	Domain domain(outmost_box, depth);
 
@@ -662,6 +662,9 @@ int main(int argc, char** argv) {
     // domain.untweak_coords(); // Uncomment when tweaked coords no longer needed for rendering.
 
 	if (output_format == GALOIS) {
+		domain.tweak_coords();
+		domain.compute_all_neighbors();
+		// domain.untweak_coords(); // Uncomment when tweaked coords no longer needed for rendering.
 		domain.print_all_elements(false /* require_non_empty */, true /* with_id */);
 		domain.print_all_neighbors();
 	} else { // output_format == GNUPLOT		
