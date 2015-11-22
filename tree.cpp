@@ -349,7 +349,7 @@ class Domain {
 	// Inserts `count' of edge elements parallel to the given dimension's axis,
 	// spanning from one side of the `box' to the other in the given dimension.
 	// The other dimension is fixed at `coord'.
-	void add_edge_2D(int dimension, const Cube& box, Coord coord, int count, bool new_net) {
+	void add_edge_2D(int dimension, const Cube& box, Coord coord, int count, bool new_mesh) {
 		int from = box.get_from(dimension);
 		int to = box.get_to(dimension);
 		Coord element_size = (to - from) / count;
@@ -357,8 +357,8 @@ class Domain {
 			Coord element_from = from + element_size * i;
 			Coord element_to = element_from + element_size;
 
-			//needs a flag, only for the new net
-			if(new_net){
+			//needs a flag, only for the new mesh
+			if(new_mesh){
 				if (i == count / 2 || i == (count / 2 - 1)){
 					Cube e1(2), e2(2);
 					Coord mid = (element_from + element_to) / 2;
@@ -435,16 +435,16 @@ class Domain {
 			total_cnt += e.get_neighbor_count();
 		cout << total_cnt << endl;
 		for (const Cube& that: elements) {
-            cout << "current node: ";
-            that.print_full();
+            //cout << "current node: ";
+            //that.print_full();
 			for (int bound_no = 0; bound_no < that.get_dimensions() * 2; bound_no++) {
 				Cube* other = that.get_neighbor(bound_no);
 				if (other != nullptr) {
-/*					print_line(
+					print_line(
 						that.get_middle(X_DIM), that.get_middle(Y_DIM),
 						other->get_middle(X_DIM), other->get_middle(Y_DIM)
-					);*/
-                    other->print_full();
+					);
+                    //other->print_full();
 				}
 			}
 		}
@@ -674,11 +674,20 @@ class Domain {
         }
     }
 
-    void print_output() {
+    void print_galois_output() {
         print_b_splines_line_by_line();
         print_b_splines_per_elements();
         print_elements_per_el_tree_nodes();
     }
+
+	void print_el_tree_size() const { cout << get_cut_off_boxes().size() << endl; }
+
+	void print_el_tree_for_draw() {
+		print_el_tree_size();
+		for (const Cube& box: get_cut_off_boxes()) {
+			box.print_full();
+		}
+	}
 
 private:
 
@@ -712,7 +721,13 @@ Cube get_inner_box(Coord middle, Coord edge_offset) {
 
 int main(int argc, char** argv) {
 
-	bool new_net = true;
+	bool new_mesh = true;
+
+    //actually only one of the flags below should be true
+    bool print_mesh_with_neigbors_for_draw = false;
+    bool print_output_for_gnuplot = false;
+    bool print_el_tree = true;
+    bool print_galois_output = false;
 
 	enum OutputFormat {
 		GALOIS,
@@ -735,7 +750,7 @@ int main(int argc, char** argv) {
 	// Build a regular 4x4 grid.
 	domain.split_all_elements_2D();  // 1 -> 4 elements
 	domain.split_all_elements_2D();  // 4 -> 16 elements
-	if (depth > 1)
+	if (depth > 1 && new_mesh)
 		domain.split_eight_side_elements_within_box_2D(outmost_box);
 
 	Coord middle = size / 2;
@@ -747,15 +762,15 @@ int main(int argc, char** argv) {
 	for (int i = 1; i < depth; i++) {
 		Cube inner_box(get_inner_box(middle, edge_offset));
 
-		domain.add_edge_2D(X_DIM, outer_box, inner_box.up(),    4, new_net);  // horizontal
-		domain.add_edge_2D(X_DIM, outer_box, inner_box.down(),  4, new_net);
-		domain.add_edge_2D(Y_DIM, outer_box, inner_box.left(),  4, new_net);  // vertical
-		domain.add_edge_2D(Y_DIM, outer_box, inner_box.right(), 4, new_net);
+		domain.add_edge_2D(X_DIM, outer_box, inner_box.up(),    4, new_mesh);  // horizontal
+		domain.add_edge_2D(X_DIM, outer_box, inner_box.down(),  4, new_mesh);
+		domain.add_edge_2D(Y_DIM, outer_box, inner_box.left(),  4, new_mesh);  // vertical
+		domain.add_edge_2D(Y_DIM, outer_box, inner_box.right(), 4, new_mesh);
 		domain.add_corner_vertices_2D(inner_box);
 
 		// Internal 4 elements -> 16 elements
 		domain.split_elements_within_box_2D(inner_box);
-		if (i < depth-1)
+		if (i < depth-1 && new_mesh)
 			domain.split_eight_side_elements_within_box_2D(inner_box);
 
 		edge_offset /= 2;
@@ -765,74 +780,68 @@ int main(int argc, char** argv) {
     domain.enumerate_all_elements();
     domain.tweak_coords();
 	domain.compute_all_neighbors(size);
+
+    if(print_mesh_with_neigbors_for_draw){
+        domain.print_all_elements(false, true);
+        domain.print_all_neighbors();
+    }
+
+    if(print_output_for_gnuplot){
+        domain.print_all_elements(false, false);
+    }
+
     domain.untweak_coords(); // Uncomment when tweaked coords no longer needed for rendering.
     domain.compute_b_splines_supports();
+    
+    edge_offset = size / 4;
+    outer_box = outmost_box;
 
-/*	if (output_format == GALOIS) {
-		// domain.untweak_coords(); // Uncomment when tweaked coords no longer needed for rendering.
-		domain.print_all_elements(false *//* require_non_empty *//*, true *//* with_id *//*);
-		domain.print_all_neighbors();
-	} else { // output_format == GNUPLOT
-		domain.print_all_elements(false *//* require_non_empty *//*, false *//* with_id *//*);
-	}*/
+    Node * outer_node = domain.add_el_tree_element(outer_box, NULL);
+    Node * side_node;
 
-	if (output_format == GALOIS) {
-		edge_offset = size / 4;
-		outer_box = outmost_box;
+    // Generate elimination tree.
+    for (int i = 1; i < depth; i++) {
+        Cube inner_box(get_inner_box(middle, edge_offset));
+        Cube side_box, main_box;
 
-        Node * outer_node = domain.add_el_tree_element(outer_box, NULL);
-		Node * side_node;
+        outer_box.split(X_DIM, inner_box.left(), &side_box, &main_box);
+        side_node = domain.add_el_tree_element(side_box, outer_node);
+        domain.tree_process_cut_off_box(Y_DIM, side_node, false);
+        outer_node = domain.add_el_tree_element(main_box, outer_node);
+        outer_box = main_box;
+        domain.tree_process_box_2D(Y_DIM, side_box);
 
-		// Generate elimination tree.
-		for (int i = 1; i < depth; i++) {
-			Cube inner_box(get_inner_box(middle, edge_offset));
-			Cube side_box, main_box;
+        outer_box.split(X_DIM, inner_box.right(), &main_box, &side_box);
+        side_node = domain.add_el_tree_element(side_box, outer_node);
+        outer_node = domain.add_el_tree_element(main_box, outer_node);
+        domain.tree_process_cut_off_box(Y_DIM, side_node, false);
+        outer_box = main_box;
+        domain.tree_process_box_2D(Y_DIM, side_box);
 
-            outer_box.split(X_DIM, inner_box.left(), &side_box, &main_box);
-			side_node = domain.add_el_tree_element(side_box, outer_node);
-			domain.tree_process_cut_off_box(Y_DIM, side_node, false);
-			outer_node = domain.add_el_tree_element(main_box, outer_node);
-			outer_box = main_box;
-			domain.tree_process_box_2D(Y_DIM, side_box);
+        outer_box.split(Y_DIM, inner_box.up(), &side_box, &main_box);
+        side_node = domain.add_el_tree_element(side_box, outer_node);
+        outer_node = domain.add_el_tree_element(main_box, outer_node);
+        domain.tree_process_cut_off_box(X_DIM, side_node, false);
+        outer_box = main_box;
+        domain.tree_process_box_2D(X_DIM, side_box);
 
-            outer_box.split(X_DIM, inner_box.right(), &main_box, &side_box);
-			side_node = domain.add_el_tree_element(side_box, outer_node);
-			outer_node = domain.add_el_tree_element(main_box, outer_node);
-			domain.tree_process_cut_off_box(Y_DIM, side_node, false);
-            outer_box = main_box;
-            domain.tree_process_box_2D(Y_DIM, side_box);
+        outer_box.split(Y_DIM, inner_box.down(), &main_box, &side_box);
+        side_node = domain.add_el_tree_element(side_box, outer_node);
+        outer_node = domain.add_el_tree_element(main_box, outer_node);
+        domain.tree_process_cut_off_box(X_DIM, side_node, false);
+        outer_box = main_box;
+        domain.tree_process_box_2D(X_DIM, side_box);
 
-            outer_box.split(Y_DIM, inner_box.up(), &side_box, &main_box);
-			side_node = domain.add_el_tree_element(side_box, outer_node);
-			outer_node = domain.add_el_tree_element(main_box, outer_node);
-			domain.tree_process_cut_off_box(X_DIM, side_node, false);
-			outer_box = main_box;
-            domain.tree_process_box_2D(X_DIM, side_box);
+        edge_offset /= 2;
+        if (i == depth - 1){
+            domain.tree_process_cut_off_box(X_DIM, outer_node, true);
+        }
+    }
 
-            outer_box.split(Y_DIM, inner_box.down(), &main_box, &side_box);
-			side_node = domain.add_el_tree_element(side_box, outer_node);
-			outer_node = domain.add_el_tree_element(main_box, outer_node);
-			domain.tree_process_cut_off_box(X_DIM, side_node, false);
-			outer_box = main_box;
-            domain.tree_process_box_2D(X_DIM, side_box);
-
-			edge_offset /= 2;
-			if (i == depth - 1){
-				domain.tree_process_cut_off_box(X_DIM, outer_node, true);
-			}
-		}
-
-
-/*
-		cout << domain.get_cut_off_boxes().size() << endl;
-		for (const Cube& box: domain.get_cut_off_boxes()) {
-			box.print_full();
-		}
-*/
-
-        domain.print_output();
-
-	}
+    if (print_el_tree)
+        domain.print_el_tree_for_draw();
+    if (print_galois_output)
+        domain.print_galois_output();
 
 	return 0;
 }
