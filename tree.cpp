@@ -610,14 +610,23 @@ class Domain {
 	}
 
     void compute_b_splines_supports() {
-        for (auto& e: elements){
+    	println_non_empty_elements_count();
+        for (auto& e: elements) {
+			vector<int> support;
             const vector<int> &support_bounds = e.compute_b_spline_support_2D();
             const Cube &support_cube = Cube(support_bounds[0], support_bounds[1], support_bounds[2], support_bounds[3]);
-            for(auto&support_candidate: elements){
-                if (support_candidate.non_empty() && support_candidate.contained_in_box(support_cube)){
+			int sup_index = 0;
+            for (auto& support_candidate: elements) {
+                if (support_candidate.non_empty() && support_candidate.contained_in_box(support_cube)) {
                     support_candidate.add_b_spline(e.get_num());
+					support.push_back(sup_index);
                 }
+				sup_index++;
             }
+			cout << support.size() << " ";
+			for (auto& s: support)
+				cout << s << " ";
+			cout << endl;
         }
     }
 
@@ -725,10 +734,10 @@ int main(int argc, char** argv) {
 
     //actually only one of the flags below should be true
     bool print_mesh_with_neigbors_for_draw = false;
+    bool print_mesh_with_bsplines_for_draw = true;
     bool print_output_for_gnuplot = false;
     bool print_el_tree = false;
     bool print_galois_output = false;
-    bool print_mesh_with_bsplines_for_draw = true;
 
 	enum OutputFormat {
 		GALOIS,
@@ -784,7 +793,7 @@ int main(int argc, char** argv) {
 
     if (print_mesh_with_neigbors_for_draw) {
         domain.print_all_elements(false, true);
-        domain.print_all_neighbors();
+        //domain.print_all_neighbors();
     }
 
     if (print_output_for_gnuplot) {
@@ -792,12 +801,12 @@ int main(int argc, char** argv) {
     }
 
     domain.untweak_coords(); // Uncomment when tweaked coords no longer needed for rendering.
-    domain.compute_b_splines_supports();
 
     if (print_mesh_with_bsplines_for_draw) {
         domain.print_all_elements(false, true);
-        domain.print_b_splines_per_elements();
-    }
+	}
+
+    domain.compute_b_splines_supports();
 
     edge_offset = size / 4;
     outer_box = outmost_box;

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <SDL/SDL.h>
+#include <vector>
 using namespace std;
 
 SDL_Surface* screen;
@@ -10,7 +11,13 @@ SDL_Surface* screen;
 #define BLUE  0x0000ff
 #define WHITE 0xffffff
 
-void draw_element(int x, int y, int w, int h, int scale, int contour, int num, int lvl) {
+vector<SDL_Rect> rects;
+
+void print_rect(const SDL_Rect& rect) {
+	cout << rect.x << ", " << rect.y << " => " << rect.x << " x " << rect.y << endl;
+}
+
+void draw_element(int x, int y, int w, int h, int scale, int contour) {
 	SDL_Rect rect = { Sint16(x*scale), Sint16(y*scale), Uint16(w*scale), Uint16(h*scale) };
 
 	Uint32 color;
@@ -37,6 +44,7 @@ void draw_element(int x, int y, int w, int h, int scale, int contour, int num, i
 		type = FULL;
 		color = RED;
 	}
+	//print_rect(rect);
 	SDL_FillRect(screen, &rect, color);
 
 	if (type == FULL) {
@@ -44,7 +52,9 @@ void draw_element(int x, int y, int w, int h, int scale, int contour, int num, i
 		rect.y += contour;
 		rect.w -= contour * 2;
 		rect.h -= contour * 2;
+		//print_rect(rect);
 		SDL_FillRect(screen, &rect, BLACK);
+		rects.push_back(rect);
 	}
 }
 
@@ -81,7 +91,7 @@ void wait_until_key(int key) {
 int main(int argc, char** argv) {
 	const int SIZE = 512;
 	//int scale = argc == 1 ? 4 : (16 >> atoi(argv[1]));
-	int scale = argc == 1 ? 32 : (128 >> atoi(argv[1]));
+	int scale = argc == 1 ? 4 : (128 >> atoi(argv[1]));
 
 	SDL_Init(SDL_INIT_VIDEO);
 	screen = SDL_SetVideoMode(SIZE, SIZE, 0, SDL_ANYFORMAT);
@@ -93,9 +103,11 @@ int main(int argc, char** argv) {
 	for (int i = 0; i < N; i++) {
 		int left, right, up, down, num, lvl;
 		cin >> left >> right >> up >> down >> num >> lvl;
+		//cout << left << " " << right << " " << up << " " << down << endl;
+
 		int w = right - left;
 		int h = down - up;
-		draw_element(left, up, w, h, scale, 2, num, lvl);
+		draw_element(left, up, w, h, scale, 2);
 	}
 
 	/*
@@ -123,6 +135,27 @@ int main(int argc, char** argv) {
 		SDL_Flip(screen);
 	}
 	*/
+
+	// B-splines
+	int M;
+	cin >> M;
+	for (int i = 0; i < M; i++) {
+		int cnt;
+		cin >> cnt;
+		vector<int> elements(cnt);
+		for (int j = 0; j < cnt; j++) {
+			int index;
+			cin >> index;
+			cout << index << endl;
+			SDL_FillRect(screen, &rects[index], GREEN);
+			elements[j] = index;
+		}
+		SDL_Flip(screen);
+		wait_until_key(SDLK_SPACE);
+		for (int index: elements) {
+			SDL_FillRect(screen, &rects[index], BLACK);
+		}
+	}
 
 	SDL_Flip(screen);
 	wait_until_key(SDLK_ESCAPE);
