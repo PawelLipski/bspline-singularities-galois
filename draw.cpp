@@ -48,7 +48,7 @@ void draw_element(int x, int y, int w, int h, int scale, int contour, int num, i
 	}
 }
 
-bool happened(SDL_Event& event, int key) {
+bool was_key_up(SDL_Event& event, int key) {
 	return event.type == SDL_KEYUP && event.key.keysym.sym == key;
 }
 
@@ -69,9 +69,19 @@ void draw_line(int x1, int y1, int x2, int y2, int scale) {
 	}
 }
 
+void wait_until_key(int key) {
+	while (true) {
+		SDL_Event event;
+		if (SDL_PollEvent(&event) && was_key_up(event, key))
+			break;
+		SDL_Delay(200);
+	}
+}
+
 int main(int argc, char** argv) {
 	const int SIZE = 512;
-	int scale = argc == 1 ? 4 : (16 >> atoi(argv[1]));
+	//int scale = argc == 1 ? 4 : (16 >> atoi(argv[1]));
+	int scale = argc == 1 ? 32 : (128 >> atoi(argv[1]));
 
 	SDL_Init(SDL_INIT_VIDEO);
 	screen = SDL_SetVideoMode(SIZE, SIZE, 0, SDL_ANYFORMAT);
@@ -86,13 +96,10 @@ int main(int argc, char** argv) {
 		int w = right - left;
 		int h = down - up;
 		draw_element(left, up, w, h, scale, 2, num, lvl);
-        //if (num != -1){
-        //    cout << num << endl;
-        //}
-        //SDL_Delay(100);
-        //SDL_Flip(screen);
 	}
 
+	/*
+	// Neighbors
 	int M;
 	cin >> M;
 	for (int i = 0; i < M; i++) {
@@ -100,11 +107,10 @@ int main(int argc, char** argv) {
 		cin >> left >> up >> right >> down;
 		draw_line(left, up, right, down, scale);
 	}
-
-	SDL_Flip(screen);
-	//SDL_Delay(3000);
+	*/
 
 	/*
+	// Elimination tree
 	int M;
 	cin >> M;
 	for (int i = 0; i < M; i++) {
@@ -118,12 +124,8 @@ int main(int argc, char** argv) {
 	}
 	*/
 
-	while (true) {
-		SDL_Event event;
-		if (SDL_PollEvent(&event) && happened(event, SDLK_ESCAPE))
-			break;
-		SDL_Delay(200);
-	}
+	SDL_Flip(screen);
+	wait_until_key(SDLK_ESCAPE);
 	SDL_Quit();
 }
 

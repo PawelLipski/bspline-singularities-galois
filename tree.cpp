@@ -585,13 +585,13 @@ class Domain {
 
 		// Scale up all elements.
 		for (auto& e: elements)
-			e.scale_up(8); 
+			e.scale_up(8);
 
 		// Squeeze non-empty dims, pump up empty dims.
 		for (auto& e: elements)
 			e.pump_or_squeeze(2);
 
-		// Try pump back non-empty dims (only if they overlap with now pumped-up empty elements).
+		// Try pump back non-empty dims (only if they won't overlap with now pumped-up empty dims).
 		for (auto& e: elements) {
 			for (int bound_no = 0; bound_no < 2 * e.get_dimensions(); bound_no++) {
 				if (e.get_size(bound_no / 2) == 2)
@@ -726,8 +726,9 @@ int main(int argc, char** argv) {
     //actually only one of the flags below should be true
     bool print_mesh_with_neigbors_for_draw = false;
     bool print_output_for_gnuplot = false;
-    bool print_el_tree = true;
+    bool print_el_tree = false;
     bool print_galois_output = false;
+    bool print_mesh_with_bsplines_for_draw = true;
 
 	enum OutputFormat {
 		GALOIS,
@@ -781,18 +782,23 @@ int main(int argc, char** argv) {
     domain.tweak_coords();
 	domain.compute_all_neighbors(size);
 
-    if(print_mesh_with_neigbors_for_draw){
+    if (print_mesh_with_neigbors_for_draw) {
         domain.print_all_elements(false, true);
         domain.print_all_neighbors();
     }
 
-    if(print_output_for_gnuplot){
+    if (print_output_for_gnuplot) {
         domain.print_all_elements(false, false);
     }
 
     domain.untweak_coords(); // Uncomment when tweaked coords no longer needed for rendering.
     domain.compute_b_splines_supports();
-    
+
+    if (print_mesh_with_bsplines_for_draw) {
+        domain.print_all_elements(false, true);
+        domain.print_b_splines_per_elements();
+    }
+
     edge_offset = size / 4;
     outer_box = outmost_box;
 
