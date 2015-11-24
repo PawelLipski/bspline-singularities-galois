@@ -12,7 +12,7 @@ SDL_Surface* screen;
 #define BLUE  0x0000ff
 #define WHITE 0xffffff
 
-vector<SDL_Rect> rects;
+//vector<SDL_Rect> rects;
 
 void print_rect(const SDL_Rect& rect) {
 	cout << rect.x << ", " << rect.y << " => " << rect.x << " x " << rect.y << endl;
@@ -55,7 +55,7 @@ void draw_element(int x, int y, int w, int h, int scale, int contour) {
 		rect.h -= contour * 2;
 		//print_rect(rect);
 		SDL_FillRect(screen, &rect, BLACK);
-		rects.push_back(rect);
+		//rects.push_back(rect);
 	}
 }
 
@@ -89,15 +89,34 @@ void wait_until_key(int key) {
 	}
 }
 
+struct RectDef {
+	int x, y, w, h;
+};
+
+vector<RectDef> rects;
+int scale;
+
+void redraw() {
+	SDL_FillRect(screen, NULL, BLACK);
+	for (auto& rect: rects) {
+		draw_element(rect.x, rect.y, rect.w, rect.h, scale, 2);
+	}
+}
+
+void draw_inside(int index) {
+	const auto& r = rects[index];
+	SDL_Rect inside = { r.x*scale + 3, r.y*scale + 3, r.w*scale - 6, r.h*scale - 6 };
+	SDL_FillRect(screen, &inside, GREEN);
+}
+
 int main(int argc, char** argv) {
 	const int SIZE = 512;
 	//int scale = argc == 1 ? 4 : (16 >> atoi(argv[1]));
-	int scale = argc == 1 ? 4 : (128 >> atoi(argv[1]));
+	scale = argc == 1 ? 4 : (128 >> atoi(argv[1]));
 
 	SDL_Init(SDL_INIT_VIDEO);
 	screen = SDL_SetVideoMode(SIZE, SIZE, 0, SDL_ANYFORMAT);
 	SDL_WM_SetCaption("Esc to exit", NULL);
-	SDL_FillRect(screen, NULL, BLACK);
 
 	int N;
 	cin >> N;
@@ -108,8 +127,10 @@ int main(int argc, char** argv) {
 
 		int w = right - left;
 		int h = down - up;
-		draw_element(left, up, w, h, scale, 2);
+		RectDef rect = { left, up, w, h };
+		rects.push_back(rect);
 	}
+	redraw();
 
 	/*
 	// Neighbors
@@ -144,20 +165,16 @@ int main(int argc, char** argv) {
 		int x, y, cnt;
 		cin >> x >> y >> cnt;
 		cout << x <<  " " << y << endl;
-		vector<int> elements(cnt);
 		for (int j = 0; j < cnt; j++) {
 			int index;
 			cin >> index;
-			SDL_FillRect(screen, &rects[index], GREEN);
-			elements[j] = index;
+			draw_inside(index);
 		}
 		SDL_Rect mid = { x*scale - 3, y*scale - 3, 6, 6};
 		SDL_FillRect(screen, &mid, MGNTA);
 		SDL_Flip(screen);
 		wait_until_key(SDLK_SPACE);
-		for (int index: elements) {
-			SDL_FillRect(screen, &rects[index], BLACK);
-		}
+		redraw();
 	}
 
 	SDL_Flip(screen);

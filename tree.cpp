@@ -610,7 +610,7 @@ class Domain {
 	}
 
     void compute_b_splines_supports() {
-    	println_non_empty_elements_count();
+		cout << elements.size() << endl;
         for (auto& e: elements) {
 			vector<int> support;
             const vector<int> &support_bounds = e.compute_b_spline_support_2D();
