@@ -734,8 +734,6 @@ Cube get_inner_box(Coord middle, Coord edge_offset) {
 
 int main(int argc, char** argv) {
 
-	bool new_mesh = true;
-
 	enum OutputFormat {
 		DRAW_NEIGHBORS,
 		DRAW_SUPPORTS,
@@ -744,6 +742,7 @@ int main(int argc, char** argv) {
 	} output_format = GALOIS;
 
 	if (argc >= 2) {
+		bool any_opt = true;
 		string opt(argv[1]);
 		if (opt == "-n" || opt == "--draw-neighbors")
 			output_format = DRAW_NEIGHBORS;
@@ -753,14 +752,35 @@ int main(int argc, char** argv) {
 			output_format = GALOIS;
 		else if (opt == "-p" || opt == "--gnuplot")
 			output_format = GNUPLOT;
-		argc--;
-		argv++;
+		else
+			any_opt = false;
+		if (any_opt) {
+			argc--;
+			argv++;
+		}
+	}
+
+	bool new_mesh = true;
+
+	if (argc >= 2) {
+		bool any_mesh = true;
+		string mesh(argv[1]);
+		if (mesh == "--old-mesh")
+			new_mesh = false;
+		else if (mesh == "--new-mesh")
+			new_mesh = true;
+		else
+			any_mesh = false;
+		if (any_mesh) {
+			argc--;
+			argv++;
+		}
 	}
 
 	int depth = argc == 2 ? atoi(argv[1]) : 3;
-	//int order = 2; // atoi(argv[2])
+	// int order = 2; // atoi(argv[2])
 
-	Coord size = (output_format == GALOIS ? 4 : 2) << depth; // so that the smallest elements are of size 1x1
+	Coord size = (output_format == GALOIS ? 4 : 2) << depth;  // so that the smallest elements are of size 1x1
 	Cube outmost_box(get_outmost_box(size));
 	Domain domain(outmost_box, depth);
 
