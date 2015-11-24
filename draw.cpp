@@ -7,6 +7,7 @@ SDL_Surface* screen;
 
 #define BLACK 0x000000
 #define RED   0xff0000
+#define MGNTA 0xffff00
 #define GREEN 0x00ff00
 #define BLUE  0x0000ff
 #define WHITE 0xffffff
@@ -140,16 +141,18 @@ int main(int argc, char** argv) {
 	int M;
 	cin >> M;
 	for (int i = 0; i < M; i++) {
-		int cnt;
-		cin >> cnt;
+		int x, y, cnt;
+		cin >> x >> y >> cnt;
+		cout << x <<  " " << y << endl;
 		vector<int> elements(cnt);
 		for (int j = 0; j < cnt; j++) {
 			int index;
 			cin >> index;
-			cout << index << endl;
 			SDL_FillRect(screen, &rects[index], GREEN);
 			elements[j] = index;
 		}
+		SDL_Rect mid = { x*scale - 3, y*scale - 3, 6, 6};
+		SDL_FillRect(screen, &mid, MGNTA);
 		SDL_Flip(screen);
 		wait_until_key(SDLK_SPACE);
 		for (int index: elements) {

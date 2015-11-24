@@ -614,6 +614,7 @@ class Domain {
         for (auto& e: elements) {
 			vector<int> support;
             const vector<int> &support_bounds = e.compute_b_spline_support_2D();
+			cout << e.get_middle(X_DIM) << " " << e.get_middle(Y_DIM) << " ";
             const Cube &support_cube = Cube(support_bounds[0], support_bounds[1], support_bounds[2], support_bounds[3]);
 			int sup_index = 0;
             for (auto& support_candidate: elements) {
