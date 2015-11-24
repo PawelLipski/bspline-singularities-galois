@@ -111,8 +111,28 @@ void draw_inside(int index) {
 
 int main(int argc, char** argv) {
 	const int SIZE = 512;
-	//int scale = argc == 1 ? 4 : (16 >> atoi(argv[1]));
-	scale = argc == 1 ? 4 : (128 >> atoi(argv[1]));
+
+	enum InputFormat {
+		PLAIN,
+		NEIGHBORS,
+		SUPPORTS,
+	} input_format = PLAIN;
+
+	if (argc >= 2) {
+		string opt(argv[1]);
+		if (opt == "-n" || opt == "--neighbors")
+			input_format = NEIGHBORS;
+		else if (opt == "-s" || opt == "--supports")
+			input_format = SUPPORTS;
+		argc--;
+		argv++;
+	}
+
+	if (input_format == NEIGHBORS)
+		scale = argc == 1 ? 4 : (32 >> atoi(argv[1]));
+	else
+		scale = argc == 1 ? 32 : (256 >> atoi(argv[1]));
+
 
 	SDL_Init(SDL_INIT_VIDEO);
 	screen = SDL_SetVideoMode(SIZE, SIZE, 0, SDL_ANYFORMAT);
@@ -121,9 +141,8 @@ int main(int argc, char** argv) {
 	int N;
 	cin >> N;
 	for (int i = 0; i < N; i++) {
-		int left, right, up, down, num, lvl;
-		cin >> left >> right >> up >> down >> num >> lvl;
-		//cout << left << " " << right << " " << up << " " << down << endl;
+		int left, right, up, down;
+		cin >> left >> right >> up >> down;
 
 		int w = right - left;
 		int h = down - up;
@@ -132,16 +151,33 @@ int main(int argc, char** argv) {
 	}
 	redraw();
 
-	/*
-	// Neighbors
-	int M;
-	cin >> M;
-	for (int i = 0; i < M; i++) {
-		int left, up, right, down;
-		cin >> left >> up >> right >> down;
-		draw_line(left, up, right, down, scale);
+	if (input_format == NEIGHBORS) {
+		int M;
+		cin >> M;
+		for (int i = 0; i < M; i++) {
+			int left, up, right, down;
+			cin >> left >> up >> right >> down;
+			draw_line(left, up, right, down, scale);
+		}
+	} else if (input_format == SUPPORTS) {
+		int M;
+		cin >> M;
+		for (int i = 0; i < M; i++) {
+			int x, y, cnt;
+			cin >> x >> y >> cnt;
+			cout << i << endl;
+			for (int j = 0; j < cnt; j++) {
+				int index;
+				cin >> index;
+				draw_inside(index);
+			}
+			SDL_Rect mid = { x*scale - 3, y*scale - 3, 6, 6};
+			SDL_FillRect(screen, &mid, MGNTA);
+			SDL_Flip(screen);
+			wait_until_key(SDLK_SPACE);
+			redraw();
+		}
 	}
-	*/
 
 	/*
 	// Elimination tree
@@ -157,25 +193,6 @@ int main(int argc, char** argv) {
 		SDL_Flip(screen);
 	}
 	*/
-
-	// B-splines
-	int M;
-	cin >> M;
-	for (int i = 0; i < M; i++) {
-		int x, y, cnt;
-		cin >> x >> y >> cnt;
-		cout << i << endl;
-		for (int j = 0; j < cnt; j++) {
-			int index;
-			cin >> index;
-			draw_inside(index);
-		}
-		SDL_Rect mid = { x*scale - 3, y*scale - 3, 6, 6};
-		SDL_FillRect(screen, &mid, MGNTA);
-		SDL_Flip(screen);
-		wait_until_key(SDLK_SPACE);
-		redraw();
-	}
 
 	SDL_Flip(screen);
 	wait_until_key(SDLK_ESCAPE);

@@ -736,25 +736,28 @@ int main(int argc, char** argv) {
 
 	bool new_mesh = true;
 
-    // actually only one of the flags below should be true
-    bool print_mesh_with_neigbors_for_draw = false;
-    bool print_mesh_with_bsplines_for_draw = false;
-    bool print_output_for_gnuplot = false;
-    bool print_el_tree = false;
-    bool print_galois_output = true;
-
 	enum OutputFormat {
+		DRAW_NEIGHBORS,
+		DRAW_SUPPORTS,
 		GALOIS,
 		GNUPLOT
 	} output_format = GALOIS;
 
-	if (argc >= 2 && string(argv[1]) == "--gnuplot") {
-		output_format = GNUPLOT;
+	if (argc >= 2) {
+		string opt(argv[1]);
+		if (opt == "-n" || opt == "--draw-neighbors")
+			output_format = DRAW_NEIGHBORS;
+		else if (opt == "-s" || opt == "--draw-supports")
+			output_format = DRAW_SUPPORTS;
+		else if (opt == "-g" || opt == "--galois")
+			output_format = GALOIS;
+		else if (opt == "-p" || opt == "--gnuplot")
+			output_format = GNUPLOT;
 		argc--;
 		argv++;
 	}
 
-	int depth = argc == 2 ? atoi(argv[1]) : 4;
+	int depth = argc == 2 ? atoi(argv[1]) : 3;
 	//int order = 2; // atoi(argv[2])
 
 	Coord size = (output_format == GALOIS ? 4 : 2) << depth; // so that the smallest elements are of size 1x1
@@ -795,72 +798,71 @@ int main(int argc, char** argv) {
     domain.tweak_coords();
 	domain.compute_all_neighbors(size);
 
-    if (print_mesh_with_neigbors_for_draw) {
-        domain.print_all_elements(false, true);
-        //domain.print_all_neighbors();
-    }
-
-    if (print_output_for_gnuplot) {
+	if (output_format == DRAW_NEIGHBORS) {
         domain.print_all_elements(false, false);
-    }
+        domain.print_all_neighbors();
 
-    domain.untweak_coords(); // Uncomment when tweaked coords no longer needed for rendering.
+	} else if (output_format == DRAW_SUPPORTS) {
+    	domain.untweak_coords();
+        domain.print_all_elements(false, false);
+    	domain.compute_b_splines_supports(true);
 
-    if (print_mesh_with_bsplines_for_draw) {
-        domain.print_all_elements(false, true);
+	} else if (output_format == GALOIS) {
+    	domain.untweak_coords();
+    	domain.compute_b_splines_supports(false);
+
+		edge_offset = size / 4;
+		outer_box = outmost_box;
+
+		Node * outer_node = domain.add_el_tree_element(outer_box, NULL);
+		Node * side_node;
+
+		// Generate elimination tree.
+		for (int i = 1; i < depth; i++) {
+			Cube inner_box(get_inner_box(middle, edge_offset));
+			Cube side_box, main_box;
+
+			outer_box.split(X_DIM, inner_box.left(), &side_box, &main_box);
+			side_node = domain.add_el_tree_element(side_box, outer_node);
+			domain.tree_process_cut_off_box(Y_DIM, side_node, false);
+			outer_node = domain.add_el_tree_element(main_box, outer_node);
+			outer_box = main_box;
+			domain.tree_process_box_2D(Y_DIM, side_box);
+
+			outer_box.split(X_DIM, inner_box.right(), &main_box, &side_box);
+			side_node = domain.add_el_tree_element(side_box, outer_node);
+			outer_node = domain.add_el_tree_element(main_box, outer_node);
+			domain.tree_process_cut_off_box(Y_DIM, side_node, false);
+			outer_box = main_box;
+			domain.tree_process_box_2D(Y_DIM, side_box);
+
+			outer_box.split(Y_DIM, inner_box.up(), &side_box, &main_box);
+			side_node = domain.add_el_tree_element(side_box, outer_node);
+			outer_node = domain.add_el_tree_element(main_box, outer_node);
+			domain.tree_process_cut_off_box(X_DIM, side_node, false);
+			outer_box = main_box;
+			domain.tree_process_box_2D(X_DIM, side_box);
+
+			outer_box.split(Y_DIM, inner_box.down(), &main_box, &side_box);
+			side_node = domain.add_el_tree_element(side_box, outer_node);
+			outer_node = domain.add_el_tree_element(main_box, outer_node);
+			domain.tree_process_cut_off_box(X_DIM, side_node, false);
+			outer_box = main_box;
+			domain.tree_process_box_2D(X_DIM, side_box);
+
+			edge_offset /= 2;
+			if (i == depth - 1){
+				domain.tree_process_cut_off_box(X_DIM, outer_node, true);
+			}
+		}
+
+        domain.print_galois_output();
+
+	} else if (output_format == GNUPLOT) {
+    	domain.untweak_coords();
+        domain.print_all_elements(false, false);
 	}
 
-    domain.compute_b_splines_supports(print_mesh_with_bsplines_for_draw);
-
-    edge_offset = size / 4;
-    outer_box = outmost_box;
-
-    Node * outer_node = domain.add_el_tree_element(outer_box, NULL);
-    Node * side_node;
-
-    // Generate elimination tree.
-    for (int i = 1; i < depth; i++) {
-        Cube inner_box(get_inner_box(middle, edge_offset));
-        Cube side_box, main_box;
-
-        outer_box.split(X_DIM, inner_box.left(), &side_box, &main_box);
-        side_node = domain.add_el_tree_element(side_box, outer_node);
-        domain.tree_process_cut_off_box(Y_DIM, side_node, false);
-        outer_node = domain.add_el_tree_element(main_box, outer_node);
-        outer_box = main_box;
-        domain.tree_process_box_2D(Y_DIM, side_box);
-
-        outer_box.split(X_DIM, inner_box.right(), &main_box, &side_box);
-        side_node = domain.add_el_tree_element(side_box, outer_node);
-        outer_node = domain.add_el_tree_element(main_box, outer_node);
-        domain.tree_process_cut_off_box(Y_DIM, side_node, false);
-        outer_box = main_box;
-        domain.tree_process_box_2D(Y_DIM, side_box);
-
-        outer_box.split(Y_DIM, inner_box.up(), &side_box, &main_box);
-        side_node = domain.add_el_tree_element(side_box, outer_node);
-        outer_node = domain.add_el_tree_element(main_box, outer_node);
-        domain.tree_process_cut_off_box(X_DIM, side_node, false);
-        outer_box = main_box;
-        domain.tree_process_box_2D(X_DIM, side_box);
-
-        outer_box.split(Y_DIM, inner_box.down(), &main_box, &side_box);
-        side_node = domain.add_el_tree_element(side_box, outer_node);
-        outer_node = domain.add_el_tree_element(main_box, outer_node);
-        domain.tree_process_cut_off_box(X_DIM, side_node, false);
-        outer_box = main_box;
-        domain.tree_process_box_2D(X_DIM, side_box);
-
-        edge_offset /= 2;
-        if (i == depth - 1){
-            domain.tree_process_cut_off_box(X_DIM, outer_node, true);
-        }
-    }
-
-    if (print_el_tree)
-        domain.print_el_tree_for_draw();
-    if (print_galois_output)
-        domain.print_galois_output();
 
 	return 0;
 }
