@@ -278,7 +278,6 @@ class Domain {
 	Domain(const Cube& box, int depth) {
 		add_element(box);
 		original_box = box;  // preserve for the object lifetime
-
 	}
 
 	// Splits each element within the given box into 4 smaller ones.
@@ -721,7 +720,7 @@ private:
 	vector<Cube> elements;
 	vector<Cube> cut_off_boxes;
 	vector<Node*> el_tree_nodes;
-    int el_tree_node_id;
+    int el_tree_node_id = 0;
 };
 
 Cube get_outmost_box(Coord size) {
