@@ -609,12 +609,14 @@ class Domain {
 			e.restore_bounds();
 	}
 
-    void compute_b_splines_supports() {
-		cout << elements.size() << endl;
+    void compute_b_splines_supports(bool print) {
+		if (print)
+			cout << elements.size() << endl;
         for (auto& e: elements) {
 			vector<int> support;
             const vector<int> &support_bounds = e.compute_b_spline_support_2D();
-			cout << e.get_middle(X_DIM) << " " << e.get_middle(Y_DIM) << " ";
+			if (print)
+				cout << e.get_middle(X_DIM) << " " << e.get_middle(Y_DIM) << " ";
             const Cube &support_cube = Cube(support_bounds[0], support_bounds[1], support_bounds[2], support_bounds[3]);
 			int sup_index = 0;
             for (auto& support_candidate: elements) {
@@ -624,10 +626,12 @@ class Domain {
                 }
 				sup_index++;
             }
-			cout << support.size() << " ";
-			for (auto& s: support)
-				cout << s << " ";
-			cout << endl;
+			if (print) {
+				cout << support.size() << " ";
+				for (auto& s: support)
+					cout << s << " ";
+				cout << endl;
+			}
         }
     }
 
@@ -733,12 +737,12 @@ int main(int argc, char** argv) {
 
 	bool new_mesh = true;
 
-    //actually only one of the flags below should be true
+    // actually only one of the flags below should be true
     bool print_mesh_with_neigbors_for_draw = false;
-    bool print_mesh_with_bsplines_for_draw = true;
+    bool print_mesh_with_bsplines_for_draw = false;
     bool print_output_for_gnuplot = false;
     bool print_el_tree = false;
-    bool print_galois_output = false;
+    bool print_galois_output = true;
 
 	enum OutputFormat {
 		GALOIS,
@@ -807,7 +811,7 @@ int main(int argc, char** argv) {
         domain.print_all_elements(false, true);
 	}
 
-    domain.compute_b_splines_supports();
+    domain.compute_b_splines_supports(print_mesh_with_bsplines_for_draw);
 
     edge_offset = size / 4;
     outer_box = outmost_box;

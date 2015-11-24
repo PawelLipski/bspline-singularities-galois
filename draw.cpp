@@ -164,7 +164,7 @@ int main(int argc, char** argv) {
 	for (int i = 0; i < M; i++) {
 		int x, y, cnt;
 		cin >> x >> y >> cnt;
-		cout << x <<  " " << y << endl;
+		cout << i << endl;
 		for (int j = 0; j < cnt; j++) {
 			int index;
 			cin >> index;
