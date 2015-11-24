@@ -149,8 +149,6 @@ int main(int argc, char** argv) {
 		cin >> left >> right >> up >> down;
 		if (left == right && up == down)
 			continue;  // skip vertices
-		//if (right - left + down - up == 1)
-		//	continue;  // TODO workaround for bogus edges
 		bool hl = left == right || up == down;  // highlight double edges
 		print_grid_line(left,  up,   right, up,   hl);
 		print_grid_line(right, up,   right, down, hl);

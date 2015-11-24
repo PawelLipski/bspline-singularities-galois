@@ -119,13 +119,18 @@ int main(int argc, char** argv) {
 	} input_format = PLAIN;
 
 	if (argc >= 2) {
+		bool any_format = true;
 		string opt(argv[1]);
 		if (opt == "-n" || opt == "--neighbors")
 			input_format = NEIGHBORS;
 		else if (opt == "-s" || opt == "--supports")
 			input_format = SUPPORTS;
-		argc--;
-		argv++;
+		else
+			any_format = false;
+		if (any_format) {
+			argc--;
+			argv++;
+		}
 	}
 
 	if (input_format == NEIGHBORS)

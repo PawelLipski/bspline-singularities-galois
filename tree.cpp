@@ -238,7 +238,7 @@ private:
     int lvl;
 };
 
-class Node{
+class Node {
 public:
     Node(): num(-1){ }
 
@@ -348,7 +348,7 @@ class Domain {
 	// Inserts `count' of edge elements parallel to the given dimension's axis,
 	// spanning from one side of the `box' to the other in the given dimension.
 	// The other dimension is fixed at `coord'.
-	void add_edge_2D(int dimension, const Cube& box, Coord coord, int count, bool new_mesh) {
+	void add_edge_2D(int dimension, const Cube& box, Coord coord, int count, bool edged_8) {
 		int from = box.get_from(dimension);
 		int to = box.get_to(dimension);
 		Coord element_size = (to - from) / count;
@@ -357,7 +357,7 @@ class Domain {
 			Coord element_to = element_from + element_size;
 
 			//needs a flag, only for the new mesh
-			if(new_mesh){
+			if (edged_8) {
 				if (i == count / 2 || i == (count / 2 - 1)){
 					Cube e1(2), e2(2);
 					Coord mid = (element_from + element_to) / 2;
@@ -736,6 +736,7 @@ int main(int argc, char** argv) {
 
 	enum OutputFormat {
 		DRAW_NEIGHBORS,
+		DRAW_PLAIN,
 		DRAW_SUPPORTS,
 		GALOIS,
 		GNUPLOT
@@ -746,6 +747,8 @@ int main(int argc, char** argv) {
 		string opt(argv[1]);
 		if (opt == "-n" || opt == "--draw-neighbors")
 			output_format = DRAW_NEIGHBORS;
+		else if (opt == "-d" || opt == "--draw-plain")
+			output_format = DRAW_PLAIN;
 		else if (opt == "-s" || opt == "--draw-supports")
 			output_format = DRAW_SUPPORTS;
 		else if (opt == "-g" || opt == "--galois")
@@ -760,15 +763,21 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	bool new_mesh = true;
+	enum MeshType {
+		UNEDGED,
+		EDGED_4,
+		EDGED_8
+	} mesh_type = EDGED_8;
 
 	if (argc >= 2) {
 		bool any_mesh = true;
 		string mesh(argv[1]);
-		if (mesh == "--old-mesh")
-			new_mesh = false;
-		else if (mesh == "--new-mesh")
-			new_mesh = true;
+		if (mesh == "--unedged")
+			mesh_type = UNEDGED;
+		else if (mesh == "--edged-4")
+			mesh_type = EDGED_4;
+		else if (mesh == "--edged-8")
+			mesh_type = EDGED_8;
 		else
 			any_mesh = false;
 		if (any_mesh) {
@@ -787,7 +796,7 @@ int main(int argc, char** argv) {
 	// Build a regular 4x4 grid.
 	domain.split_all_elements_2D();  // 1 -> 4 elements
 	domain.split_all_elements_2D();  // 4 -> 16 elements
-	if (depth > 1 && new_mesh)
+	if (mesh_type == EDGED_8 && depth > 1)
 		domain.split_eight_side_elements_within_box_2D(outmost_box);
 
 	Coord middle = size / 2;
@@ -799,15 +808,18 @@ int main(int argc, char** argv) {
 	for (int i = 1; i < depth; i++) {
 		Cube inner_box(get_inner_box(middle, edge_offset));
 
-		domain.add_edge_2D(X_DIM, outer_box, inner_box.up(),    4, new_mesh);  // horizontal
-		domain.add_edge_2D(X_DIM, outer_box, inner_box.down(),  4, new_mesh);
-		domain.add_edge_2D(Y_DIM, outer_box, inner_box.left(),  4, new_mesh);  // vertical
-		domain.add_edge_2D(Y_DIM, outer_box, inner_box.right(), 4, new_mesh);
-		domain.add_corner_vertices_2D(inner_box);
+		if (mesh_type == EDGED_4 || mesh_type == EDGED_8) {
+			bool edged_8 = mesh_type == EDGED_8;
+			domain.add_edge_2D(X_DIM, outer_box, inner_box.up(),    4, edged_8);  // horizontal
+			domain.add_edge_2D(X_DIM, outer_box, inner_box.down(),  4, edged_8);
+			domain.add_edge_2D(Y_DIM, outer_box, inner_box.left(),  4, edged_8);  // vertical
+			domain.add_edge_2D(Y_DIM, outer_box, inner_box.right(), 4, edged_8);
+			domain.add_corner_vertices_2D(inner_box);
+		}
 
 		// Internal 4 elements -> 16 elements
 		domain.split_elements_within_box_2D(inner_box);
-		if (i < depth-1 && new_mesh)
+		if (mesh_type == EDGED_8 && i < depth-1)
 			domain.split_eight_side_elements_within_box_2D(inner_box);
 
 		edge_offset /= 2;
@@ -878,7 +890,7 @@ int main(int argc, char** argv) {
 
         domain.print_galois_output();
 
-	} else if (output_format == GNUPLOT) {
+	} else if (output_format == DRAW_PLAIN || output_format == GNUPLOT) {
     	domain.untweak_coords();
         domain.print_all_elements(false, false);
 	}
