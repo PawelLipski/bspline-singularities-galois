@@ -1,14 +1,18 @@
 #!/bin/bash
 
 make || exit 1
-./tree --gnuplot 3 > grid.dat
 mkdir -p png eps
 
-./gnuplot bspline-overview 0 2 3 6 7 12 < grid.dat | gnuplot
+./tree --gnuplot --edged-8 3 > edged-8_grid.dat
+./gnuplot edged-8_overview 0 2 3 6 7 12 < edged-8_grid.dat | gnuplot
 for i in `seq 0 12`; do
-	./gnuplot bspline-$i $i < grid.dat | gnuplot
+	./gnuplot edged-8_$i $i < edged-8_grid.dat | gnuplot
 done
-rm -rf bspline*.dat grid.dat gpl.out
+
+./tree --gnuplot --unedged 4 > unedged_grid.dat
+./gnuplot unedged_overview 13 14 < unedged_grid.dat | gnuplot
+
+rm -rf *.dat gpl.out
 
 for eps in eps/*.eps; do
     if [ -f "$eps" ]; then

@@ -4,7 +4,6 @@
 
 using namespace std;
 
-const int SIZE = 16;
 const int SAMPLES = 31;
 
 struct FunctionDef {
@@ -17,17 +16,20 @@ struct FunctionDef {
 	{ {4, 4, 6, 8},     {0, 4, 4, 6},     "navy" },
 	{ {6, 6, 7, 8},     {8, 9, 10, 10},   "purple" },
 	{ {6, 6, 7, 8},     {7, 8, 9, 10},    "dark-blue" },
-	{ {6, 7, 8, 9},     {7, 8, 9, 10},    "magenta" },
+	{ {7, 8, 9, 10},    {6, 7, 8, 9},     "magenta" },
 	{ {6, 8, 10, 12},   {12, 12, 16, 16}, "blue" },
 	{ {9, 10, 10, 12},  {10, 10, 12, 12}, "turquoise" },
 	{ {10, 10, 12, 12}, {0, 4, 4, 6},     "dark-green" },
 	{ {10, 12, 12, 16}, {6, 6, 8, 10},    "cyan" },
 	{ {10, 12, 12, 16}, {6, 8, 10, 10},   "cyan" },
-	{ {12, 12, 16, 16}, {10, 12, 12, 16}, "orange"  },
+	{ {12, 12, 16, 16}, {10, 12, 12, 16}, "orange" },
+	{ {0, 8, 12, 16},   {16, 20, 24, 32}, "red" },
+	{ {12, 16, 20, 24}, {0, 8, 12, 14},   "navy" },
 };
 
 const int function_def_cnt = sizeof(function_defs) / sizeof(function_defs[0]);
 
+int size;
 
 /*** B-spline sampling ***/
 
@@ -99,8 +101,8 @@ void print_config() {
 	//cout << "set ylabel 'y'" << endl;
 	//cout << "set zlabel 'z'" << endl;
 	
-	cout << "set xrange [0:" << SIZE << "]" << endl;
-	cout << "set yrange [0:" << SIZE << "]" << endl;
+	cout << "set xrange [0:" << size << "]" << endl;
+	cout << "set yrange [0:" << size << "]" << endl;
 
 	cout << "set hidden3d" << endl;
 	cout << "set dgrid3d " << SAMPLES << ", " << SAMPLES << endl;
@@ -134,6 +136,10 @@ void print_pause() {
 	cout << "pause 15" << endl;
 }
 
+struct Bounds {
+	int left, right, up, down;
+};
+
 int main(int argc, char** argv) {
 	enum OutputTerminal {
 		EPS,
@@ -144,9 +150,16 @@ int main(int argc, char** argv) {
 	}
 	int N;
 	cin >> N;
+	vector<Bounds> bs;
 	for (int i = 0; i < N; i++) {
-		int left, right, up, down;
-		cin >> left >> right >> up >> down;
+		Bounds b;
+		cin >> b.left >> b.right >> b.up >> b.down;
+		bs.push_back(b);
+		size = max(size, max(b.right, b.down));
+	}
+	for (int i = 0; i < N; i++) {
+		const Bounds& b = bs[i];
+		int left = b.left, right = b.right, up = b.up, down = b.down;
 		if (left == right && up == down)
 			continue;  // skip vertices
 		bool hl = left == right || up == down;  // highlight double edges
