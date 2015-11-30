@@ -10,6 +10,7 @@ struct FunctionDef {
 	vector<double> x_knots, y_knots;
 	string color;
 } function_defs[] = {
+	// edged-8
 	{ {0, 0, 4, 4},     {0, 0, 4, 4},     "green" },
 	{ {0, 0, 4, 4},     {4, 4, 6, 8},     "brown" },
 	{ {0, 4, 4, 6},     {10, 12, 12, 16}, "red" },
@@ -23,8 +24,19 @@ struct FunctionDef {
 	{ {10, 12, 12, 16}, {6, 6, 8, 10},    "cyan" },
 	{ {10, 12, 12, 16}, {6, 8, 10, 10},   "cyan" },
 	{ {12, 12, 16, 16}, {10, 12, 12, 16}, "orange" },
+
+	// edged-4
+	{ {0, 0, 4, 4},     {0, 0, 4, 4},     "green" },
+	{ {0, 4, 4, 6},     {10, 12, 12, 16}, "red" },
+	{ {4, 8, 12, 12},   {0, 4, 4, 6},     "navy" },
+	{ {7, 8, 9, 10},    {6, 7, 8, 9},     "magenta" },
+	{ {6, 8, 10, 12},   {12, 12, 16, 16}, "blue" },
+	{ {12, 12, 16, 16}, {8, 12, 12, 16},  "orange" },
+	
+	// unedged
 	{ {0, 8, 12, 16},   {16, 20, 24, 32}, "red" },
 	{ {12, 16, 20, 24}, {0, 8, 12, 14},   "navy" },
+
 };
 
 const int function_def_cnt = sizeof(function_defs) / sizeof(function_defs[0]);
