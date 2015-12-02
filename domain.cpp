@@ -173,8 +173,8 @@ public:
     }
 
     void print_galois_output() const {
-        print_b_splines_line_by_line();
-        print_b_splines_per_elements();
+        print_bsplines_line_by_line();
+        print_bsplines_per_elements();
         print_elements_per_el_tree_nodes();
     }
 
@@ -379,25 +379,25 @@ public:
 
 	/*** B-SPLINES ***/
 
-    void compute_b_splines_supports() {
+    void compute_bsplines_supports() {
         for (auto& e: elements) {
 			vector<int> support;
-            const vector<int> &support_bounds = e.compute_b_spline_support_2D();
+            const vector<int> &support_bounds = e.compute_bspline_support_2D();
             const Cube &support_cube = Cube(support_bounds[0], support_bounds[1], support_bounds[2], support_bounds[3]);
             for (auto& support_candidate: elements) {
                 if (support_candidate.non_empty() && support_candidate.contained_in_box(support_cube)) {
-                    support_candidate.add_b_spline(e.get_num());
+                    support_candidate.add_bspline(e.get_num());
 					support.push_back(support_candidate.get_num());
                 }
             }
         }
     }
 
-	void print_support_for_each_b_spline() const {
+	void print_support_for_each_bspline() const {
 		vector<vector<int>> supports(elements.size());
         for (const auto& e: elements) {
-			for (int b_spline: e.get_b_splines()) {
-				supports[b_spline].push_back(e.get_num());
+			for (int bspline: e.get_bsplines()) {
+				supports[bspline].push_back(e.get_num());
 			}
 		}
 		cout << elements.size() << endl;
@@ -413,14 +413,14 @@ public:
 		}
 	}
 
-    void print_b_splines_per_elements() const {
+    void print_bsplines_per_elements() const {
         println_non_empty_elements_count();
         for(auto& e : elements)
             if (e.non_empty())
-                e.print_level_id_and_b_splines();
+                e.print_level_id_and_bsplines();
     }
 
-    void print_b_splines_line_by_line() const {
+    void print_bsplines_line_by_line() const {
         cout << elements.size() << endl;
         for (const auto& e: elements)
             cout << e.get_num() << " " << 1 << endl;        

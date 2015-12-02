@@ -130,11 +130,11 @@ int main(int argc, char** argv) {
 
 	} else if (output_format == DRAW_SUPPORTS) {
         domain.print_all_elements();
-    	domain.compute_b_splines_supports();
-		domain.print_support_for_each_b_spline();
+    	domain.compute_bsplines_supports();
+		domain.print_support_for_each_bspline();
 
 	} else if (output_format == GALOIS) {
-    	domain.compute_b_splines_supports();
+    	domain.compute_bsplines_supports();
 
 		edge_offset = size / 4;
 		outer_box = outmost_box;

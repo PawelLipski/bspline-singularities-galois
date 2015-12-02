@@ -72,8 +72,8 @@ public:
 		return cnt;
 	}
 
-	vector<int> get_b_splines() const {
-		return b_splines;
+	vector<int> get_bsplines() const {
+		return bsplines;
 	}
 
 
@@ -151,12 +151,12 @@ public:
 			cout << bounds[i] << " ";
 	}
 
-    void print_level_id_and_b_splines() const {
+    void print_level_id_and_bsplines() const {
         cout << get_level() << " ";
         cout << get_num() << " ";
-        cout << b_splines.size();
-        for (int b_spline: b_splines)
-            cout << " " << b_spline;
+        cout << bsplines.size();
+        for (int bspline: bsplines)
+            cout << " " << bspline;
         cout << endl;
     }
 
@@ -219,7 +219,7 @@ public:
 
 	/*** B-SPLINES ***/
 
-    vector<int> compute_b_spline_support_2D() {
+    vector<int> compute_bspline_support_2D() {
         vector<int> support_bounds;
         support_bounds.resize(dim_cnt * 2);
         for(int i = 0; i < dim_cnt * 2; ++i){
@@ -232,8 +232,8 @@ public:
         return support_bounds;
     };
 
-    void add_b_spline(int b_spline_num){
-        b_splines.push_back(b_spline_num);
+    void add_bspline(int bspline_num){
+        bsplines.push_back(bspline_num);
     }
 
 private:
@@ -247,7 +247,7 @@ private:
 	// Neighbors of the cube (must be separately computed).
     vector<Cube*> neighbors;
 	// B-splines covering the cube (must be separately computed).
-    vector<int> b_splines;
+    vector<int> bsplines;
 	// Level and id within the level.
     int level, num;
 };
