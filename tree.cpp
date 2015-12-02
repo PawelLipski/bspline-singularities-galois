@@ -11,30 +11,30 @@ enum {
 	Y_DIM = 1
 };
 
-// A general hyper-cube for any number of dimensions.
+// A general hyper-cube for any number of dim_cnt.
 class Cube {
 
 	public:
 
 	Cube(){}
 
-	Cube(int dims): dimensions(dims) {
+	Cube(int dims): dim_cnt(dims) {
 		bounds.resize(dims * 2);
         neighbors.resize(dims * 2);
 	}
 
-	Cube(Coord l, Coord r, Coord u, Coord d): dimensions(2) {
+	Cube(Coord l, Coord r, Coord u, Coord d): dim_cnt(2) {
 		bounds = { l, r, u, d };
 		neighbors.resize(4);
 	}
 
     Cube(const Cube& cube, int n, int l):
-        dimensions(cube.dimensions), bounds(cube.bounds), num(n) , lvl(l), neighbors(cube.neighbors){
+        dim_cnt(cube.dim_cnt), bounds(cube.bounds), num(n) , lvl(l), neighbors(cube.neighbors){
 	}
 
     // Whether this cube is fully contained within the given box.
 	bool contained_in_box(const Cube& box) const {
-		for (int i = 0; i < dimensions; i++)
+		for (int i = 0; i < dim_cnt; i++)
 			if (!(box.get_from(i) <= get_from(i) && get_to(i) <= box.get_to(i)))
 				return false;
 		return true;
@@ -44,28 +44,28 @@ class Cube {
 		return !non_empty();
 	}
 
-	inline Coord get_from(int dimension) const {
-		return bounds[2*dimension];
+	inline Coord get_from(int dim) const {
+		return bounds[2*dim];
 	}
 
-	Coord get_middle(int dimension) const {
-		return (get_from(dimension) + get_to(dimension)) / 2;
+	Coord get_middle(int dim) const {
+		return (get_from(dim) + get_to(dim)) / 2;
 	}
 
-	Coord get_size(int dimension) const {
-		return get_to(dimension) - get_from(dimension);
+	Coord get_size(int dim) const {
+		return get_to(dim) - get_from(dim);
 	}
 
 	bool is_point() const {
 		return get_size(X_DIM) + get_size(Y_DIM) == 0;
 	}
 
-	inline Coord get_to(int dimension) const {
-		return bounds[2*dimension+1];
+	inline Coord get_to(int dim) const {
+		return bounds[2*dim+1];
 	}
 
 	bool non_empty() const {
-		for (int i = 0; i < dimensions; i++)
+		for (int i = 0; i < dim_cnt; i++)
 			if (get_size(i) == 0)
 				return false;
 		return true;
@@ -82,26 +82,26 @@ class Cube {
 	}
 
 	void print_bounds() const {
-		for (int i = 0; i < dimensions * 2; i++)
+		for (int i = 0; i < dim_cnt * 2; i++)
 			cout << bounds[i] << " ";
 	}
 
-	void set_bounds(int dimension, Coord from, Coord to) {
-		bounds[dimension * 2] = from;
-		bounds[dimension * 2 + 1] = to;
+	void set_bounds(int dim, Coord from, Coord to) {
+		bounds[dim * 2] = from;
+		bounds[dim * 2 + 1] = to;
 	}
 
 	// Splits this cube into two cubes, along the given dimension at the given
 	// coordinate, and puts the new cubes into the given pointers.
-	void split(int dimension, Coord coord, Cube* first, Cube* second) const {
+	void split(int dim, Coord coord, Cube* first, Cube* second) const {
 		*first = *this;
 		*second = *this;
-		first->set_bounds(dimension, get_from(dimension), coord);
-		second->set_bounds(dimension, coord, get_to(dimension));
+		first->set_bounds(dim, get_from(dim), coord);
+		second->set_bounds(dim, coord, get_to(dim));
 	}
 
-	void split_halves(int dimension, Cube* first, Cube* second) const {
-		split(dimension, get_middle(dimension), first, second);
+	void split_halves(int dim, Cube* first, Cube* second) const {
+		split(dim, get_middle(dim), first, second);
 	}
 
 	Coord left()  const { return bounds[0]; }
@@ -119,7 +119,7 @@ class Cube {
 
 	int get_neighbor_count() const {
 		int cnt = 0;
-		for (int bound_no = 0; bound_no < 2 * dimensions; bound_no++)
+		for (int bound_no = 0; bound_no < 2 * dim_cnt; bound_no++)
 			if (neighbors[bound_no] != nullptr)
 				cnt++;
 		return cnt;
@@ -130,7 +130,7 @@ class Cube {
 	}
 
 	void scale_up(int factor) {
-		for (int bound_no = 0; bound_no < 2 * dimensions; bound_no++)
+		for (int bound_no = 0; bound_no < 2 * dim_cnt; bound_no++)
 			bounds[bound_no] *= factor;		
 	}
 
@@ -142,12 +142,12 @@ class Cube {
 	}
 
 	void spread(int shift) {
-		for (int bound_no = 0; bound_no < 2 * dimensions; bound_no++)
+		for (int bound_no = 0; bound_no < 2 * dim_cnt; bound_no++)
 			spread(bound_no, shift);
 	}
 
 	void pump_or_squeeze(int shift) {
-		for (int dim_no = 0; dim_no < dimensions; dim_no++) {
+		for (int dim_no = 0; dim_no < dim_cnt; dim_no++) {
 			if (get_size(dim_no) == 0) {
 				spread(2*dim_no,   +shift);
 				spread(2*dim_no+1, +shift);
@@ -166,8 +166,8 @@ class Cube {
 
     vector<int> compute_b_spline_support_2D() {
         vector<int> support_bounds;
-        support_bounds.resize(dimensions * 2);
-        for(int i = 0; i < dimensions * 2; ++i){
+        support_bounds.resize(dim_cnt * 2);
+        for(int i = 0; i < dim_cnt * 2; ++i){
             if (neighbors[i]){
                 support_bounds[i] = neighbors[i]->get_bound(i);
             } else {
@@ -192,8 +192,8 @@ class Cube {
 
 	private:
 
-	// Number of dimensions.
-	int dimensions;
+	// Number of dim_cnt.
+	int dim_cnt;
 	vector<Coord> bounds;
 	vector<Coord> backed_up_bounds;
 public:
@@ -202,8 +202,8 @@ public:
 
 
 public:
-    int get_dimensions() const {
-        return dimensions;
+    int get_dim_cnt() const {
+        return dim_cnt;
     }
 
     int get_num() const {
@@ -215,7 +215,7 @@ public:
     }
 
 	bool overlaps_with(const Cube& other) const {
-		for (int dim_no = 0; dim_no < dimensions; dim_no++) {
+		for (int dim_no = 0; dim_no < dim_cnt; dim_no++) {
 			if (get_to(dim_no) <= other.get_from(dim_no))
 				return false;
 			if (other.get_to(dim_no) <= get_from(dim_no))
@@ -348,9 +348,9 @@ class Domain {
 	// Inserts `count' of edge elements parallel to the given dimension's axis,
 	// spanning from one side of the `box' to the other in the given dimension.
 	// The other dimension is fixed at `coord'.
-	void add_edge_2D(int dimension, const Cube& box, Coord coord, int count, bool edged_8) {
-		int from = box.get_from(dimension);
-		int to = box.get_to(dimension);
+	void add_edge_2D(int dim, const Cube& box, Coord coord, int count, bool edged_8) {
+		int from = box.get_from(dim);
+		int to = box.get_to(dim);
 		Coord element_size = (to - from) / count;
 		for (int i = 0; i < count; i++) {
 			Coord element_from = from + element_size * i;
@@ -361,27 +361,27 @@ class Domain {
 				if (i == count / 2 || i == (count / 2 - 1)){
 					Cube e1(2), e2(2);
 					Coord mid = (element_from + element_to) / 2;
-					e1.set_bounds(dimension, element_from, mid);
-					e1.set_bounds(dimension ^ 1, coord, coord);  // the other dimension
+					e1.set_bounds(dim, element_from, mid);
+					e1.set_bounds(dim ^ 1, coord, coord);  // the other dimension
 					elements.push_back(e1);
-					e2.set_bounds(dimension, mid, element_to);
-					e2.set_bounds(dimension ^ 1, coord, coord);  // the other dimension
+					e2.set_bounds(dim, mid, element_to);
+					e2.set_bounds(dim ^ 1, coord, coord);  // the other dimension
 					elements.push_back(e2);
-					if(dimension == X_DIM){
+					if(dim == X_DIM){
 						add_vertex_2D(mid, coord);
 					} else {
 						add_vertex_2D(coord, mid);
 					}
 				} else {
 					Cube e(2);
-					e.set_bounds(dimension, element_from, element_to);
-					e.set_bounds(dimension ^ 1, coord, coord);  // the other dimension
+					e.set_bounds(dim, element_from, element_to);
+					e.set_bounds(dim ^ 1, coord, coord);  // the other dimension
 					elements.push_back(e);
 				}
 			} else {
 				Cube e(2);
-				e.set_bounds(dimension, element_from, element_to);
-				e.set_bounds(dimension ^ 1, coord, coord);  // the other dimension
+				e.set_bounds(dim, element_from, element_to);
+				e.set_bounds(dim ^ 1, coord, coord);  // the other dimension
 				elements.push_back(e);
 			}
 		}
@@ -436,7 +436,7 @@ class Domain {
 		for (const Cube& that: elements) {
             //cout << "current node: ";
             //that.print_full();
-			for (int bound_no = 0; bound_no < that.get_dimensions() * 2; bound_no++) {
+			for (int bound_no = 0; bound_no < that.get_dim_cnt() * 2; bound_no++) {
 				Cube* other = that.get_neighbor(bound_no);
 				if (other != nullptr) {
 					print_line(
@@ -474,7 +474,7 @@ class Domain {
 		if (that.get_bound(bound_no) != other.get_bound(opposite_bound_no))
 			return false;
 
-		for (int dim_no = 0; dim_no < that.get_dimensions(); dim_no++) {
+		for (int dim_no = 0; dim_no < that.get_dim_cnt(); dim_no++) {
 			if (dim_no == given_dim_no)
 				continue;
 
@@ -492,14 +492,14 @@ class Domain {
 
 
     void compute_neighbors(Cube& that, int size) {
-        //neighbors.resize(cube.get_dimensions() * 2);
+        //neighbors.resize(cube.get_dim_cnt() * 2);
         //check regular neighbors
         for (auto& other: elements)
-			for (int bound_no = 0; bound_no < that.get_dimensions() * 2; bound_no++)
+			for (int bound_no = 0; bound_no < that.get_dim_cnt() * 2; bound_no++)
 				if (cubes_are_adjacent(that, other, bound_no, false))
 					that.set_neighbor(bound_no, &other);
         //check extra neigbors if regular are not found
-        for (int bound_no = 0; bound_no < that.get_dimensions() * 2; bound_no++){
+        for (int bound_no = 0; bound_no < that.get_dim_cnt() * 2; bound_no++){
             if(that.get_neighbor(bound_no) == nullptr &&
                     that.get_bound(bound_no) != 0 && that.get_bound(bound_no) != size){
                 for (auto& other: elements){
@@ -515,7 +515,7 @@ class Domain {
 			compute_neighbors(e, size);
     }
 
-	void tree_process_box_2D(int dimension, const Cube& box) {
+	void tree_process_box_2D(int dim, const Cube& box) {
 		cut_off_boxes.push_back(box);
 	}
 
@@ -545,26 +545,26 @@ class Domain {
 			cout << "  ";
 	}
 
-	void try_to_tree_process(int dimension, Node * node, const string& tag, bool toggle_dim) {
+	void try_to_tree_process(int dim, Node * node, const string& tag, bool toggle_dim) {
 		if (count_elements_within_box(node->get_cube()) > 1){
-			tree_process_cut_off_box(dimension, node, toggle_dim);
+			tree_process_cut_off_box(dim, node, toggle_dim);
 		}
 	}
 
-	void tree_process_cut_off_box(int dimension, Node * node, bool toggle_dim) {
+	void tree_process_cut_off_box(int dim, Node * node, bool toggle_dim) {
 		Cube cut_off_cube = node->get_cube();
 		Cube first_half, second_half;
-		cut_off_cube.split_halves(dimension, &first_half, &second_half);
+		cut_off_cube.split_halves(dim, &first_half, &second_half);
 
 		Node * first_half_node = this->add_el_tree_element(first_half, node);
 		Node * second_half_node = this->add_el_tree_element(second_half, node);
 
 		if (toggle_dim){
-			dimension = dimension ^ 1;
+			dim = dim ^ 1;
 		}
 
-		try_to_tree_process(dimension, first_half_node, "first", toggle_dim);
-		try_to_tree_process(dimension, second_half_node, "second", toggle_dim);
+		try_to_tree_process(dim, first_half_node, "first", toggle_dim);
+		try_to_tree_process(dim, second_half_node, "second", toggle_dim);
 	}
 
 	const vector<Node*> &get_el_tree_nodes() const {
@@ -592,7 +592,7 @@ class Domain {
 
 		// Try pump back non-empty dims (only if they won't overlap with now pumped-up empty dims).
 		for (auto& e: elements) {
-			for (int bound_no = 0; bound_no < 2 * e.get_dimensions(); bound_no++) {
+			for (int bound_no = 0; bound_no < 2 * e.get_dim_cnt(); bound_no++) {
 				if (e.get_size(bound_no / 2) == 2)
 					continue;
 				e.spread(bound_no, 2);
