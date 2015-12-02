@@ -8,6 +8,57 @@ public:
 		original_box = box;  // preserve for the object lifetime
 	}
 
+
+	/*** CHECKS ***/
+
+	bool is_middle_element(const Cube &cube, Coord middle) {
+		return (cube.right() == middle || cube.left() == middle) &&
+			   (cube.up() == middle || cube.down() == middle);
+	}
+
+	bool is_horizontal_side_element(const Cube &cube, Coord middle) {
+		return (cube.down() == middle) || (cube.up() == middle);
+	}
+
+	bool is_vertical_side_element(const Cube &cube, Coord middle) {
+		return (cube.right() == middle) || (cube.left() == middle);
+	}
+
+	bool overlaps_with_any_other(const Cube& that) const {
+		for (const auto& other: elements)
+			if (&that != &other && that.overlaps_with(other))
+				return true;
+		return false;
+	}
+
+
+	/*** SPLIT ELEMENTS ***/
+
+	void split_eight_side_elements_within_box_2D(Cube cube) {
+		Coord mid = cube.get_middle(X_DIM);
+		vector<Cube> old_elements;
+		elements.swap(old_elements);
+		for (const auto& e: old_elements) {
+			if (e.non_empty() && e.contained_in_box(cube) && !is_middle_element(e, mid)){
+				if(is_horizontal_side_element(e, mid)){
+					Cube el1, el2;
+					e.split_halves(Y_DIM, &el1, &el2);
+					add_element(el1);
+					add_element(el2);
+				} else if(is_vertical_side_element(e, mid)) {
+					Cube el1, el2;
+					e.split_halves(X_DIM, &el1, &el2);
+					add_element(el1);
+					add_element(el2);
+				} else {
+					add_element(e);
+				}
+			} else {
+				add_element(e);
+			}
+		}
+	}
+
 	// Splits each element within the given box into 4 smaller ones.
 	void split_elements_within_box_2D(const Cube& box) {
 		vector<Cube> old_elements;
@@ -34,43 +85,8 @@ public:
 		split_elements_within_box_2D(original_box);
 	}
 
-	bool is_middle_element(const Cube &cube, Coord middle) {
-		return (cube.right() == middle || cube.left() == middle) &&
-			   (cube.up() == middle || cube.down() == middle);
-	}
 
-	bool is_horizontal_side_element(const Cube &cube, Coord middle) {
-		return (cube.down() == middle) || (cube.up() == middle);
-	}
-
-	bool is_vertical_side_element(const Cube &cube, Coord middle) {
-		return (cube.right() == middle) || (cube.left() == middle);
-	}
-
-	void split_eight_side_elements_within_box_2D(Cube cube) {
-		Coord mid = cube.get_middle(X_DIM);
-		vector<Cube> old_elements;
-		elements.swap(old_elements);
-		for (const auto& e: old_elements) {
-			if (e.non_empty() && e.contained_in_box(cube) && !is_middle_element(e, mid)){
-				if(is_horizontal_side_element(e, mid)){
-					Cube el1, el2;
-					e.split_halves(Y_DIM, &el1, &el2);
-					add_element(el1);
-					add_element(el2);
-				} else if(is_vertical_side_element(e, mid)) {
-					Cube el1, el2;
-					e.split_halves(X_DIM, &el1, &el2);
-					add_element(el1);
-					add_element(el2);
-				} else {
-					add_element(e);
-				}
-			} else {
-				add_element(e);
-			}
-		}
-	}
+	/*** ADD ELEMENTS ***/
 
 	// Inserts `count' of edge elements parallel to the given dimension's axis,
 	// spanning from one side of the `box' to the other in the given dimension.
@@ -123,6 +139,9 @@ public:
 		add_vertex_2D(box.right(), box.down());
 	}
 
+
+	/*** PRINT ELEMENTS ***/
+
 	void print_elements_within_box(const Cube& box, bool require_non_empty, bool with_id) const {
 		cout << elements.size() << endl;
 		for (const auto& e: elements) {
@@ -150,50 +169,31 @@ public:
 		print_elements_within_box(original_box, require_non_empty, with_id);
 	}
 
+    void println_non_empty_elements_count(){
+        cout << count_non_empty_elements() << endl;
+    }
+
+    void print_el_tree_nodes_count() {
+        cout << get_el_tree_nodes().size() << endl;
+    }
+
+    void print_galois_output() {
+        print_b_splines_line_by_line();
+        print_b_splines_per_elements();
+        print_elements_per_el_tree_nodes();
+    }
+
 	void print_line(Coord x1, Coord y1, Coord x2, Coord y2) const {
 		cout << x1 << " " << y1 << " " << x2 << " " << y2 << endl;
 	}
 
-	void print_all_neighbors() const {
-		
-		int total_cnt = 0;
-		for (const Cube& e: elements)
-			total_cnt += e.get_neighbor_count();
-		cout << total_cnt << endl;
-		for (const Cube& that: elements) {
-            //cout << "current node: ";
-            //that.print_full();
-			for (int bound_no = 0; bound_no < that.get_dim_cnt() * 2; bound_no++) {
-				Cube* other = that.get_neighbor(bound_no);
-				if (other != nullptr) {
-					print_line(
-						that.get_middle(X_DIM), that.get_middle(Y_DIM),
-						other->get_middle(X_DIM), other->get_middle(Y_DIM)
-					);
-                    //other->print_full();
-				}
-			}
-		}
+	void print_tabs(int cnt) {
+		for (int i = 0; i < cnt; i++)
+			cout << "  ";
 	}
 
-    int compute_level(const Cube &cube) {
-        int size = max(cube.get_size(0), cube.get_size(1));
-        //return (int) log2(size) + 1;
-        return (int) log2((original_box.get_size(0) / size)) - 1;
-    }
 
-    void enumerate_all_elements() {
-        vector<Cube> old_elements;
-        elements.swap(old_elements);
-        int i = 0;
-        for (const auto& e: old_elements) {
-            if (e.non_empty()){
-                elements.push_back(Cube(e, i++, compute_level(e)));
-            } else {
-                elements.push_back(Cube(e, i++, -1));
-            }
-        }
-    }
+	/*** NEIGHBORS ***/
 
     bool cubes_are_adjacent(const Cube& that, const Cube& other, int bound_no, bool looseened_conds) const {
 		int given_dim_no = bound_no >> 1;
@@ -216,19 +216,34 @@ public:
 		}
 		return true;
     }
-
+	void print_all_neighbors() const {
+		int total_cnt = 0;
+		for (const Cube& e: elements)
+			total_cnt += e.get_neighbor_count();
+		cout << total_cnt << endl;
+		for (const Cube& that: elements) {
+			for (int bound_no = 0; bound_no < that.get_dim_cnt() * 2; bound_no++) {
+				Cube* other = that.get_neighbor(bound_no);
+				if (other != nullptr) {
+					print_line(
+						that.get_middle(X_DIM), that.get_middle(Y_DIM),
+						other->get_middle(X_DIM), other->get_middle(Y_DIM)
+					);
+				}
+			}
+		}
+	}
 
     void compute_neighbors(Cube& that, int size) {
-        //neighbors.resize(cube.get_dim_cnt() * 2);
-        //check regular neighbors
+        // Check regular neighbors.
         for (auto& other: elements)
 			for (int bound_no = 0; bound_no < that.get_dim_cnt() * 2; bound_no++)
 				if (cubes_are_adjacent(that, other, bound_no, false))
 					that.set_neighbor(bound_no, &other);
-        //check extra neigbors if regular are not found
-        for (int bound_no = 0; bound_no < that.get_dim_cnt() * 2; bound_no++){
+        // Check extra neigbors if regular are not found.
+        for (int bound_no = 0; bound_no < that.get_dim_cnt() * 2; bound_no++) {
             if(that.get_neighbor(bound_no) == nullptr &&
-                    that.get_bound(bound_no) != 0 && that.get_bound(bound_no) != size){
+                    that.get_bound(bound_no) != 0 && that.get_bound(bound_no) != size) {
                 for (auto& other: elements){
                     if (cubes_are_adjacent(that, other, bound_no, true))
                         that.set_neighbor(bound_no, &other);
@@ -241,6 +256,9 @@ public:
         for (auto& e: elements)
 			compute_neighbors(e, size);
     }
+
+
+	/*** TREE ***/
 
 	void tree_process_box_2D(const Cube& box) {
 		cut_off_boxes.push_back(box);
@@ -267,11 +285,6 @@ public:
 		return node;
     }
 
-	void print_tabs(int cnt) {
-		for (int i = 0; i < cnt; i++)
-			cout << "  ";
-	}
-
 	void try_to_tree_process(int dim, Node * node, bool toggle_dim) {
 		if (count_elements_within_box(node->get_cube()) > 1){
 			tree_process_cut_off_box(dim, node, toggle_dim);
@@ -283,12 +296,11 @@ public:
 		Cube first_half, second_half;
 		cut_off_cube.split_halves(dim, &first_half, &second_half);
 
-		Node * first_half_node = this->add_el_tree_element(first_half, node);
-		Node * second_half_node = this->add_el_tree_element(second_half, node);
+		Node* first_half_node = this->add_el_tree_element(first_half, node);
+		Node* second_half_node = this->add_el_tree_element(second_half, node);
 
-		if (toggle_dim){
-			dim = dim ^ 1;
-		}
+		if (toggle_dim)
+			dim ^= 1;
 
 		try_to_tree_process(dim, first_half_node, toggle_dim);
 		try_to_tree_process(dim, second_half_node, toggle_dim);
@@ -298,14 +310,40 @@ public:
 		return el_tree_nodes;
 	}
 
-	bool overlaps_with_any_other(const Cube& that) const {
-		for (const auto& other: elements)
-			if (&that != &other && that.overlaps_with(other))
-				return true;
-		return false;
+    void print_elements_per_el_tree_nodes() {
+        print_el_tree_nodes_count();
+        for (const Node* node: get_el_tree_nodes()) {
+            node->print_num();
+            print_elements_count_within_node(node);
+            print_elements_level_and_id_within_box(node);
+            print_node_children(node);
+        }
+    }
+
+	void print_el_tree_size() const { cout << get_cut_off_boxes().size() << endl; }
+
+	void print_el_tree_for_draw() {
+		print_el_tree_size();
+		for (const Cube& box: get_cut_off_boxes()) {
+			box.print_full();
+		}
 	}
 
-	void tweak_coords() {
+    void print_node_children(const Node *node){
+        for (const Node* n: node->get_children()) {
+            cout << n->get_num() << " ";
+        }
+        cout << endl;
+    }
+
+    void print_elements_count_within_node(const Node *node){
+        cout << count_elements_within_box(node->get_cube()) << " ";
+    }
+
+
+	/*** BOUNDARY TWEAKING ***/
+
+	void tweak_bounds() {
 		for (auto& e: elements)
 			e.back_up_bounds();
 		original_box.back_up_bounds();
@@ -334,11 +372,14 @@ public:
 		original_box.spread(2);
 	}
 	
-	void untweak_coords() {
+	void untweak_bounds() {
 		for (auto& e: elements)
 			e.restore_bounds();
 		original_box.restore_bounds();
 	}
+
+
+	/*** B-SPLINES ***/
 
     void compute_b_splines_supports(bool print) {
 		if (print)
@@ -368,71 +409,45 @@ public:
 
     void print_b_splines_per_elements() {
         println_non_empty_elements_count();
-        for(auto& e : elements){
-            if (e.non_empty()){
+        for(auto& e : elements)
+            if (e.non_empty())
                 e.print_level_id_and_b_splines();
-            }
-        }
     }
 
     void print_b_splines_line_by_line() {
         cout << elements.size() << endl;
-        for (const auto &e: elements){
-            cout << e.get_num() << " " << 1 << endl;
-        }
+        for (const auto& e: elements)
+            cout << e.get_num() << " " << 1 << endl;        
     }
+
+
+	/*** UTILS ***/
 
     int count_non_empty_elements() {
         int count = 0;
-        for (const auto &e: elements)
+        for (const auto& e: elements)
             if (e.non_empty())
                 count++;
         return count;
     }
 
-    void println_non_empty_elements_count(){
-        cout << count_non_empty_elements() << endl;
+    int compute_level(const Cube &cube) {
+        int size = max(cube.get_size(0), cube.get_size(1));
+        return (int) log2((original_box.get_size(0) / size)) - 1;
     }
 
-    void print_el_tree_nodes_count() {
-        cout << get_el_tree_nodes().size() << endl;
-    }
-
-    void print_elements_count_within_node(const Node *node){
-        cout << count_elements_within_box(node->get_cube()) << " ";
-    }
-
-    void print_node_children(const Node *node){
-        for (const Node* n: node->get_children()) {
-            cout << n->get_num() << " ";
-        }
-        cout << endl;
-    }
-
-    void print_elements_per_el_tree_nodes() {
-        print_el_tree_nodes_count();
-        for (const Node* node: get_el_tree_nodes()) {
-            node->print_num();
-            print_elements_count_within_node(node);
-            print_elements_level_and_id_within_box(node);
-            print_node_children(node);
+    void enumerate_all_elements() {
+        vector<Cube> old_elements;
+        elements.swap(old_elements);
+        int i = 0;
+        for (const auto& e: old_elements) {
+            if (e.non_empty()){
+                elements.push_back(Cube(e, i++, compute_level(e)));
+            } else {
+                elements.push_back(Cube(e, i++, -1));
+            }
         }
     }
-
-    void print_galois_output() {
-        print_b_splines_line_by_line();
-        print_b_splines_per_elements();
-        print_elements_per_el_tree_nodes();
-    }
-
-	void print_el_tree_size() const { cout << get_cut_off_boxes().size() << endl; }
-
-	void print_el_tree_for_draw() {
-		print_el_tree_size();
-		for (const Cube& box: get_cut_off_boxes()) {
-			box.print_full();
-		}
-	}
 
 private:
 
