@@ -129,7 +129,8 @@ int main(int argc, char** argv) {
 	} else if (output_format == DRAW_SUPPORTS) {
     	domain.untweak_bounds();
         domain.print_all_elements(false, false);
-    	domain.compute_b_splines_supports(true);
+    	domain.compute_b_splines_supports(false);
+		domain.print_support_for_each_b_spline();
 
 	} else if (output_format == GALOIS) {
     	domain.untweak_bounds();

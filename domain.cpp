@@ -408,15 +408,25 @@ public:
         }
     }
 
-	/*
 	void print_support_for_each_b_spline() const {
-		vector<vector<int>> supports;
+		vector<vector<int>> supports(elements.size());
         for (const auto& e: elements) {
 			for (int b_spline: e.get_b_splines()) {
-				supports[b_spline].push_back(e.
+				supports[b_spline].push_back(e.get_num());
+			}
+		}
+		cout << elements.size() << endl;
+        for (int i = 0; i < elements.size(); i++) {
+			const auto& e = elements[i];
+			cout << e.get_middle(X_DIM) << " " << e.get_middle(Y_DIM) << " ";
+
+			const auto& support = supports[i];
+			cout << support.size() << " ";
+			for (auto& s: support)
+				cout << s << " ";
+			cout << endl;
 		}
 	}
-	*/
 
     void print_b_splines_per_elements() const {
         println_non_empty_elements_count();

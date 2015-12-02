@@ -72,7 +72,7 @@ public:
 		return cnt;
 	}
 
-	const vector<int> get_b_splines() {
+	vector<int> get_b_splines() const {
 		return b_splines;
 	}
 
