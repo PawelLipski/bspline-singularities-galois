@@ -398,8 +398,8 @@ class Domain {
 		for (const auto& e: elements) {
 			if (require_non_empty && e.empty())
 				continue;
-			//if (!e.contained_in_box(box))
-			//	continue;
+			if (!e.contained_in_box(box))
+				continue;
 
 			e.print_bounds();
 			if (with_id)
@@ -578,10 +578,12 @@ class Domain {
 	void tweak_coords() {
 		for (auto& e: elements)
 			e.back_up_bounds();
+		original_box.back_up_bounds();
 
 		// Scale up all elements.
 		for (auto& e: elements)
 			e.scale_up(8);
+		original_box.scale_up(8);
 
 		// Squeeze non-empty dims, pump up empty dims.
 		for (auto& e: elements)
@@ -591,18 +593,21 @@ class Domain {
 		for (auto& e: elements) {
 			for (int bound_no = 0; bound_no < 2 * e.get_dim_cnt(); bound_no++) {
 				if (e.get_size(bound_no / 2) == 2)
-					continue;
+					continue;  // skip empty dims
 				e.spread(bound_no, 2);
 				if (overlaps_with_any_other(e)) {
+					// Roll back the pumping if it interferes with any other element.
 					e.spread(bound_no, -2);
 				}
 			}
 		}
+		original_box.spread(2);
 	}
 	
 	void untweak_coords() {
 		for (auto& e: elements)
 			e.restore_bounds();
+		original_box.restore_bounds();
 	}
 
     void compute_b_splines_supports(bool print) {
