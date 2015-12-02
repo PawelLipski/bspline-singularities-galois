@@ -147,7 +147,7 @@ public:
 			cout << bounds[i] << " ";
 	}
 
-    void print_level_id_and_b_splines(){
+    void print_level_id_and_b_splines() const {
         cout << get_level() << " ";
         cout << get_num() << " ";
         cout << b_splines.size();

@@ -11,16 +11,16 @@ public:
 
 	/*** CHECKS ***/
 
-	bool is_middle_element(const Cube &cube, Coord middle) {
+	bool is_middle_element(const Cube &cube, Coord middle) const {
 		return (cube.right() == middle || cube.left() == middle) &&
 			   (cube.up() == middle || cube.down() == middle);
 	}
 
-	bool is_horizontal_side_element(const Cube &cube, Coord middle) {
+	bool is_horizontal_side_element(const Cube &cube, Coord middle) const {
 		return (cube.down() == middle) || (cube.up() == middle);
 	}
 
-	bool is_vertical_side_element(const Cube &cube, Coord middle) {
+	bool is_vertical_side_element(const Cube &cube, Coord middle) const {
 		return (cube.right() == middle) || (cube.left() == middle);
 	}
 
@@ -157,9 +157,9 @@ public:
 		}
 	}
 
-	void print_elements_level_and_id_within_box(const Node *node){
+	void print_elements_level_and_id_within_box(const Node *node) const {
 		for (const auto& e: elements) {
-			if(e.non_empty() && e.contained_in_box(node->get_cube())){
+			if (e.non_empty() && e.contained_in_box(node->get_cube())) {
 				cout << e.get_level() << " " << e.get_num() << " ";
 			}
 		}
@@ -169,25 +169,25 @@ public:
 		print_elements_within_box(original_box, require_non_empty, with_id);
 	}
 
-    void println_non_empty_elements_count(){
+    void println_non_empty_elements_count() const {
         cout << count_non_empty_elements() << endl;
     }
 
-    void print_el_tree_nodes_count() {
+    void print_el_tree_nodes_count() const {
         cout << get_el_tree_nodes().size() << endl;
     }
 
-    void print_galois_output() {
+    void print_galois_output() const {
         print_b_splines_line_by_line();
         print_b_splines_per_elements();
         print_elements_per_el_tree_nodes();
     }
 
-	void print_line(Coord x1, Coord y1, Coord x2, Coord y2) const {
+	static void print_line(Coord x1, Coord y1, Coord x2, Coord y2) {
 		cout << x1 << " " << y1 << " " << x2 << " " << y2 << endl;
 	}
 
-	void print_tabs(int cnt) {
+	static void print_tabs(int cnt) {
 		for (int i = 0; i < cnt; i++)
 			cout << "  ";
 	}
@@ -216,6 +216,7 @@ public:
 		}
 		return true;
     }
+
 	void print_all_neighbors() const {
 		int total_cnt = 0;
 		for (const Cube& e: elements)
@@ -264,15 +265,15 @@ public:
 		cut_off_boxes.push_back(box);
 	}
 
-	const vector<Cube> get_cut_off_boxes() const {
+	vector<Cube> get_cut_off_boxes() const {
 		return cut_off_boxes;
 	}
 
-	int count_elements_within_box(const Cube &cube) {
+	int count_elements_within_box(const Cube &cube) const {
 		int count = 0;
-		for (const auto& e: elements) {
-			if (e.non_empty() && e.contained_in_box(cube)) count++;
-		}
+		for (const auto& e: elements)
+			if (e.non_empty() && e.contained_in_box(cube)) 
+				count++;
 		return count;
 	}
 
@@ -310,7 +311,7 @@ public:
 		return el_tree_nodes;
 	}
 
-    void print_elements_per_el_tree_nodes() {
+    void print_elements_per_el_tree_nodes() const {
         print_el_tree_nodes_count();
         for (const Node* node: get_el_tree_nodes()) {
             node->print_num();
@@ -320,23 +321,25 @@ public:
         }
     }
 
-	void print_el_tree_size() const { cout << get_cut_off_boxes().size() << endl; }
+	void print_el_tree_size() const { 
+		cout << get_cut_off_boxes().size() << endl; 
+	}
 
-	void print_el_tree_for_draw() {
+	void print_el_tree_for_draw() const {
 		print_el_tree_size();
 		for (const Cube& box: get_cut_off_boxes()) {
 			box.print_full();
 		}
 	}
 
-    void print_node_children(const Node *node){
+    void print_node_children(const Node *node) const {
         for (const Node* n: node->get_children()) {
             cout << n->get_num() << " ";
         }
         cout << endl;
     }
 
-    void print_elements_count_within_node(const Node *node){
+    void print_elements_count_within_node(const Node *node) const {
         cout << count_elements_within_box(node->get_cube()) << " ";
     }
 
@@ -407,14 +410,21 @@ public:
         }
     }
 
-    void print_b_splines_per_elements() {
+	void print_support_for_each_b_spline() const {
+		vector<vector<int>> supports;
+        for (const auto& e: elements) {
+			
+		}
+	}
+
+    void print_b_splines_per_elements() const {
         println_non_empty_elements_count();
         for(auto& e : elements)
             if (e.non_empty())
                 e.print_level_id_and_b_splines();
     }
 
-    void print_b_splines_line_by_line() {
+    void print_b_splines_line_by_line() const {
         cout << elements.size() << endl;
         for (const auto& e: elements)
             cout << e.get_num() << " " << 1 << endl;        
@@ -423,7 +433,7 @@ public:
 
 	/*** UTILS ***/
 
-    int count_non_empty_elements() {
+    int count_non_empty_elements() const {
         int count = 0;
         for (const auto& e: elements)
             if (e.non_empty())
@@ -431,7 +441,7 @@ public:
         return count;
     }
 
-    int compute_level(const Cube &cube) {
+    int compute_level(const Cube &cube) const {
         int size = max(cube.get_size(0), cube.get_size(1));
         return (int) log2((original_box.get_size(0) / size)) - 1;
     }

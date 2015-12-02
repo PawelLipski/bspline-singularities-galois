@@ -5,6 +5,9 @@ CPPFLAGS=-std=c++11 -Wall -Wshadow -Wextra -g
 %: %.cpp
 	g++ -o $@ $< $(CPPFLAGS)
 
+tree: tree.cpp domain.cpp node.cpp cube.cpp
+	g++ -o $@ $< $(CPPFLAGS)
+
 draw: draw.cpp
 	g++ -o $@ $< $(CPPFLAGS) `sdl-config --libs --cflags`
 
