@@ -119,7 +119,7 @@ int main(int argc, char** argv) {
 	}
 
     domain.enumerate_all_elements();
-    domain.tweak_coords();
+    domain.tweak_bounds();
 	domain.compute_all_neighbors(size);
 
 	if (output_format == DRAW_NEIGHBORS) {
@@ -127,12 +127,12 @@ int main(int argc, char** argv) {
         domain.print_all_neighbors();
 
 	} else if (output_format == DRAW_SUPPORTS) {
-    	domain.untweak_coords();
+    	domain.untweak_bounds();
         domain.print_all_elements(false, false);
     	domain.compute_b_splines_supports(true);
 
 	} else if (output_format == GALOIS) {
-    	domain.untweak_coords();
+    	domain.untweak_bounds();
     	domain.compute_b_splines_supports(false);
 
 		edge_offset = size / 4;
@@ -183,7 +183,7 @@ int main(int argc, char** argv) {
         domain.print_galois_output();
 
 	} else if (output_format == DRAW_PLAIN || output_format == GNUPLOT) {
-    	domain.untweak_coords();
+    	domain.untweak_bounds();
         domain.print_all_elements(false, false);
 	}
 
