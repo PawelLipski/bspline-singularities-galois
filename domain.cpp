@@ -384,14 +384,10 @@ public:
 
 	/*** B-SPLINES ***/
 
-    void compute_b_splines_supports(bool print) {
-		if (print)
-			cout << elements.size() << endl;
+    void compute_b_splines_supports() {
         for (auto& e: elements) {
 			vector<int> support;
             const vector<int> &support_bounds = e.compute_b_spline_support_2D();
-			if (print)
-				cout << e.get_middle(X_DIM) << " " << e.get_middle(Y_DIM) << " ";
             const Cube &support_cube = Cube(support_bounds[0], support_bounds[1], support_bounds[2], support_bounds[3]);
             for (auto& support_candidate: elements) {
                 if (support_candidate.non_empty() && support_candidate.contained_in_box(support_cube)) {
@@ -399,12 +395,6 @@ public:
 					support.push_back(support_candidate.get_num());
                 }
             }
-			if (print) {
-				cout << support.size() << " ";
-				for (auto& s: support)
-					cout << s << " ";
-				cout << endl;
-			}
         }
     }
 
@@ -416,7 +406,7 @@ public:
 			}
 		}
 		cout << elements.size() << endl;
-        for (int i = 0; i < elements.size(); i++) {
+        for (unsigned i = 0; i < elements.size(); i++) {
 			const auto& e = elements[i];
 			cout << e.get_middle(X_DIM) << " " << e.get_middle(Y_DIM) << " ";
 
