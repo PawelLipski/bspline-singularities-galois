@@ -14,7 +14,7 @@ enum {
 // A general hyper-cube for any number of dim_cnt.
 class Cube {
 
-	public:
+public:
 
 	Cube(){}
 
@@ -29,7 +29,7 @@ class Cube {
 	}
 
     Cube(const Cube& cube, int n, int l):
-        dim_cnt(cube.dim_cnt), bounds(cube.bounds), num(n) , lvl(l), neighbors(cube.neighbors){
+        dim_cnt(cube.dim_cnt), bounds(cube.bounds), num(n) , level(l), neighbors(cube.neighbors){
 	}
 
     // Whether this cube is fully contained within the given box.
@@ -78,7 +78,7 @@ class Cube {
 	}
 
 	void print_id() const {
-		cout << num << " " << get_lvl() << " ";
+		cout << num << " " << get_level() << " ";
 	}
 
 	void print_bounds() const {
@@ -181,8 +181,8 @@ class Cube {
         b_splines.push_back(b_spline_num);
     }
 
-    void print_lvl_id_and_b_splines(){
-        cout << get_lvl() << " ";
+    void print_level_id_and_b_splines(){
+        cout << get_level() << " ";
         cout << get_num() << " ";
         cout << b_splines.size();
         for (int b_spline: b_splines)
@@ -190,18 +190,6 @@ class Cube {
         cout << endl;
     }
 
-	private:
-
-	// Number of dim_cnt.
-	int dim_cnt;
-	vector<Coord> bounds;
-	vector<Coord> backed_up_bounds;
-public:
-    vector<Cube*> neighbors;
-    vector<int> b_splines;
-
-
-public:
     int get_dim_cnt() const {
         return dim_cnt;
     }
@@ -210,8 +198,8 @@ public:
         return num;
     }
 
-    int get_lvl() const {
-        return lvl;
+    int get_level() const {
+        return level;
     }
 
 	bool overlaps_with(const Cube& other) const {
@@ -233,9 +221,19 @@ public:
 	}
 
 private:
-    int num;
 
-    int lvl;
+	// Number of dimensions.
+	int dim_cnt;
+	// Boundaries of the cube.
+	vector<Coord> bounds;
+	// bounds' backup, for the sake of restoring after tweaks.
+	vector<Coord> backed_up_bounds;
+	// Neighbors of the cube (must be separately computed).
+    vector<Cube*> neighbors;
+	// B-splines covering the cube (must be separately computed).
+    vector<int> b_splines;
+	// Level and id within the level.
+    int level, num;
 };
 
 class Node {
@@ -411,10 +409,10 @@ class Domain {
 		}
 	}
 
-	void print_elements_lvl_and_id_within_box(const Node *node){
+	void print_elements_level_and_id_within_box(const Node *node){
 		for (const auto& e: elements) {
 			if(e.non_empty() && e.contained_in_box(node->get_cube())){
-				cout << e.get_lvl() << " " << e.get_num() << " ";
+				cout << e.get_level() << " " << e.get_num() << " ";
 			}
 		}
 	}
@@ -449,7 +447,7 @@ class Domain {
 		}
 	}
 
-    int compute_lvl(const Cube &cube) {
+    int compute_level(const Cube &cube) {
         int size = max(cube.get_size(0), cube.get_size(1));
         //return (int) log2(size) + 1;
         return (int) log2((original_box.get_size(0) / size)) - 1;
@@ -461,7 +459,7 @@ class Domain {
         int i = 0;
         for (const auto& e: old_elements) {
             if (e.non_empty()){
-                elements.push_back(Cube(e, i++, compute_lvl(e)));
+                elements.push_back(Cube(e, i++, compute_level(e)));
             } else {
                 elements.push_back(Cube(e, i++, -1));
             }
@@ -638,7 +636,7 @@ class Domain {
         println_non_empty_elements_count();
         for(auto& e : elements){
             if (e.non_empty()){
-                e.print_lvl_id_and_b_splines();
+                e.print_level_id_and_b_splines();
             }
         }
     }
@@ -682,7 +680,7 @@ class Domain {
         for (const Node* node: get_el_tree_nodes()) {
             node->print_num();
             print_elements_count_within_node(node);
-            print_elements_lvl_and_id_within_box(node);
+            print_elements_level_and_id_within_box(node);
             print_node_children(node);
         }
     }
