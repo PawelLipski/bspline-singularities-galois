@@ -142,18 +142,13 @@ public:
 
 	/*** PRINT ELEMENTS ***/
 
-	void print_elements_within_box(const Cube& box, bool require_non_empty, bool with_id) const {
+	void print_elements_within_box(const Cube& box) const {
 		cout << elements.size() << endl;
 		for (const auto& e: elements) {
-			if (require_non_empty && e.empty())
-				continue;
-			if (!e.contained_in_box(box))
-				continue;
-
-			e.print_bounds();
-			if (with_id)
-				e.print_id();
-			cout << endl;
+			if (e.contained_in_box(box)) {
+				e.print_bounds();
+				cout << endl;
+			}
 		}
 	}
 
@@ -165,8 +160,8 @@ public:
 		}
 	}
 
-	void print_all_elements(bool require_non_empty, bool with_id) const {
-		print_elements_within_box(original_box, require_non_empty, with_id);
+	void print_all_elements() const {
+		print_elements_within_box(original_box);
 	}
 
     void println_non_empty_elements_count() const {

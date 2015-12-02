@@ -124,12 +124,12 @@ int main(int argc, char** argv) {
     domain.untweak_bounds();
 
 	if (output_format == DRAW_NEIGHBORS) {
-    	domain.tweak_bounds();
-        domain.print_all_elements(false, false);
+    	domain.tweak_bounds();  // again, just for printing
+        domain.print_all_elements();
         domain.print_all_neighbors();
 
 	} else if (output_format == DRAW_SUPPORTS) {
-        domain.print_all_elements(false, false);
+        domain.print_all_elements();
     	domain.compute_b_splines_supports();
 		domain.print_support_for_each_b_spline();
 
@@ -176,7 +176,7 @@ int main(int argc, char** argv) {
 			domain.tree_process_box_2D(side_box);
 
 			edge_offset /= 2;
-			if (i == depth - 1){
+			if (i == depth - 1) {
 				domain.tree_process_cut_off_box(X_DIM, outer_node, true);
 			}
 		}
@@ -184,7 +184,7 @@ int main(int argc, char** argv) {
         domain.print_galois_output();
 
 	} else if (output_format == DRAW_PLAIN || output_format == GNUPLOT) {
-        domain.print_all_elements(false, false);
+        domain.print_all_elements();
 	}
 
 
