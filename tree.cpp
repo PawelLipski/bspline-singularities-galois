@@ -16,7 +16,7 @@ class Cube {
 
 public:
 
-	Cube(){}
+	Cube() {}
 
 	Cube(int dims): dim_cnt(dims) {
 		bounds.resize(dims * 2);
@@ -29,7 +29,7 @@ public:
 	}
 
     Cube(const Cube& cube, int n, int l):
-        dim_cnt(cube.dim_cnt), bounds(cube.bounds), num(n) , level(l), neighbors(cube.neighbors){
+        dim_cnt(cube.dim_cnt), bounds(cube.bounds), neighbors(cube.neighbors), level(l), num(n) {
 	}
 
     // Whether this cube is fully contained within the given box.
@@ -273,7 +273,7 @@ private:
 class Domain {
 	public:
 
-	Domain(const Cube& box, int depth) {
+	Domain(const Cube& box) {
 		add_element(box);
 		original_box = box;  // preserve for the object lifetime
 	}
@@ -318,7 +318,6 @@ class Domain {
 	}
 
 	void split_eight_side_elements_within_box_2D(Cube cube) {
-		Coord size = cube.get_size(X_DIM);
 		Coord mid = cube.get_middle(X_DIM);
 		vector<Cube> old_elements;
 		elements.swap(old_elements);
@@ -789,7 +788,7 @@ int main(int argc, char** argv) {
 
 	Coord size = (output_format == GALOIS ? 4 : 2) << depth;  // so that the smallest elements are of size 1x1
 	Cube outmost_box(get_outmost_box(size));
-	Domain domain(outmost_box, depth);
+	Domain domain(outmost_box);
 
 	// Build a regular 4x4 grid.
 	domain.split_all_elements_2D();  // 1 -> 4 elements
