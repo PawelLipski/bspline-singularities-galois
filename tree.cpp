@@ -512,7 +512,7 @@ class Domain {
 			compute_neighbors(e, size);
     }
 
-	void tree_process_box_2D(int dim, const Cube& box) {
+	void tree_process_box_2D(const Cube& box) {
 		cut_off_boxes.push_back(box);
 	}
 
@@ -542,7 +542,7 @@ class Domain {
 			cout << "  ";
 	}
 
-	void try_to_tree_process(int dim, Node * node, const string& tag, bool toggle_dim) {
+	void try_to_tree_process(int dim, Node * node, bool toggle_dim) {
 		if (count_elements_within_box(node->get_cube()) > 1){
 			tree_process_cut_off_box(dim, node, toggle_dim);
 		}
@@ -560,8 +560,8 @@ class Domain {
 			dim = dim ^ 1;
 		}
 
-		try_to_tree_process(dim, first_half_node, "first", toggle_dim);
-		try_to_tree_process(dim, second_half_node, "second", toggle_dim);
+		try_to_tree_process(dim, first_half_node, toggle_dim);
+		try_to_tree_process(dim, second_half_node, toggle_dim);
 	}
 
 	const vector<Node*> &get_el_tree_nodes() const {
@@ -861,28 +861,28 @@ int main(int argc, char** argv) {
 			domain.tree_process_cut_off_box(Y_DIM, side_node, false);
 			outer_node = domain.add_el_tree_element(main_box, outer_node);
 			outer_box = main_box;
-			domain.tree_process_box_2D(Y_DIM, side_box);
+			domain.tree_process_box_2D(side_box);
 
 			outer_box.split(X_DIM, inner_box.right(), &main_box, &side_box);
 			side_node = domain.add_el_tree_element(side_box, outer_node);
 			outer_node = domain.add_el_tree_element(main_box, outer_node);
 			domain.tree_process_cut_off_box(Y_DIM, side_node, false);
 			outer_box = main_box;
-			domain.tree_process_box_2D(Y_DIM, side_box);
+			domain.tree_process_box_2D(side_box);
 
 			outer_box.split(Y_DIM, inner_box.up(), &side_box, &main_box);
 			side_node = domain.add_el_tree_element(side_box, outer_node);
 			outer_node = domain.add_el_tree_element(main_box, outer_node);
 			domain.tree_process_cut_off_box(X_DIM, side_node, false);
 			outer_box = main_box;
-			domain.tree_process_box_2D(X_DIM, side_box);
+			domain.tree_process_box_2D(side_box);
 
 			outer_box.split(Y_DIM, inner_box.down(), &main_box, &side_box);
 			side_node = domain.add_el_tree_element(side_box, outer_node);
 			outer_node = domain.add_el_tree_element(main_box, outer_node);
 			domain.tree_process_cut_off_box(X_DIM, side_node, false);
 			outer_box = main_box;
-			domain.tree_process_box_2D(X_DIM, side_box);
+			domain.tree_process_box_2D(side_box);
 
 			edge_offset /= 2;
 			if (i == depth - 1){
