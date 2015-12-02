@@ -393,13 +393,11 @@ public:
 			if (print)
 				cout << e.get_middle(X_DIM) << " " << e.get_middle(Y_DIM) << " ";
             const Cube &support_cube = Cube(support_bounds[0], support_bounds[1], support_bounds[2], support_bounds[3]);
-			int sup_index = 0;
             for (auto& support_candidate: elements) {
                 if (support_candidate.non_empty() && support_candidate.contained_in_box(support_cube)) {
                     support_candidate.add_b_spline(e.get_num());
-					support.push_back(sup_index);
+					support.push_back(support_candidate.get_num());
                 }
-				sup_index++;
             }
 			if (print) {
 				cout << support.size() << " ";
@@ -410,12 +408,15 @@ public:
         }
     }
 
+	/*
 	void print_support_for_each_b_spline() const {
 		vector<vector<int>> supports;
         for (const auto& e: elements) {
-			
+			for (int b_spline: e.get_b_splines()) {
+				supports[b_spline].push_back(e.
 		}
 	}
+	*/
 
     void print_b_splines_per_elements() const {
         println_non_empty_elements_count();
