@@ -5,8 +5,8 @@
 
 bsplines
 draw
+generate
 gnuplot
-tree
 
 eps/
 png/
