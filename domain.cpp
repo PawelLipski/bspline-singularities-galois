@@ -155,7 +155,7 @@ public:
 	void print_elements_level_and_id_within_box(const Node *node) const {
 		for (const auto& e: elements) {
 			if (e.non_empty() && e.contained_in_box(node->get_cube())) {
-				cout << e.get_level() << " " << e.get_num() << " ";
+				cout << e.get_level() << " " << e.get_num()+1 << " ";
 			}
 		}
 	}
@@ -267,7 +267,7 @@ public:
 	int count_elements_within_box(const Cube &cube) const {
 		int count = 0;
 		for (const auto& e: elements)
-			if (e.non_empty() && e.contained_in_box(cube)) 
+			if (e.non_empty() && e.contained_in_box(cube))
 				count++;
 		return count;
 	}
@@ -316,8 +316,8 @@ public:
         }
     }
 
-	void print_el_tree_size() const { 
-		cout << get_cut_off_boxes().size() << endl; 
+	void print_el_tree_size() const {
+		cout << get_cut_off_boxes().size() << endl;
 	}
 
 	void print_el_tree_for_draw() const {
@@ -329,7 +329,7 @@ public:
 
     void print_node_children(const Node *node) const {
         for (const Node* n: node->get_children()) {
-            cout << n->get_num() << " ";
+            cout << n->get_num() + 1 << " ";
         }
         cout << endl;
     }
@@ -423,7 +423,7 @@ public:
     void print_bsplines_line_by_line() const {
         cout << elements.size() << endl;
         for (const auto& e: elements)
-            cout << e.get_num() << " " << 1 << endl;        
+            cout << e.get_num() + 1 << " " << 1 << endl;
     }
 
 

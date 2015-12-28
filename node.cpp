@@ -26,7 +26,7 @@ public:
 	}
 
     void print_num() const{
-        cout << get_num() << " ";
+        cout << get_num() + 1 << " ";
     }
 
 private:

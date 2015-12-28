@@ -143,7 +143,7 @@ public:
 	}
 
 	void print_id() const {
-		cout << num << " " << get_level() << " ";
+		cout << get_num()+1 << " " << get_level() << " ";
 	}
 
 	void print_bounds() const {
@@ -153,10 +153,10 @@ public:
 
     void print_level_id_and_bsplines() const {
         cout << get_level() << " ";
-        cout << get_num() << " ";
+        cout << get_num()+1 << " ";
         cout << bsplines.size();
         for (int bspline: bsplines)
-            cout << " " << bspline;
+            cout << " " << bspline+1;
         cout << endl;
     }
 
