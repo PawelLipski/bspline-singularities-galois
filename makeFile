@@ -1,0 +1,10 @@
+CC = g++
+CFLAGS = -std=c++11 -Wall -Wshadow -Wextra -g
+DEPS = domain.h node.h cube.h coord.h
+OBJ = generate.o domain.o node.o cube.o
+
+%.o: %.cpp $(DEPS)
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+generate: $(OBJ)
+	$(CC) $(CFLAGS) -o $@ $^
