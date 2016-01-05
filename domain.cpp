@@ -1,3 +1,9 @@
+#include <iostream>
+#include <cmath>
+#include "vector"
+#include "node.h"
+
+using namespace std;
 
 class Domain {
 

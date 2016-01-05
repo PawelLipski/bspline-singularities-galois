@@ -1,19 +1,9 @@
 #include <iostream>
 #include <vector>
-#include <cmath>
+#include "domain.h"
 
 using namespace std;
 
-typedef int Coord;
-
-enum {
-	X_DIM = 0,
-	Y_DIM = 1
-};
-
-#include "cube.cpp"
-#include "node.cpp"
-#include "domain.cpp"
 
 Cube get_outmost_box(Coord size) {
 	return Cube(0, size, 0, size);

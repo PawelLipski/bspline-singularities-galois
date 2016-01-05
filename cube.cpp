@@ -1,3 +1,8 @@
+#include "coord.h"
+#include <vector>
+#include <iostream>
+
+using namespace std;
 
 // A general hyper-cube for any number of dim_cnt.
 class Cube {

@@ -1,3 +1,8 @@
+#include <iostream>
+#include "cube.h"
+#include "vector"
+
+using namespace std;
 
 class Node {
 
@@ -5,7 +10,7 @@ public:
 
     Node(): num(-1) { }
 
-    Node(const Cube& node_cube, int node_num): 
+    Node(const Cube &node_cube, int node_num) :
 		cube(node_cube), num(node_num) {
     }
 
