@@ -96,6 +96,20 @@ public:
 
     void add_bspline(int bspline_num);
 
+private:
+
+	// Number of dimensions.
+	int dim_cnt;
+	// Boundaries of the cube.
+	vector<Coord> bounds;
+	// bounds' backup, for the sake of restoring after tweaks.
+	vector<Coord> backed_up_bounds;
+	// Neighbors of the cube (must be separately computed).
+    vector<Cube*> neighbors;
+	// B-splines covering the cube (must be separately computed).
+    vector<int> bsplines;
+	// Level and id within the level.
+    int level, num;
 };
 
 #endif //BSPLINE_SINGULARITIES_GALOIS_CUBE_H
