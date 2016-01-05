@@ -23,6 +23,12 @@ public:
     int get_num() const;
 
     void print_num() const;
+
+private:
+
+    Cube cube;
+    int num;
+    vector<Node *> children;
 };
 
 #endif //BSPLINE_SINGULARITIES_GALOIS_NODE_H

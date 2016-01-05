@@ -94,6 +94,20 @@ public:
     int compute_level(const Cube &cube) const;
 
     void enumerate_all_elements();
+
+private:
+
+    void add_vertex_2D(Coord x, Coord y);
+
+    void add_element_2D(Coord left, Coord right, Coord up, Coord down);
+
+    void add_element(const Cube &e);
+
+    Cube original_box;
+    vector<Cube> elements;
+    vector<Cube> cut_off_boxes;
+    vector<Node *> el_tree_nodes;
+    int el_tree_node_id = 0;
 };
 
 #endif //BSPLINE_SINGULARITIES_GALOIS_DOMAIN_H

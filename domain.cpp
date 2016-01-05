@@ -2,14 +2,11 @@
 #include <cmath>
 #include "vector"
 #include "node.h"
+#include "domain.h"
 
 using namespace std;
 
-class Domain {
-
-public:
-
-	Domain(const Cube& box) {
+Domain::Domain(const Cube &box) {
 		add_element(box);
 		original_box = box;  // preserve for the object lifetime
 	}
@@ -17,20 +14,20 @@ public:
 
 	/*** CHECKS ***/
 
-	bool is_middle_element(const Cube &cube, Coord middle) const {
+    bool Domain::is_middle_element(const Cube &cube, Coord middle) const {
 		return (cube.right() == middle || cube.left() == middle) &&
 			   (cube.up() == middle || cube.down() == middle);
 	}
 
-	bool is_horizontal_side_element(const Cube &cube, Coord middle) const {
+bool Domain::is_horizontal_side_element(const Cube &cube, Coord middle) const {
 		return (cube.down() == middle) || (cube.up() == middle);
 	}
 
-	bool is_vertical_side_element(const Cube &cube, Coord middle) const {
+bool Domain::is_vertical_side_element(const Cube &cube, Coord middle) const {
 		return (cube.right() == middle) || (cube.left() == middle);
 	}
 
-	bool overlaps_with_any_other(const Cube& that) const {
+bool Domain::overlaps_with_any_other(const Cube &that) const {
 		for (const auto& other: elements)
 			if (&that != &other && that.overlaps_with(other))
 				return true;
@@ -40,7 +37,7 @@ public:
 
 	/*** SPLIT ELEMENTS ***/
 
-	void split_eight_side_elements_within_box_2D(Cube cube) {
+    void Domain::split_eight_side_elements_within_box_2D(Cube cube) {
 		Coord mid = cube.get_middle(X_DIM);
 		vector<Cube> old_elements;
 		elements.swap(old_elements);
@@ -66,7 +63,7 @@ public:
 	}
 
 	// Splits each element within the given box into 4 smaller ones.
-	void split_elements_within_box_2D(const Cube& box) {
+    void Domain::split_elements_within_box_2D(const Cube &box) {
 		vector<Cube> old_elements;
 		elements.swap(old_elements);
 		for (const auto& e: old_elements) {
@@ -87,7 +84,7 @@ public:
 	}
 
 	// Splits each element into 4 smaller ones.
-	void split_all_elements_2D() {
+    void Domain::split_all_elements_2D() {
 		split_elements_within_box_2D(original_box);
 	}
 
@@ -97,7 +94,7 @@ public:
 	// Inserts `count' of edge elements parallel to the given dimension's axis,
 	// spanning from one side of the `box' to the other in the given dimension.
 	// The other dimension is fixed at `coord'.
-	void add_edge_2D(int dim, const Cube& box, Coord coord, int count, bool edged_8) {
+    void Domain::add_edge_2D(int dim, const Cube &box, Coord coord, int count, bool edged_8) {
 		int from = box.get_from(dim);
 		int to = box.get_to(dim);
 		Coord element_size = (to - from) / count;
@@ -138,7 +135,7 @@ public:
 
 	// For each of the corners of the given box, inserts an infinitely small
 	// "vertex" element.
-	void add_corner_vertices_2D(const Cube& box) {
+    void Domain::add_corner_vertices_2D(const Cube &box) {
 		add_vertex_2D(box.left(), box.up());
 		add_vertex_2D(box.left(), box.down());
 		add_vertex_2D(box.right(), box.up());
@@ -148,7 +145,7 @@ public:
 
 	/*** PRINT ELEMENTS ***/
 
-	void print_elements_within_box(const Cube& box) const {
+    void Domain::print_elements_within_box(const Cube &box) const {
 		cout << elements.size() << endl;
 		for (const auto& e: elements) {
 			if (e.contained_in_box(box)) {
@@ -158,7 +155,7 @@ public:
 		}
 	}
 
-	void print_elements_level_and_id_within_box(const Node *node) const {
+void Domain::print_elements_level_and_id_within_box(const Node *node) const {
 		for (const auto& e: elements) {
 			if (e.non_empty() && e.contained_in_box(node->get_cube())) {
 				cout << e.get_level() << " " << e.get_num()+1 << " ";
@@ -166,29 +163,29 @@ public:
 		}
 	}
 
-	void print_all_elements() const {
+void Domain::print_all_elements() const {
 		print_elements_within_box(original_box);
 	}
 
-    void println_non_empty_elements_count() const {
+void Domain::println_non_empty_elements_count() const {
         cout << count_non_empty_elements() << endl;
     }
 
-    void print_el_tree_nodes_count() const {
+void Domain::print_el_tree_nodes_count() const {
         cout << get_el_tree_nodes().size() << endl;
     }
 
-    void print_galois_output() const {
+void Domain::print_galois_output() const {
         print_bsplines_line_by_line();
         print_bsplines_per_elements();
         print_elements_per_el_tree_nodes();
     }
 
-	static void print_line(Coord x1, Coord y1, Coord x2, Coord y2) {
+void Domain::print_line(Coord x1, Coord y1, Coord x2, Coord y2) {
 		cout << x1 << " " << y1 << " " << x2 << " " << y2 << endl;
 	}
 
-	static void print_tabs(int cnt) {
+void Domain::print_tabs(int cnt) {
 		for (int i = 0; i < cnt; i++)
 			cout << "  ";
 	}
@@ -196,7 +193,7 @@ public:
 
 	/*** NEIGHBORS ***/
 
-    bool cubes_are_adjacent(const Cube& that, const Cube& other, int bound_no, bool looseened_conds) const {
+    bool Domain::cubes_are_adjacent(const Cube &that, const Cube &other, int bound_no, bool looseened_conds) const {
 		int given_dim_no = bound_no >> 1;
         int opposite_bound_no = bound_no ^ 1;
 		if (that.get_bound(bound_no) != other.get_bound(opposite_bound_no))
@@ -218,7 +215,7 @@ public:
 		return true;
     }
 
-	void print_all_neighbors() const {
+void Domain::print_all_neighbors() const {
 		int total_cnt = 0;
 		for (const Cube& e: elements)
 			total_cnt += e.get_neighbor_count();
@@ -236,7 +233,7 @@ public:
 		}
 	}
 
-    void compute_neighbors(Cube& that, int size) {
+void Domain::compute_neighbors(Cube &that, int size) {
         // Check regular neighbors.
         for (auto& other: elements)
 			for (int bound_no = 0; bound_no < that.get_dim_cnt() * 2; bound_no++)
@@ -254,7 +251,7 @@ public:
         }
     }
 
-    void compute_all_neighbors(int size) {
+void Domain::compute_all_neighbors(int size) {
         for (auto& e: elements)
 			compute_neighbors(e, size);
     }
@@ -262,15 +259,15 @@ public:
 
 	/*** TREE ***/
 
-	void tree_process_box_2D(const Cube& box) {
+    void Domain::tree_process_box_2D(const Cube &box) {
 		cut_off_boxes.push_back(box);
 	}
 
-	vector<Cube> get_cut_off_boxes() const {
+vector<Cube> Domain::get_cut_off_boxes() const {
 		return cut_off_boxes;
 	}
 
-	int count_elements_within_box(const Cube &cube) const {
+int Domain::count_elements_within_box(const Cube &cube) const {
 		int count = 0;
 		for (const auto& e: elements)
 			if (e.non_empty() && e.contained_in_box(cube))
@@ -278,7 +275,7 @@ public:
 		return count;
 	}
 
-    Node * add_el_tree_element(Cube cube, Node * parent) {
+Node *Domain::add_el_tree_element(Cube cube, Node *parent) {
 		Node* node = new Node(cube, el_tree_node_id++);
 		if (parent){
 			parent->add_child(node);
@@ -287,13 +284,13 @@ public:
 		return node;
     }
 
-	void try_to_tree_process(int dim, Node * node, bool toggle_dim) {
+void Domain::try_to_tree_process(int dim, Node *node, bool toggle_dim) {
 		if (count_elements_within_box(node->get_cube()) > 1){
 			tree_process_cut_off_box(dim, node, toggle_dim);
 		}
 	}
 
-	void tree_process_cut_off_box(int dim, Node * node, bool toggle_dim) {
+void Domain::tree_process_cut_off_box(int dim, Node *node, bool toggle_dim) {
 		Cube cut_off_cube = node->get_cube();
 		Cube first_half, second_half;
 		cut_off_cube.split_halves(dim, &first_half, &second_half);
@@ -308,11 +305,11 @@ public:
 		try_to_tree_process(dim, second_half_node, toggle_dim);
 	}
 
-	const vector<Node*> &get_el_tree_nodes() const {
+const vector<Node *> &Domain::get_el_tree_nodes() const {
 		return el_tree_nodes;
 	}
 
-    void print_elements_per_el_tree_nodes() const {
+void Domain::print_elements_per_el_tree_nodes() const {
         print_el_tree_nodes_count();
         for (const Node* node: get_el_tree_nodes()) {
             node->print_num();
@@ -322,32 +319,32 @@ public:
         }
     }
 
-	void print_el_tree_size() const {
+void Domain::print_el_tree_size() const {
 		cout << get_cut_off_boxes().size() << endl;
 	}
 
-	void print_el_tree_for_draw() const {
+void Domain::print_el_tree_for_draw() const {
 		print_el_tree_size();
 		for (const Cube& box: get_cut_off_boxes()) {
 			box.print_full();
 		}
 	}
 
-    void print_node_children(const Node *node) const {
+void Domain::print_node_children(const Node *node) const {
         for (const Node* n: node->get_children()) {
             cout << n->get_num() + 1 << " ";
         }
         cout << endl;
     }
 
-    void print_elements_count_within_node(const Node *node) const {
+void Domain::print_elements_count_within_node(const Node *node) const {
         cout << count_elements_within_box(node->get_cube()) << " ";
     }
 
 
 	/*** BOUNDARY TWEAKING ***/
 
-	void tweak_bounds() {
+    void Domain::tweak_bounds() {
 		for (auto& e: elements)
 			e.back_up_bounds();
 		original_box.back_up_bounds();
@@ -375,8 +372,8 @@ public:
 		}
 		original_box.spread(2);
 	}
-	
-	void untweak_bounds() {
+
+void Domain::untweak_bounds() {
 		for (auto& e: elements)
 			e.restore_bounds();
 		original_box.restore_bounds();
@@ -385,7 +382,7 @@ public:
 
 	/*** B-SPLINES ***/
 
-    void compute_bsplines_supports() {
+    void Domain::compute_bsplines_supports() {
         for (auto& e: elements) {
 			vector<int> support;
             const vector<int> &support_bounds = e.compute_bspline_support_2D();
@@ -399,7 +396,7 @@ public:
         }
     }
 
-	void print_support_for_each_bspline() const {
+void Domain::print_support_for_each_bspline() const {
 		vector<vector<int>> supports(elements.size());
         for (const auto& e: elements) {
 			for (int bspline: e.get_bsplines()) {
@@ -419,14 +416,14 @@ public:
 		}
 	}
 
-    void print_bsplines_per_elements() const {
+void Domain::print_bsplines_per_elements() const {
         println_non_empty_elements_count();
         for(auto& e : elements)
             if (e.non_empty())
                 e.print_level_id_and_bsplines();
     }
 
-    void print_bsplines_line_by_line() const {
+void Domain::print_bsplines_line_by_line() const {
         cout << elements.size() << endl;
         for (const auto& e: elements)
             cout << e.get_num() + 1 << " " << 1 << endl;
@@ -435,7 +432,7 @@ public:
 
 	/*** UTILS ***/
 
-    int count_non_empty_elements() const {
+    int Domain::count_non_empty_elements() const {
         int count = 0;
         for (const auto& e: elements)
             if (e.non_empty())
@@ -443,12 +440,12 @@ public:
         return count;
     }
 
-    int compute_level(const Cube &cube) const {
+int Domain::compute_level(const Cube &cube) const {
         int size = max(cube.get_size(0), cube.get_size(1));
         return (int) log2((original_box.get_size(0) / size)) - 1;
     }
 
-    void enumerate_all_elements() {
+void Domain::enumerate_all_elements() {
         vector<Cube> old_elements;
         elements.swap(old_elements);
         int i = 0;
@@ -461,24 +458,16 @@ public:
         }
     }
 
-private:
-
-	void add_vertex_2D(Coord x, Coord y) {
+void Domain::add_vertex_2D(Coord x, Coord y) {
 		add_element_2D(x, x, y, y);
 	}
 
-	void add_element_2D(Coord left, Coord right, Coord up, Coord down) {
+void Domain::add_element_2D(Coord left, Coord right, Coord up, Coord down) {
 		add_element(Cube(left, right, up, down));
 	}
 
-	void add_element(const Cube& e) {
+void Domain::add_element(const Cube &e) {
 		elements.push_back(e);
 	}
 
-	Cube original_box;
-	vector<Cube> elements;
-	vector<Cube> cut_off_boxes;
-	vector<Node*> el_tree_nodes;
-    int el_tree_node_id = 0;
-};
 
