@@ -382,13 +382,19 @@ void Domain::untweak_bounds() {
 
 	/*** B-SPLINES ***/
 
-    void Domain::compute_bsplines_supports() {
+    void Domain::compute_bsplines_supports(MeshType type) {
         for (auto& e: elements) {
 			vector<int> support;
             const vector<int> &support_bounds = e.compute_bspline_support_2D();
             const Cube &support_cube = Cube(support_bounds[0], support_bounds[1], support_bounds[2], support_bounds[3]);
             for (auto& support_candidate: elements) {
                 if (support_candidate.non_empty() && support_candidate.contained_in_box(support_cube)) {
+                    if (type == EDGED_4 && e.is_point_2D()) {
+                        int min_el_size = e.get_neighbor(0)->get_size(0) / 2;
+                        if (min_el_size > 1 && support_candidate.get_size(0) < min_el_size) {
+                            continue;
+                        }
+                    }
                     support_candidate.add_bspline(e.get_num());
 					support.push_back(support_candidate.get_num());
                 }
