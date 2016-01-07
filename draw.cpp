@@ -105,7 +105,7 @@ void redraw() {
 
 void draw_inside(int index) {
 	const auto& r = rects[index];
-	SDL_Rect inside = { r.x*scale + 3, r.y*scale + 3, r.w*scale - 6, r.h*scale - 6 };
+	SDL_Rect inside = { Sint16(r.x*scale + 3), Sint16(r.y*scale + 3), Uint16(r.w*scale - 6), Uint16(r.h*scale - 6) };
 	SDL_FillRect(screen, &inside, GREEN);
 }
 
@@ -176,7 +176,7 @@ int main(int argc, char** argv) {
 				cin >> index;
 				draw_inside(index);
 			}
-			SDL_Rect mid = { x*scale - 3, y*scale - 3, 6, 6};
+			SDL_Rect mid = { Sint16(x*scale - 3), Sint16(y*scale - 3), 6, 6};
 			SDL_FillRect(screen, &mid, MGNTA);
 			SDL_Flip(screen);
 			wait_until_key(SDLK_SPACE);

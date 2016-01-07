@@ -32,11 +32,11 @@ public:
 
     Coord get_bound(int bound_no) const;
 
-    inline Coord get_from(int dim) const;
+    Coord get_from(int dim) const;
 
     Coord get_middle(int dim) const;
 
-    inline Coord get_to(int dim) const;
+    Coord get_to(int dim) const;
 
     Coord get_size(int dim) const;
 

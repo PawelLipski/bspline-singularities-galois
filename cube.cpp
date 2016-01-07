@@ -30,7 +30,7 @@ Coord Cube::get_bound(int bound_no) const {
 	return bounds[bound_no];
 }
 
-inline Coord Cube::get_from(int dim) const {
+Coord Cube::get_from(int dim) const {
 	return bounds[2*dim];
 }
 
@@ -38,7 +38,7 @@ Coord Cube::get_middle(int dim) const {
 	return (get_from(dim) + get_to(dim)) / 2;
 }
 
-inline Coord Cube::get_to(int dim) const {
+Coord Cube::get_to(int dim) const {
 	return bounds[2*dim+1];
 }
 
