@@ -7,6 +7,13 @@
 
 #include "node.h"
 
+enum MeshType {
+    UNEDGED,
+    EDGED_4,
+    EDGED_8
+};
+
+
 class Domain {
 public:
     Domain(const Cube &box);
@@ -81,7 +88,7 @@ public:
 
     void untweak_bounds();
 
-    void compute_bsplines_supports();
+    void compute_bsplines_supports(MeshType type);
 
     void print_support_for_each_bspline() const;
 
