@@ -5,6 +5,7 @@
 using namespace std;
 
 
+
 Cube get_outmost_box(Coord size) {
 	return Cube(0, size, 0, size);
 }
@@ -45,11 +46,7 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	enum MeshType {
-		UNEDGED,
-		EDGED_4,
-		EDGED_8
-	} mesh_type = EDGED_8;
+	MeshType mesh_type = EDGED_8;
 
 	if (argc >= 2) {
 		bool any_mesh = true;
@@ -120,11 +117,11 @@ int main(int argc, char** argv) {
 
 	} else if (output_format == DRAW_SUPPORTS) {
         domain.print_all_elements();
-    	domain.compute_bsplines_supports();
+		domain.compute_bsplines_supports(mesh_type);
 		domain.print_support_for_each_bspline();
 
 	} else if (output_format == GALOIS) {
-    	domain.compute_bsplines_supports();
+		domain.compute_bsplines_supports(mesh_type);
 
 		edge_offset = size / 4;
 		outer_box = outmost_box;
