@@ -123,7 +123,7 @@ bool Cube::non_empty() const {
 Coord Cube::get_overlapping_part(const Cube& other, int dim_no) const {
 	Coord from = max(get_from(dim_no), other.get_from(dim_no));
 	Coord to = min(get_to(dim_no), other.get_to(dim_no));
-	return max(to - from, 0);
+	return max(to - from, 0L);
 }
 
 bool Cube::overlaps_with(const Cube& other) const {
@@ -154,12 +154,12 @@ void Cube::print_bounds() const {
 		cout << bounds[i] << " ";
 }
 
-void Cube::print_level_id_and_bsplines() const {
+void Cube::print_level_id_and_bsplines(int e_num) const {
 	cout << get_level() << " ";
-	cout << get_num()+1 << " ";
+	cout << e_num << " ";
 	cout << bsplines.size();
 	for (int bspline: bsplines)
-		cout << " " << bspline+1;
+		cout << " " << bspline + 1;
 	cout << endl;
 }
 
@@ -222,8 +222,8 @@ void Cube::restore_bounds() {
 
 /*** B-SPLINES ***/
 
-vector<int> Cube::compute_bspline_support_2D() {
-	vector<int> support_bounds;
+vector<Coord> Cube::compute_bspline_support_2D() {
+	vector<Coord> support_bounds;
 	support_bounds.resize(dim_cnt * 2);
 	for(int i = 0; i < dim_cnt * 2; ++i){
 		if (neighbors[i]){

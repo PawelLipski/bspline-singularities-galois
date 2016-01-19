@@ -74,7 +74,7 @@ public:
 
     void print_bounds() const;
 
-    void print_level_id_and_bsplines() const;
+	void print_level_id_and_bsplines(int e_num) const;
 
     void split(int dim, Coord coord, Cube *first, Cube *second) const;
 
@@ -92,7 +92,7 @@ public:
 
     void restore_bounds();
 
-    vector<int> compute_bspline_support_2D();
+	vector<Coord> compute_bspline_support_2D();
 
     void add_bspline(int bspline_num);
 

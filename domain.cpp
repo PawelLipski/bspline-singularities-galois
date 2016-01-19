@@ -95,8 +95,8 @@ bool Domain::overlaps_with_any_other(const Cube &that) const {
 	// spanning from one side of the `box' to the other in the given dimension.
 	// The other dimension is fixed at `coord'.
     void Domain::add_edge_2D(int dim, const Cube &box, Coord coord, int count, bool edged_8) {
-		int from = box.get_from(dim);
-		int to = box.get_to(dim);
+		Coord from = box.get_from(dim);
+		Coord to = box.get_to(dim);
 		Coord element_size = (to - from) / count;
 		for (int i = 0; i < count; i++) {
 			Coord element_from = from + element_size * i;
@@ -233,7 +233,7 @@ void Domain::print_all_neighbors() const {
 		}
 	}
 
-void Domain::compute_neighbors(Cube &that, int size) {
+void Domain::compute_neighbors(Cube &that, Coord size) {
         // Check regular neighbors.
         for (auto& other: elements)
 			for (int bound_no = 0; bound_no < that.get_dim_cnt() * 2; bound_no++)
@@ -251,7 +251,7 @@ void Domain::compute_neighbors(Cube &that, int size) {
         }
     }
 
-void Domain::compute_all_neighbors(int size) {
+void Domain::compute_all_neighbors(Coord size) {
         for (auto& e: elements)
 			compute_neighbors(e, size);
     }
@@ -384,13 +384,13 @@ void Domain::untweak_bounds() {
 
     void Domain::compute_bsplines_supports(MeshType type) {
         for (auto& e: elements) {
-			vector<int> support;
-            const vector<int> &support_bounds = e.compute_bspline_support_2D();
+			vector<Coord> support;
+			const vector<Coord> &support_bounds = e.compute_bspline_support_2D();
             const Cube &support_cube = Cube(support_bounds[0], support_bounds[1], support_bounds[2], support_bounds[3]);
             for (auto& support_candidate: elements) {
                 if (support_candidate.non_empty() && support_candidate.contained_in_box(support_cube)) {
-                    if (type == EDGED_4 && e.is_point_2D()) {
-                        int min_el_size = e.get_neighbor(0)->get_size(0) / 2;
+					if (type == EDGED_4 && e.is_point_2D()) {
+						Coord min_el_size = e.get_neighbor(0)->get_size(0) / 2;
                         if (min_el_size > 1 && support_candidate.get_size(0) < min_el_size) {
                             continue;
                         }
@@ -403,9 +403,9 @@ void Domain::untweak_bounds() {
     }
 
 void Domain::print_support_for_each_bspline() const {
-		vector<vector<int>> supports(elements.size());
+	vector<vector<Coord>> supports(elements.size());
         for (const auto& e: elements) {
-			for (int bspline: e.get_bsplines()) {
+			for (Coord bspline: e.get_bsplines()) {
 				supports[bspline].push_back(e.get_num());
 			}
 		}
@@ -425,8 +425,9 @@ void Domain::print_support_for_each_bspline() const {
 void Domain::print_bsplines_per_elements() const {
         println_non_empty_elements_count();
         for(auto& e : elements)
-            if (e.non_empty())
-                e.print_level_id_and_bsplines();
+			if (e.non_empty()) {
+				e.print_level_id_and_bsplines(get_e_num_per_level_and_inc(e));
+			}
     }
 
 void Domain::print_bsplines_line_by_line() const {
@@ -447,7 +448,7 @@ void Domain::print_bsplines_line_by_line() const {
     }
 
 int Domain::compute_level(const Cube &cube) const {
-        int size = max(cube.get_size(0), cube.get_size(1));
+	Coord size = max(cube.get_size(0), cube.get_size(1));
         return (int) log2((original_box.get_size(0) / size)) - 1;
     }
 
@@ -477,3 +478,10 @@ void Domain::add_element(const Cube &e) {
 	}
 
 
+void Domain::allocate_elements_count_by_level_vector(int depth) {
+	elements_count_by_level.resize(depth + 1);
+}
+
+int Domain::get_e_num_per_level_and_inc(const Cube &cube) const {
+	return ++elements_count_by_level[cube.get_level()];
+}

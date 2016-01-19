@@ -5,7 +5,7 @@
 #ifndef BSPLINE_SINGULARITIES_GALOIS_COORD_H
 #define BSPLINE_SINGULARITIES_GALOIS_COORD_H
 
-typedef int Coord;
+typedef long Coord;
 
 enum {
     X_DIM = 0,

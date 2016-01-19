@@ -68,7 +68,7 @@ int main(int argc, char** argv) {
 	int depth = argc == 2 ? atoi(argv[1]) : 3;
 	// int order = 2; // atoi(argv[2])
 
-	Coord size = (output_format == GALOIS ? 4 : 2) << depth;  // so that the smallest elements are of size 1x1
+	Coord size = (output_format == GALOIS ? 4L : 2L) << depth;  // so that the smallest elements are of size 1x1
 	Cube outmost_box(get_outmost_box(size));
 	Domain domain(outmost_box);
 
@@ -167,6 +167,8 @@ int main(int argc, char** argv) {
 				domain.tree_process_cut_off_box(X_DIM, outer_node, true);
 			}
 		}
+
+		domain.allocate_elements_count_by_level_vector(depth);
 
         domain.print_galois_output();
 

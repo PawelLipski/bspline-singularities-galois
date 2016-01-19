@@ -56,9 +56,9 @@ public:
 
     void print_all_neighbors() const;
 
-    void compute_neighbors(Cube &that, int size);
+    void compute_neighbors(Cube &that, Coord size);
 
-    void compute_all_neighbors(int size);
+    void compute_all_neighbors(Coord size);
 
     void tree_process_box_2D(const Cube &box);
 
@@ -102,6 +102,8 @@ public:
 
     void enumerate_all_elements();
 
+    void allocate_elements_count_by_level_vector(int depth);
+
 private:
 
     void add_vertex_2D(Coord x, Coord y);
@@ -110,10 +112,14 @@ private:
 
     void add_element(const Cube &e);
 
+    int get_e_num_per_level_and_inc(const Cube &cube) const;
+
     Cube original_box;
     vector<Cube> elements;
     vector<Cube> cut_off_boxes;
     vector<Node *> el_tree_nodes;
+    mutable vector<int> elements_count_by_level;
+
     int el_tree_node_id = 0;
 };
 
