@@ -105,7 +105,8 @@ int main(int argc, char** argv) {
 		outer_box = inner_box;
 	}
 
-    domain.enumerate_all_elements();
+	domain.allocate_elements_count_by_level_vector(depth);
+	domain.enumerate_all_elements();
     domain.tweak_bounds();
 	domain.compute_all_neighbors(size);
     domain.untweak_bounds();
@@ -167,8 +168,6 @@ int main(int argc, char** argv) {
 				domain.tree_process_cut_off_box(X_DIM, outer_node, true);
 			}
 		}
-
-		domain.allocate_elements_count_by_level_vector(depth);
 
         domain.print_galois_output();
 

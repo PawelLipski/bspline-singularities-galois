@@ -20,7 +20,7 @@ public:
 
     Cube(Coord l, Coord r, Coord u, Coord d);
 
-    Cube(const Cube &cube, int n, int l);
+	Cube(const Cube &cube, int n, int l, int id, int flag);
 
     Coord left() const;
 
@@ -43,6 +43,8 @@ public:
     int get_level() const;
 
     int get_num() const;
+
+	int get_id_within_lvl() const;
 
     int get_dim_cnt() const;
 
@@ -108,8 +110,8 @@ private:
     vector<Cube*> neighbors;
 	// B-splines covering the cube (must be separately computed).
     vector<int> bsplines;
-	// Level and id within the level.
-    int level, num;
+	// Level, enumerator and id within the level.
+	int level, num, id_within_lvl;
 };
 
 #endif //BSPLINE_SINGULARITIES_GALOIS_CUBE_H

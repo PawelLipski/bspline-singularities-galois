@@ -112,7 +112,7 @@ private:
 
     void add_element(const Cube &e);
 
-    int get_e_num_per_level_and_inc(const Cube &cube) const;
+    int get_e_num_per_level_and_inc(int lvl) const;
 
     Cube original_box;
     vector<Cube> elements;

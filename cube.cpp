@@ -19,8 +19,8 @@ Cube::Cube(Coord l, Coord r, Coord u, Coord d): dim_cnt(2) {
 	neighbors.resize(4);
 }
 
-Cube::Cube(const Cube& cube, int n, int l):
-	dim_cnt(cube.dim_cnt), bounds(cube.bounds), neighbors(cube.neighbors), level(l), num(n) {
+Cube::Cube(const Cube &cube, int n, int l, int id, int flag) :
+		dim_cnt(cube.dim_cnt), bounds(cube.bounds), neighbors(cube.neighbors), level(l), num(n), id_within_lvl(id) {
 }
 
 
@@ -57,6 +57,10 @@ int Cube::get_dim_cnt() const {
 
 int Cube::get_num() const {
 	return num;
+}
+
+int Cube::get_id_within_lvl() const {
+	return id_within_lvl;
 }
 
 int Cube::get_level() const {
