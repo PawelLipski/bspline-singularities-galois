@@ -33,10 +33,12 @@ done
 
 paste edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_max edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_depth_sum | awk '{print $1,$3}' > edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_max_sum
 
-gnuplot -e "set terminal png; set output 'edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_depth_sum.png'; plot 'edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_depth_sum' using 1:2 w l"
+#gnuplot -e "set terminal png; set output 'edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_depth_sum.png'; f(x) = x**b; b = 0.5; fit f(x) 'edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_depth_sum' via b; plot 'edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_depth_sum' w l, f(x)"
+#gnuplot -e "set terminal png; set output 'edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_depth_sum.png'; plot 'edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_depth_sum' w l"
 
-eog edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_depth_sum.png
+#eog edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_depth_sum.png
 
-gnuplot -e "set terminal png; set output 'edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_max_sum.png'; plot 'edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_max_sum' using 1:2 w l"
+#gnuplot -e "set terminal png; set output 'edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_max_sum.png'; g(x) = x**3; f(x) = a*x**b; b = 2; a = 2; fit f(x) 'edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_max_sum' via a, b; plot 'edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_max_sum' w l, f(x)"
+gnuplot -e "set terminal png; set output 'edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_max_sum.png'; g(x) = x**3; f(x) = x**b; b = 2; fit f(x) 'edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_max_sum' via b; plot 'edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_max_sum' w l, f(x), g(x)"
 
 eog edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_max_sum.png
