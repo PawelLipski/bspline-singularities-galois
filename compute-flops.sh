@@ -7,7 +7,7 @@ rm -rf $dir
 mkdir $dir
 cd $dir
 
-MAX_DEPTH=$1
+MAX_DEPTH=${1-25}
 depths="`seq 2 ${MAX_DEPTH}`"
 
 for depth in $depths; do
@@ -26,7 +26,18 @@ done
 
 #gnuplot -e "set terminal png; set output 'flops-per-depth-from-2-to-${MAX_DEPTH}_max_sum.png'; g(x) = x**3; f(x) = a*x**b; b = 2; a = 2; fit f(x) 'edged-4-flops-per-depth-from-2-to-${MAX_DEPTH}_max_sum' via a, b; plot 'edged-4-flops-per-depth-from-2-to-${MAX_DEPTH}_max_sum' w l, f(x)"
 mkdir -p ../flops-plots
-gnuplot -e "set terminal png; set output '../flops-plots/total-flops.png'; fit(x) = x**b; b = 2; fit fit(x) 'total-flops' via b; set xlabel 'N'; set ylabel 'Flops'; plot 'total-flops' w l title 'measured flops(N)', fit(x) title sprintf('x ^ %g', b) w l, x ** 2 title 'x ^ 2' w l"
+gnuplot << EOF
+set terminal png
+set output '../flops-plots/total-flops.png'
+fit(x) = x**b
+b = 2
+fit fit(x) 'total-flops' via b
+set xlabel 'N'
+set ylabel 'Flops'
+plot 'total-flops' w l title 'measured flops(N)', \
+	fit(x) title sprintf('x ^ %g', b) w l, \
+	x ** 2 title 'x ^ 2' w l
+EOF
 
 eog ../flops-plots/total-flops.png
 
