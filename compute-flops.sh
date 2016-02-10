@@ -1,6 +1,7 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # usage, for depth=25: ./compute-flops.sh 25
+# make sure you have Konrad Jopek's analyser in PATH, https://bitbucket.org/_kjopek/meshestimator
 
 dir=flops-per-depth
 rm -rf $dir
@@ -12,34 +13,48 @@ depths="`seq 2 ${MAX_DEPTH}`"
 
 for depth in $depths; do
     ../generate -g --edged-4 $depth > mesh-$depth
-done
-
-# make sure you have Konrad Jopek's analyser in PATH, https://bitbucket.org/_kjopek/meshestimator
-
-for depth in $depths; do
     analyser -f mesh-$depth > flops-$depth
-done
-
-for depth in $depths; do
     cat flops-$depth | awk "BEGIN { max=0 } { sum+=\$3; if (\$1>max) max=\$1 } END {print max, sum}" >> total-flops
 done
 
-#gnuplot -e "set terminal png; set output 'flops-per-depth-from-2-to-${MAX_DEPTH}_max_sum.png'; g(x) = x**3; f(x) = a*x**b; b = 2; a = 2; fit f(x) 'edged-4-flops-per-depth-from-2-to-${MAX_DEPTH}_max_sum' via a, b; plot 'edged-4-flops-per-depth-from-2-to-${MAX_DEPTH}_max_sum' w l, f(x)"
-mkdir -p ../flops-plots
+x__b() {
+	output_suffix=x__b
+	fit_fun='x**b'
+	fit_init='b = 2'
+	fit_via='b'
+	fit_fun_sprintf="'x ^ %g', b"
+}
+
+a_x__b() {
+	output_suffix=a_x__b
+	fit_fun='a*x**b'
+	fit_init='a = 2; b = 2'
+	fit_via='a, b'
+	fit_fun_sprintf="'%g * x ^ %g', a, b"
+}
+
+plot() {
 gnuplot << EOF
-set terminal png
-set output '../flops-plots/total-flops.png'
-fit(x) = x**b
-b = 2
-fit fit(x) 'total-flops' via b
-set xlabel 'N'
-set ylabel 'Flops'
-plot 'total-flops' w l title 'measured flops(N)', \
-	fit(x) title sprintf('x ^ %g', b) w l, \
-	x ** 2 title 'x ^ 2' w l
+	set terminal png
+	set output '../flops-plots/total-flops-${output_suffix}.png'
+	fit(x) = $fit_fun
+	$fit_init
+	fit fit(x) 'total-flops' via $fit_via
+	set xlabel 'N'
+	set ylabel 'Flops'
+	plot 'total-flops' w l title 'measured flops(N)', \
+		fit(x) title sprintf($fit_fun_sprintf) w l, \
+		x ** 2 title 'x ^ 2' w l
 EOF
+}
 
-eog ../flops-plots/total-flops.png
+mkdir -p ../flops-plots
+x__b
+plot
+a_x__b
+plot
 
-#rm -rf $dir
+cd ..
+rm -rf $dir
+eog flops-plots/total-flops-*.png
 
