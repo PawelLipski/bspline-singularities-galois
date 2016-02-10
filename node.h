@@ -10,25 +10,25 @@
 class Node {
 public:
 
-    Node();
+	Node();
 
-    Node(const Cube &node_cube, int node_num);
+	Node(const Cube& node_cube, int node_num);
 
-    void add_child(Node *child);
+	void add_child(Node *child);
 
-    const vector<Node *> &get_children() const;
+	const vector<Node*>& get_children() const;
 
-    const Cube &get_cube() const;
+	const Cube& get_cube() const;
 
-    int get_num() const;
+	int get_num() const;
 
-    void print_num() const;
+	void print_num() const;
 
 private:
 
-    Cube cube;
-    int num;
-    vector<Node *> children;
+	Cube cube;
+	int num;
+	vector<Node*> children;
 };
 
 #endif //BSPLINE_SINGULARITIES_GALOIS_NODE_H

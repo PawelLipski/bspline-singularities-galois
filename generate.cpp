@@ -107,17 +107,17 @@ int main(int argc, char** argv) {
 
 	domain.allocate_elements_count_by_level_vector(depth);
 	domain.enumerate_all_elements();
-    domain.tweak_bounds();
+	domain.tweak_bounds();
 	domain.compute_all_neighbors(size);
-    domain.untweak_bounds();
+	domain.untweak_bounds();
 
 	if (output_format == DRAW_NEIGHBORS) {
-    	domain.tweak_bounds();  // again, just for printing
-        domain.print_all_elements();
-        domain.print_all_neighbors();
+		domain.tweak_bounds();  // again, just for printing
+		domain.print_all_elements();
+		domain.print_all_neighbors();
 
 	} else if (output_format == DRAW_SUPPORTS) {
-        domain.print_all_elements();
+		domain.print_all_elements();
 		domain.compute_bsplines_supports(mesh_type);
 		domain.print_support_for_each_bspline();
 
@@ -168,10 +168,10 @@ int main(int argc, char** argv) {
 		// The innermost 16 elements are processed at the very end.
 		domain.tree_process_cut_off_box(X_DIM, outer_node, true);
 
-        domain.print_galois_output();
+		domain.print_galois_output();
 
 	} else if (output_format == DRAW_PLAIN || output_format == GNUPLOT) {
-        domain.print_all_elements();
+		domain.print_all_elements();
 	}
 
 

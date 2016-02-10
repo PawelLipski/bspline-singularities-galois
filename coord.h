@@ -8,8 +8,8 @@
 typedef long Coord;
 
 enum {
-    X_DIM = 0,
-    Y_DIM = 1
+	X_DIM = 0,
+	Y_DIM = 1
 };
 
 #endif //BSPLINE_SINGULARITIES_GALOIS_COORD_H
