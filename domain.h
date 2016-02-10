@@ -68,8 +68,6 @@ public:
 
     Node *add_tree_node(Cube cube, Node *parent);
 
-    void try_to_tree_process(int dim, Node *node, bool toggle_dim);
-
     void tree_process_cut_off_box(int dim, Node *node, bool toggle_dim);
 
     const vector<Node *> &get_tree_nodes() const;

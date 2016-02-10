@@ -284,26 +284,23 @@ Node *Domain::add_tree_node(Cube cube, Node *parent) {
 		return node;
     }
 
-void Domain::try_to_tree_process(int dim, Node *node, bool toggle_dim) {
-		if (count_elements_within_box(node->get_cube()) > 1){
-			tree_process_cut_off_box(dim, node, toggle_dim);
-		}
-	}
-
 void Domain::tree_process_cut_off_box(int dim, Node *node, bool toggle_dim) {
-		Cube cut_off_cube = node->get_cube();
-		Cube first_half, second_half;
-		cut_off_cube.split_halves(dim, &first_half, &second_half);
+	if (count_elements_within_box(node->get_cube()) == 1)
+		return;
 
-		Node* first_half_node = this->add_tree_node(first_half, node);
-		Node* second_half_node = this->add_tree_node(second_half, node);
+	Cube cut_off_cube = node->get_cube();
+	Cube first_half, second_half;
+	cut_off_cube.split_halves(dim, &first_half, &second_half);
 
-		if (toggle_dim)
-			dim ^= 1;
+	Node* first_half_node = this->add_tree_node(first_half, node);
+	Node* second_half_node = this->add_tree_node(second_half, node);
 
-		try_to_tree_process(dim, first_half_node, toggle_dim);
-		try_to_tree_process(dim, second_half_node, toggle_dim);
-	}
+	if (toggle_dim)
+		dim ^= 1;
+
+	tree_process_cut_off_box(dim, first_half_node, toggle_dim);
+	tree_process_cut_off_box(dim, second_half_node, toggle_dim);
+}
 
 const vector<Node *> &Domain::get_tree_nodes() const {
 		return tree_nodes;
