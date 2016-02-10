@@ -20,7 +20,7 @@ Cube::Cube(Coord l, Coord r, Coord u, Coord d): dim_cnt(2) {
 }
 
 Cube::Cube(const Cube &cube, int n, int l, int id, int flag) :
-		dim_cnt(cube.dim_cnt), bounds(cube.bounds), neighbors(cube.neighbors), level(l), num(n), id_within_level(id) {
+	dim_cnt(cube.dim_cnt), bounds(cube.bounds), neighbors(cube.neighbors), level(l), num(n), id_within_level(id) {
 }
 
 
@@ -229,8 +229,8 @@ void Cube::restore_bounds() {
 vector<Coord> Cube::compute_bspline_support_2D() {
 	vector<Coord> support_bounds;
 	support_bounds.resize(dim_cnt * 2);
-	for(int i = 0; i < dim_cnt * 2; ++i){
-		if (neighbors[i]){
+	for(int i = 0; i < dim_cnt * 2; ++i) {
+		if (neighbors[i]) {
 			support_bounds[i] = neighbors[i]->get_bound(i);
 		} else {
 			support_bounds[i] = bounds[i];
@@ -239,7 +239,7 @@ vector<Coord> Cube::compute_bspline_support_2D() {
 	return support_bounds;
 };
 
-void Cube::add_bspline(int bspline_num){
+void Cube::add_bspline(int bspline_num) {
 	bsplines.push_back(bspline_num);
 }
 
