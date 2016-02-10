@@ -44,7 +44,7 @@ public:
 
     void println_non_empty_elements_count() const;
 
-    void print_element_tree_nodes_count() const;
+    void print_tree_nodes_count() const;
 
     void print_galois_output() const;
 
@@ -66,19 +66,19 @@ public:
 
     int count_elements_within_box(const Cube &cube) const;
 
-    Node *add_element_tree_element(Cube cube, Node *parent);
+    Node *add_tree_node(Cube cube, Node *parent);
 
     void try_to_tree_process(int dim, Node *node, bool toggle_dim);
 
     void tree_process_cut_off_box(int dim, Node *node, bool toggle_dim);
 
-    const vector<Node *> &get_element_tree_nodes() const;
+    const vector<Node *> &get_tree_nodes() const;
 
-    void print_elements_per_element_tree_nodes() const;
+    void print_elements_per_tree_nodes() const;
 
-    void print_element_tree_size() const;
+    void print_tree_size() const;
 
-    void print_element_tree_for_draw() const;
+    void print_tree_for_draw() const;
 
     void print_node_children(const Node *node) const;
 
@@ -117,10 +117,10 @@ private:
     Cube original_box;
     vector<Cube> elements;
     vector<Cube> cut_off_boxes;
-    vector<Node *> element_tree_nodes;
+    vector<Node *> tree_nodes;
     mutable vector<int> elements_count_by_level;
 
-    int element_tree_node_id = 0;
+    int tree_node_id = 0;
 };
 
 #endif //BSPLINE_SINGULARITIES_GALOIS_DOMAIN_H
