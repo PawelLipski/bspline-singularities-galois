@@ -20,7 +20,7 @@ for line in `./test-commands.sh`; do
 	cmd=`cut -d'#' -f1 <<< $line`
 	name=`cut -d'#' -f2 <<< $line`
 	eval $cmd > ${name}.out
-	cmp ${name}.out $refdir/${name}.out || { echo Error in ${name}.out!; exit 1; }
+	cmp ${name}.out $refdir/${name}.out || { echo Error in ${name}.out!; }
 	rm -f ${name}.out
 done
 

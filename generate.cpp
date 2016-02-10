@@ -164,10 +164,9 @@ int main(int argc, char** argv) {
 			domain.tree_process_box_2D(side_box);
 
 			edge_offset /= 2;
-			if (i == depth - 1) {
-				domain.tree_process_cut_off_box(X_DIM, outer_node, true);
-			}
 		}
+		// The innermost 16 elements are processed at the very end.
+		domain.tree_process_cut_off_box(X_DIM, outer_node, true);
 
         domain.print_galois_output();
 
