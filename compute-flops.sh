@@ -9,7 +9,7 @@ mkdir $dir
 cd $dir
 
 MAX_DEPTH=${1-25}
-depths="`seq 2 ${MAX_DEPTH}`"
+depths="`seq 1 ${MAX_DEPTH}`"
 
 for depth in $depths; do
     ../generate -g --edged-4 $depth > mesh-$depth
