@@ -2,9 +2,10 @@
 
 #usage, for depth=25: ./compute-flops.sh 25
 
-rm -rf test-meshes
-mkdir test-meshes
-cd test-meshes
+dir=flops-per-depth
+rm -rf $dir
+mkdir $dir
+cd $dir
 
 MAX_DEPTH=$1
 
@@ -14,13 +15,7 @@ for depth in $depths; do
     ../generate -g --edged-4 ${depth} > ./edged-4-depth-${depth}
 done
 
-#make sure you have Konrad Yopek analyser in PATH, https://bitbucket.org/_kjopek/meshestimator
-
-for depth in $depths; do
-    analyser -f ./edged-4-depth-${depth} > ./edged-4-depth-${depth}-flops
-done
-
-rm -rf edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}*
+# make sure you have Konrad Jopek's analyser in PATH, https://bitbucket.org/_kjopek/meshestimator
 
 for depth in $depths; do
     analyser -f ./edged-4-depth-${depth} > ./edged-4-depth-${depth}-flops
@@ -33,12 +28,11 @@ done
 
 paste edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_max edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_depth_sum | awk '{print $1,$3}' > edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_max_sum
 
-#gnuplot -e "set terminal png; set output 'edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_depth_sum.png'; f(x) = x**b; b = 0.5; fit f(x) 'edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_depth_sum' via b; plot 'edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_depth_sum' w l, f(x)"
-#gnuplot -e "set terminal png; set output 'edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_depth_sum.png'; plot 'edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_depth_sum' w l"
-
-#eog edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_depth_sum.png
-
 #gnuplot -e "set terminal png; set output 'edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_max_sum.png'; g(x) = x**3; f(x) = a*x**b; b = 2; a = 2; fit f(x) 'edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_max_sum' via a, b; plot 'edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_max_sum' w l, f(x)"
-gnuplot -e "set terminal png; set output 'edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_max_sum.png'; g(x) = x**3; f(x) = x**b; b = 2; fit f(x) 'edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_max_sum' via b; plot 'edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_max_sum' w l, f(x), g(x)"
+mkdir -p ../flops-plots
+gnuplot -e "set terminal png; set output '../flops-plots/edged-4-flops-per-depth-from-2-to-${MAX_DEPTH}_max_sum.png'; fit(x) = x**b; b = 2; fit fit(x) 'edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_max_sum' via b; plot 'edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_max_sum' w l title 'Flops', fit(x) title sprintf('x ^ %g', b) w l, x ** 2 title 'x ^ 2' w l"
 
-eog edged-4-flops-per-dept-from-2-to-${MAX_DEPTH}_max_sum.png
+eog edged-4-flops-per-depth-from-2-to-${MAX_DEPTH}_max_sum.png
+
+#rm -rf $dir
+

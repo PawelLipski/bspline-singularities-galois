@@ -11,4 +11,5 @@ gnuplot
 
 eps/
 png/
+flops-per-depth/
 test-ref-output/
