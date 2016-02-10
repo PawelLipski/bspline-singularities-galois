@@ -44,7 +44,7 @@ public:
 
     int get_num() const;
 
-	int get_id_within_lvl() const;
+	int get_id_within_level() const;
 
     int get_dim_cnt() const;
 
@@ -111,7 +111,7 @@ private:
 	// B-splines covering the cube (must be separately computed).
     vector<int> bsplines;
 	// Level, enumerator and id within the level.
-	int level, num, id_within_lvl;
+	int level, num, id_within_level;
 };
 
 #endif //BSPLINE_SINGULARITIES_GALOIS_CUBE_H

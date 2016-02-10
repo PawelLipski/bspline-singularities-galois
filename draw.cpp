@@ -189,11 +189,11 @@ int main(int argc, char** argv) {
 	int M;
 	cin >> M;
 	for (int i = 0; i < M; i++) {
-		int left, right, up, down, num, lvl;
-		cin >> left >> right >> up >> down >> num >> lvl;
+		int left, right, up, down, num, level;
+		cin >> left >> right >> up >> down >> num >> level;
 		int w = right - left;
 		int h = down - up;
-		draw_element(left, up, w, h, 16, 0, num, lvl);
+		draw_element(left, up, w, h, 16, 0, num, level);
 		SDL_Delay(1000);
 		SDL_Flip(screen);
 	}

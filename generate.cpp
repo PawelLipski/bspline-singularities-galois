@@ -51,11 +51,11 @@ int main(int argc, char** argv) {
 	if (argc >= 2) {
 		bool any_mesh = true;
 		string mesh(argv[1]);
-		if (mesh == "--unedged")
+		if (mesh == "--unedged" || mesh == "-u")
 			mesh_type = UNEDGED;
-		else if (mesh == "--edged-4")
+		else if (mesh == "--edged-4" || mesh == "-4")
 			mesh_type = EDGED_4;
-		else if (mesh == "--edged-8")
+		else if (mesh == "--edged-8" || mesh == "-8")
 			mesh_type = EDGED_8;
 		else
 			any_mesh = false;
@@ -127,7 +127,7 @@ int main(int argc, char** argv) {
 		edge_offset = size / 4;
 		outer_box = outmost_box;
 
-		Node * outer_node = domain.add_el_tree_element(outer_box, NULL);
+		Node * outer_node = domain.add_element_tree_element(outer_box, NULL);
 		Node * side_node;
 
 		// Generate elimination tree.
@@ -136,29 +136,29 @@ int main(int argc, char** argv) {
 			Cube side_box, main_box;
 
 			outer_box.split(X_DIM, inner_box.left(), &side_box, &main_box);
-			side_node = domain.add_el_tree_element(side_box, outer_node);
+			side_node = domain.add_element_tree_element(side_box, outer_node);
 			domain.tree_process_cut_off_box(Y_DIM, side_node, false);
-			outer_node = domain.add_el_tree_element(main_box, outer_node);
+			outer_node = domain.add_element_tree_element(main_box, outer_node);
 			outer_box = main_box;
 			domain.tree_process_box_2D(side_box);
 
 			outer_box.split(X_DIM, inner_box.right(), &main_box, &side_box);
-			side_node = domain.add_el_tree_element(side_box, outer_node);
-			outer_node = domain.add_el_tree_element(main_box, outer_node);
+			side_node = domain.add_element_tree_element(side_box, outer_node);
+			outer_node = domain.add_element_tree_element(main_box, outer_node);
 			domain.tree_process_cut_off_box(Y_DIM, side_node, false);
 			outer_box = main_box;
 			domain.tree_process_box_2D(side_box);
 
 			outer_box.split(Y_DIM, inner_box.up(), &side_box, &main_box);
-			side_node = domain.add_el_tree_element(side_box, outer_node);
-			outer_node = domain.add_el_tree_element(main_box, outer_node);
+			side_node = domain.add_element_tree_element(side_box, outer_node);
+			outer_node = domain.add_element_tree_element(main_box, outer_node);
 			domain.tree_process_cut_off_box(X_DIM, side_node, false);
 			outer_box = main_box;
 			domain.tree_process_box_2D(side_box);
 
 			outer_box.split(Y_DIM, inner_box.down(), &main_box, &side_box);
-			side_node = domain.add_el_tree_element(side_box, outer_node);
-			outer_node = domain.add_el_tree_element(main_box, outer_node);
+			side_node = domain.add_element_tree_element(side_box, outer_node);
+			outer_node = domain.add_element_tree_element(main_box, outer_node);
 			domain.tree_process_cut_off_box(X_DIM, side_node, false);
 			outer_box = main_box;
 			domain.tree_process_box_2D(side_box);

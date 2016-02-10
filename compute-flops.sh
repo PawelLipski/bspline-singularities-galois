@@ -14,7 +14,7 @@ depths="`seq 2 ${MAX_DEPTH}`"
 for depth in $depths; do
     ../generate -g --edged-4 $depth > mesh-$depth
     analyser -f mesh-$depth > flops-$depth
-    cat flops-$depth | awk "BEGIN { max=0 } { sum+=\$3; if (\$1>max) max=\$1 } END {print max, sum}" >> total-flops
+    cat flops-$depth | awk "BEGIN { max=0 } { sum+=\$3; if (\$1>max) max=\$1 } END {print max+1, sum}" >> total-flops
 done
 
 x__b() {
@@ -30,7 +30,7 @@ a_x__b() {
 	fit_fun='a*x**b'
 	fit_init='a = 2; b = 2'
 	fit_via='a, b'
-	fit_fun_sprintf="'%g * x ^ %g', a, b"
+	fit_fun_sprintf="'%g * N ^ %g', a, b"
 }
 
 plot() {
@@ -44,7 +44,7 @@ gnuplot << EOF
 	set ylabel 'Flops'
 	plot 'total-flops' w l title 'measured flops(N)', \
 		fit(x) title sprintf($fit_fun_sprintf) w l, \
-		x ** 2 title 'x ^ 2' w l
+		x ** 2 title 'N ^ 2' w l
 EOF
 }
 
@@ -55,6 +55,6 @@ a_x__b
 plot
 
 cd ..
-rm -rf $dir
+#rm -rf $dir
 eog flops-plots/total-flops-*.png
 

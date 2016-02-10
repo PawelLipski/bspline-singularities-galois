@@ -158,7 +158,7 @@ bool Domain::overlaps_with_any_other(const Cube &that) const {
 void Domain::print_elements_level_and_id_within_box(const Node *node) const {
 		for (const auto& e: elements) {
 			if (e.non_empty() && e.contained_in_box(node->get_cube())) {
-				cout << e.get_level() << " " << e.get_id_within_lvl() << " ";
+				cout << e.get_level() << " " << e.get_id_within_level() << " ";
 			}
 		}
 	}
@@ -171,14 +171,14 @@ void Domain::println_non_empty_elements_count() const {
         cout << count_non_empty_elements() << endl;
     }
 
-void Domain::print_el_tree_nodes_count() const {
-        cout << get_el_tree_nodes().size() << endl;
+void Domain::print_element_tree_nodes_count() const {
+        cout << get_element_tree_nodes().size() << endl;
     }
 
 void Domain::print_galois_output() const {
         print_bsplines_line_by_line();
         print_bsplines_per_elements();
-        print_elements_per_el_tree_nodes();
+        print_elements_per_element_tree_nodes();
     }
 
 void Domain::print_line(Coord x1, Coord y1, Coord x2, Coord y2) {
@@ -275,12 +275,12 @@ int Domain::count_elements_within_box(const Cube &cube) const {
 		return count;
 	}
 
-Node *Domain::add_el_tree_element(Cube cube, Node *parent) {
-		Node* node = new Node(cube, el_tree_node_id++);
+Node *Domain::add_element_tree_element(Cube cube, Node *parent) {
+		Node* node = new Node(cube, element_tree_node_id++);
 		if (parent){
 			parent->add_child(node);
 		}
-		el_tree_nodes.push_back(node);
+		element_tree_nodes.push_back(node);
 		return node;
     }
 
@@ -295,8 +295,8 @@ void Domain::tree_process_cut_off_box(int dim, Node *node, bool toggle_dim) {
 		Cube first_half, second_half;
 		cut_off_cube.split_halves(dim, &first_half, &second_half);
 
-		Node* first_half_node = this->add_el_tree_element(first_half, node);
-		Node* second_half_node = this->add_el_tree_element(second_half, node);
+		Node* first_half_node = this->add_element_tree_element(first_half, node);
+		Node* second_half_node = this->add_element_tree_element(second_half, node);
 
 		if (toggle_dim)
 			dim ^= 1;
@@ -305,13 +305,13 @@ void Domain::tree_process_cut_off_box(int dim, Node *node, bool toggle_dim) {
 		try_to_tree_process(dim, second_half_node, toggle_dim);
 	}
 
-const vector<Node *> &Domain::get_el_tree_nodes() const {
-		return el_tree_nodes;
+const vector<Node *> &Domain::get_element_tree_nodes() const {
+		return element_tree_nodes;
 	}
 
-void Domain::print_elements_per_el_tree_nodes() const {
-        print_el_tree_nodes_count();
-        for (const Node* node: get_el_tree_nodes()) {
+void Domain::print_elements_per_element_tree_nodes() const {
+        print_element_tree_nodes_count();
+        for (const Node* node: get_element_tree_nodes()) {
             node->print_num();
             print_elements_count_within_node(node);
             print_elements_level_and_id_within_box(node);
@@ -319,12 +319,12 @@ void Domain::print_elements_per_el_tree_nodes() const {
         }
     }
 
-void Domain::print_el_tree_size() const {
+void Domain::print_element_tree_size() const {
 		cout << get_cut_off_boxes().size() << endl;
 	}
 
-void Domain::print_el_tree_for_draw() const {
-		print_el_tree_size();
+void Domain::print_element_tree_for_draw() const {
+		print_element_tree_size();
 		for (const Cube& box: get_cut_off_boxes()) {
 			box.print_full();
 		}
@@ -426,7 +426,7 @@ void Domain::print_bsplines_per_elements() const {
         println_non_empty_elements_count();
         for(auto& e : elements)
 			if (e.non_empty()) {
-				e.print_level_id_and_bsplines(e.get_id_within_lvl());
+				e.print_level_id_and_bsplines(e.get_id_within_level());
 			}
     }
 
@@ -458,9 +458,9 @@ void Domain::enumerate_all_elements() {
         int i = 0;
         for (const auto& e: old_elements) {
             if (e.non_empty()){
-				int lvl = compute_level(e);
-				int id = get_e_num_per_level_and_inc(lvl);
-				elements.push_back(Cube(e, i++, lvl, id, -1));
+				int level = compute_level(e);
+				int id = get_e_num_per_level_and_inc(level);
+				elements.push_back(Cube(e, i++, level, id, -1));
             } else {
 				elements.push_back(Cube(e, i++, -1, -1, -1));
             }
@@ -484,6 +484,6 @@ void Domain::allocate_elements_count_by_level_vector(int depth) {
 	elements_count_by_level.resize(depth + 1);
 }
 
-int Domain::get_e_num_per_level_and_inc(int lvl) const {
-	return ++elements_count_by_level[lvl];
+int Domain::get_e_num_per_level_and_inc(int level) const {
+	return ++elements_count_by_level[level];
 }
