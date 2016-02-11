@@ -5,11 +5,12 @@
 rm -rf tmp
 mkdir tmp
 
-MAX_DEPTH=${1-25}
-depths="`seq 1 ${MAX_DEPTH}`"
+max_depth=${1-25}
+generate_cmd=${2-../generate -g -4}
+output_prefix=${3-flops-generate}
 
-for depth in $depths; do
-    ../generate -g --edged-4 $depth > tmp/mesh-$depth
+for depth in `seq $max_depth`; do
+    $generate_cmd $depth > tmp/mesh-$depth
     ~/meshestimator/analyser -f tmp/mesh-$depth > tmp/flops-$depth
     cat tmp/flops-$depth | awk 'BEGIN { max=0 } { sum+=$3; if ($1>max) max=$1 } END {print max+1, sum}' >> tmp/total-flops
 done
@@ -33,7 +34,7 @@ a_x__b() {
 plot() {
 gnuplot << EOF
 	set terminal png
-	set output 'total-flops-${output_suffix}.png'
+	set output '${output_prefix}-${output_suffix}.png'
 	fit(x) = $fit_fun
 	$fit_init
 	fit fit(x) 'tmp/total-flops' via $fit_via
@@ -50,5 +51,5 @@ plot
 a_x__b
 plot
 
-eog total-flops-*.png
+eog ${output_prefix}-*.png
 
