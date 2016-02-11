@@ -10,6 +10,7 @@ generate_cmd=${2-../generate -g -4}
 output_prefix=${3-flops-generate}
 
 for depth in `seq $max_depth`; do
+	echo $depth
     $generate_cmd $depth > tmp/mesh-$depth
     ~/meshestimator/analyser -f tmp/mesh-$depth > tmp/flops-$depth
     cat tmp/flops-$depth | awk 'BEGIN { max=0 } { sum+=$3; if ($1>max) max=$1 } END {print max+1, sum}' >> tmp/total-flops
