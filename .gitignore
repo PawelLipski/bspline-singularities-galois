@@ -11,5 +11,6 @@ gnuplot
 
 eps/
 png/
-flops-per-depth/
+flops-estimates/tmp/
+flops-estimates/fit.log
 test-ref-output/
