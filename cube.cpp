@@ -239,6 +239,15 @@ vector<Coord> Cube::compute_bspline_support_2D() {
 	return support_bounds;
 };
 
+bool Cube::is_bspline_duplicated(int bspline_num) {
+	for (int curr_bspline: bsplines) {
+		if (curr_bspline == bspline_num) {
+			return true;
+		}
+	}
+	return false;
+}
+
 void Cube::add_bspline(int bspline_num) {
 	bsplines.push_back(bspline_num);
 }

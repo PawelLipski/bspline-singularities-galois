@@ -98,6 +98,9 @@ public:
 
 	void add_bspline(int bspline_num);
 
+	bool is_bspline_duplicated(int bspline_num);
+
+
 private:
 
 	// Number of dimensions.

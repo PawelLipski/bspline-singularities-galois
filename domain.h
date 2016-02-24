@@ -88,7 +88,7 @@ public:
 
 	void compute_bsplines_supports(MeshType type, int order);
 
-	void compute_bspline_support(const MeshType &type, int order, Cube &e);
+	void compute_bspline_support(MeshType type, int order, Cube &e, int original_bspline_num);
 
 	void print_support_for_each_bspline() const;
 

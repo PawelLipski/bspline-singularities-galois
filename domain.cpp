@@ -381,11 +381,11 @@ void Domain::untweak_bounds() {
 
 void Domain::compute_bsplines_supports(MeshType type, int order) {
 	for (auto& e: elements) {
-		compute_bspline_support(type, order, e);
+		compute_bspline_support(type, order, e, e.get_num());
 	}
 }
 
-void Domain::compute_bspline_support(const MeshType &type, int order, Cube &e) {
+void Domain::compute_bspline_support(MeshType type, int order, Cube &e, int original_bspline_num) {
 	const vector<Coord> &support_bounds = e.compute_bspline_support_2D();
 	const Cube &support_cube = Cube(support_bounds[0], support_bounds[1], support_bounds[2], support_bounds[3]);
 	for (auto &support_candidate: elements) {
@@ -396,9 +396,11 @@ void Domain::compute_bspline_support(const MeshType &type, int order, Cube &e) {
 						continue;
 					}
 				}
-				support_candidate.add_bspline(e.get_num());
+				if (!support_candidate.is_bspline_duplicated(original_bspline_num)) {
+					support_candidate.add_bspline(original_bspline_num);
+				}
 				if (order > 2) {
-					//cout << order << endl;
+					compute_bspline_support(type, order - 1, support_candidate, original_bspline_num);
 				}
 			}
 		}
