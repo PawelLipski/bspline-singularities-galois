@@ -379,12 +379,16 @@ void Domain::untweak_bounds() {
 
 /*** B-SPLINES ***/
 
-void Domain::compute_bsplines_supports(MeshType type) {
+void Domain::compute_bsplines_supports(MeshType type, int order) {
 	for (auto& e: elements) {
-		vector<Coord> support;
-		const vector<Coord> &support_bounds = e.compute_bspline_support_2D();
-		const Cube &support_cube = Cube(support_bounds[0], support_bounds[1], support_bounds[2], support_bounds[3]);
-		for (auto& support_candidate: elements) {
+		compute_bspline_support(type, order, e);
+	}
+}
+
+void Domain::compute_bspline_support(const MeshType &type, int order, Cube &e) {
+	const vector<Coord> &support_bounds = e.compute_bspline_support_2D();
+	const Cube &support_cube = Cube(support_bounds[0], support_bounds[1], support_bounds[2], support_bounds[3]);
+	for (auto &support_candidate: elements) {
 			if (support_candidate.non_empty() && support_candidate.contained_in_box(support_cube)) {
 				if (type == EDGED_4 && e.is_point_2D()) {
 					Coord min_el_size = e.get_neighbor(0)->get_size(0) / 2;
@@ -393,10 +397,11 @@ void Domain::compute_bsplines_supports(MeshType type) {
 					}
 				}
 				support_candidate.add_bspline(e.get_num());
-				support.push_back(support_candidate.get_num());
+				if (order > 2) {
+					//cout << order << endl;
+				}
 			}
 		}
-	}
 }
 
 void Domain::print_support_for_each_bspline() const {

@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
 	}
 
 	int depth = argc == 2 ? atoi(argv[1]) : 3;
-	// int order = 2; // atoi(argv[2])
+	int order = 3; // atoi(argv[2])
 
 	Coord size = (output_format == GALOIS ? 4L : 2L) << depth;  // so that the smallest elements are of size 1x1
 	Cube outmost_box(get_outmost_box(size));
@@ -118,11 +118,11 @@ int main(int argc, char** argv) {
 
 	} else if (output_format == DRAW_SUPPORTS) {
 		domain.print_all_elements();
-		domain.compute_bsplines_supports(mesh_type);
+		domain.compute_bsplines_supports(mesh_type, order);
 		domain.print_support_for_each_bspline();
 
 	} else if (output_format == GALOIS) {
-		domain.compute_bsplines_supports(mesh_type);
+		domain.compute_bsplines_supports(mesh_type, order);
 
 		edge_offset = size / 4;
 		outer_box = outmost_box;

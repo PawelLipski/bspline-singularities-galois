@@ -86,7 +86,9 @@ public:
 
 	void untweak_bounds();
 
-	void compute_bsplines_supports(MeshType type);
+	void compute_bsplines_supports(MeshType type, int order);
+
+	void compute_bspline_support(const MeshType &type, int order, Cube &e);
 
 	void print_support_for_each_bspline() const;
 
@@ -111,11 +113,11 @@ private:
 	void add_element(const Cube &e);
 
 	int get_e_num_per_level_and_inc(int level) const;
-
 	Cube original_box;
 	vector<Cube> elements;
 	vector<Cube> cut_off_boxes;
 	vector<Node *> tree_nodes;
+
 	mutable vector<int> elements_count_by_level;
 
 	int tree_node_id = 0;
