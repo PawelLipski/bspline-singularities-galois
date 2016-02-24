@@ -65,8 +65,22 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	int depth = argc == 2 ? atoi(argv[1]) : 3;
-	int order = argc == 3 ? atoi(argv[2]) : 2;
+	int depth;
+	if (argc >= 2) {
+		depth = atoi(argv[1]);
+		argc--;
+		argv++;
+	} else {
+		depth = 3;
+	}
+
+	int order;
+	if (argc >= 2) {
+		order = atoi(argv[1]);
+	} else {
+		order = 2;
+	}
+
 
 	Coord size = (output_format == GALOIS ? 4L : 2L) << depth;  // so that the smallest elements are of size 1x1
 	Cube outmost_box(get_outmost_box(size));
