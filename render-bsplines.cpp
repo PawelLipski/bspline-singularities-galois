@@ -138,6 +138,7 @@ int main(int argc, char** argv) {
 		print_grid_line(left,  down, left,  up,   hl);
 	}
 	print_config(size, SAMPLE_CNT);
+	print_rotate_view(60, 45);
 	if (output == EPS)
 		print_eps_terminal(argv[1]);
 

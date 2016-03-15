@@ -31,6 +31,8 @@ void samples_2d(const Function2D* f, const string& data_file, int sample_cnt);
 
 void print_config(int size, int sample_cnt);
 
+void print_rotate_view(int x, int y);
+
 void print_eps_terminal(const string& output_eps);
 
 void print_grid_line(int x1, int y1, int x2, int y2, bool highlight);

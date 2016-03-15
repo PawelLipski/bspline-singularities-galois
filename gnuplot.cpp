@@ -8,7 +8,6 @@ using namespace std;
 
 /*** Function sampling ***/
 
-
 double interpolate(double from, double to, int index, int interval_cnt) {
 	return from + (to - from) / interval_cnt * index;
 }
@@ -47,7 +46,10 @@ void print_config(int size, int sample_cnt) {
 
 	cout << "set hidden3d" << endl;
 	cout << "set dgrid3d " << sample_cnt << ", " << sample_cnt << endl;
-	cout << "set view 60,45" << endl;
+}
+
+void print_rotate_view(int x, int y) {
+	cout << "set view " << x << "," << y << endl;
 }
 
 void print_eps_terminal(const string& output_eps) {
