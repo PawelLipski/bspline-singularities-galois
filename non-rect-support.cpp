@@ -30,7 +30,7 @@ public:
 
 
 int SIZE = 2; // in each dimension
-int SAMPLE_CNT = 31; // in each dimension
+int SAMPLE_CNT = 15; // in each dimension
 
 void output_function(const string& data_file) {
 	GnomonShaped gnomon;
@@ -47,11 +47,12 @@ int main(int argc, char** argv) {
 	}
 
 	int left = 0, right = 2, up = 0, down = 2;
-	bool hl = true;
-	print_grid_line(left,  up,   right, up,   hl);
-	print_grid_line(right, up,   right, down, hl);
-	print_grid_line(right, down, left,  down, hl);
-	print_grid_line(left,  down, left,  up,   hl);
+	print_grid_line(left,  up,   right, up,   true);
+	print_grid_line(right, up,   right, down, true);
+	print_grid_line(right, down, left,  down, true);
+	print_grid_line(left,  down, left,  up,   true);
+	print_grid_line(0, 1, 2, 1, false);
+	print_grid_line(1, 0, 1, 2, false);
 
 	print_config(SIZE, SAMPLE_CNT);
 	print_rotate_view(30, 15);
