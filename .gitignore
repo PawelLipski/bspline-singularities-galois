@@ -7,7 +7,7 @@
 bsplines
 draw
 generate
-gnuplot
+render-bsplines
 
 eps/
 png/
