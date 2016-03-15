@@ -6,11 +6,11 @@ PROGRAMS = draw gnuplot generate
 
 all: $(PROGRAMS)
 
-gnuplot: gnuplot.cpp
-	g++ -o $@ $< $(CPPFLAGS)
+gnuplot: gnuplot.cpp cube.o
+	$(CC) -o $@ $^ $(CPPFLAGS)
 
 draw: draw.cpp
-	g++ -o $@ $< $(CPPFLAGS) `sdl-config --libs --cflags`
+	$(CC) -o $@ $^ $(CPPFLAGS) `sdl-config --libs --cflags`
 
 %.o: %.cpp $(DEPS)
 	$(CC) $(CPPFLAGS) -c -o $@ $<

@@ -2,6 +2,8 @@
 #include <iostream>
 #include <vector>
 
+#include "cube.h"
+
 using namespace std;
 
 const int SAMPLES = 31;
@@ -39,62 +41,101 @@ struct FunctionDef {
 
 };
 
+
+class Function2D {
+
+public:
+	Function2D(const Cube& _support): support(_support) {}
+
+	virtual double apply(double x, double y) const = 0;
+
+	const Cube& get_support() const {
+		return support;
+	}
+
+private:
+	Cube support;
+};
+
+
+class Bspline2D: public Function2D {
+public:
+	Bspline2D(const vector<double>& _x_knots, const vector<double>& _y_knots):
+		Function2D(get_containing_cube(_x_knots, _y_knots)),
+		x_knots(_x_knots),
+		y_knots(_y_knots) {
+	}
+
+	double apply(double x, double y) const {
+		return apply_1d(x_knots, x) * apply_1d(y_knots, y);
+	}
+
+private:
+	Cube get_containing_cube(const vector<double>& _x_knots, const vector<double>& _y_knots) const {
+		return Cube(
+			_x_knots.front(), _x_knots.back(),
+			_y_knots.front(), _y_knots.back());
+	}
+
+	static double apply_1d(const vector<double>& knots, double point) {
+		int order = knots.size() - 2;
+
+		// 0..order o's, 0..order b's
+		double* values = new double[(order+1)*(order+1)];
+		#define val(o,b) values[(o) * (order+1) + (b)]
+
+		for (int o = 0; o <= order; o++) {
+			for (int b = 0; b <= order-o; b++) {
+				if (o == 0) {
+					bool point_covered = knots[b] <= point && point < knots[b+1];
+					val(0, b) = point_covered ? 1.0 : 0.0;
+				} else {
+					double left_num  = point - knots[b];
+					double left_den  = knots[b+o] - knots[b];
+					double right_num = knots[b+o+1] - point;
+					double right_den = knots[b+o+1] - knots[b+1];
+				
+					double left = 0.0, right = 0.0;
+					if (left_den != 0.0)
+						left = left_num  / left_den * val(o-1, b);
+					if (right_den != 0.0)
+						right = right_num / right_den * val(o-1, b+1);
+
+					val(o, b) = left + right;
+				}
+			}
+		}
+
+		double result = val(order, 0);
+		delete values;
+		return result;
+	}
+
+	vector<double> x_knots, y_knots;
+};
+
 const int function_def_cnt = sizeof(function_defs) / sizeof(function_defs[0]);
 
 int size;
 
+
 /*** B-spline sampling ***/
-
-double bspline(const vector<double>& knots, double point) {
-
-	int order = knots.size() - 2;
-
-	// 0..order o's, 0..order b's
-	double* values = new double[(order+1)*(order+1)];
-	#define val(o,b) values[(o) * (order+1) + (b)]
-
-	for (int o = 0; o <= order; o++) {
-		for (int b = 0; b <= order-o; b++) {
-			if (o == 0) {
-				bool point_covered = knots[b] <= point && point < knots[b+1];
-				val(0, b) = point_covered ? 1.0 : 0.0;
-			} else {
-				double left_num  = point - knots[b];
-				double left_den  = knots[b+o] - knots[b];
-				double right_num = knots[b+o+1] - point;
-				double right_den = knots[b+o+1] - knots[b+1];
-			
-				double left = 0.0, right = 0.0;
-				if (left_den != 0.0)
-					left = left_num  / left_den * val(o-1, b);
-				if (right_den != 0.0)
-					right = right_num / right_den * val(o-1, b+1);
-
-				val(o, b) = left + right;
-			}
-		}
-	}
-
-	double result = val(order, 0);
-	delete values;
-	return result;
-}
 
 double interpolate(double from, double to, int index, int interval_cnt) {
 	return from + (to - from) / interval_cnt * index;
 }
 
-void bspline_samples_2d(const string& data_file, const vector<double>& x_knots, const vector<double>& y_knots) {
+void samples_2d(const Function2D* f, const string& data_file) {
 	ofstream fout(data_file);
 	int interval_cnt = SAMPLES - 1;
-	for (int xi = 0; xi < SAMPLES; xi++) {	
-		double x = interpolate(x_knots.front(), x_knots.back(), xi, interval_cnt);
-		double x_val = bspline(x_knots, x);	
-
+	Cube support = f->get_support();
+	for (int xi = 0; xi < SAMPLES; xi++) {
+		double x = interpolate(support.left(), support.right(), xi, interval_cnt);
 		for (int yi = 0; yi < SAMPLES; yi++) {
-			double y = interpolate(y_knots.front(), y_knots.back(), yi, interval_cnt);
-			double y_val = bspline(y_knots, y);	
-			fout << x << " " << y << " " << x_val * y_val << endl;
+			double y = interpolate(support.up(), support.down(), yi, interval_cnt);
+
+			double val = f->apply(x, y);
+			fout << x << " " << y << " " << val << endl;
 		}
 	}
 	fout.close();
@@ -135,8 +176,9 @@ void print_grid_line(int x1, int y1, int x2, int y2, bool highlight) {
 	line_no++;
 }
 
-void output_predef_function(const string& data_file, int index) {
-	bspline_samples_2d(data_file, function_defs[index].x_knots, function_defs[index].y_knots);
+void output_predef_function(int index, const string& data_file) {
+	Bspline2D bspline(function_defs[index].x_knots, function_defs[index].y_knots);
+	samples_2d(&bspline, data_file);
 }
 
 void print_plot_command(const string& data_file, const string& color, bool replot) {
@@ -187,7 +229,7 @@ int main(int argc, char** argv) {
 	for (int i = 2; i < argc; i++) {
 		string data_file = string("bspline") + argv[i] + ".dat";
 		int function_index = atoi(argv[i]);
-		output_predef_function(data_file, function_index);
+		output_predef_function(function_index, data_file);
 		print_plot_command(data_file, function_defs[function_index].color, i > 2);
 	}
 	cout << endl;
