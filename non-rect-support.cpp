@@ -56,7 +56,7 @@ public:
 
 class GnomonedBspline: public Function2D {
 public:
-	GnomonedBspline(): Function2D(Cube(4, 6, 4, 6)), bspline({0, 0, 2, 2}, {0, 0, 2, 2}) {
+	GnomonedBspline(): Function2D(Cube(4, 6, 4, 6)), bspline({0, 1, 2, 2}, {0, 1, 2, 2}) {
 	}
 
 	double apply(double x, double y) const {
@@ -64,7 +64,7 @@ public:
 	}
 
 private:
-	LinearGnomon gnomon;
+	QuadraticGnomon gnomon;
 	Bspline2D bspline;
 };
 
@@ -89,25 +89,29 @@ int main(int argc, char** argv) {
 	print_grid_line(2, 3, 4, 3, false);
 	print_grid_line(3, 2, 3, 4, false);
 
+	print_grid_rect(4, 4, 6, 6, true);
+	print_grid_line(4, 5, 6, 5, false);
+	print_grid_line(5, 4, 5, 6, false);
+
 	print_config(SIZE, SAMPLE_CNT);
 	print_rotate_view(30, 15);
 	if (output == EPS)
 		print_eps_terminal(argv[1]);
 
 	string gnomon_file = "gnomon.dat";
-	LinearGnomon gnomon;
+	QuadraticGnomon gnomon;
 	samples_2d(&gnomon, gnomon_file, SAMPLE_CNT);
 	print_plot_command(gnomon_file, "red", false);
 
 	string bspline_file = "bspline.dat";
-	Bspline2D bspline({2, 3, 3, 4}, {2, 3, 3, 4});
+	Bspline2D bspline({2, 3, 4, 4}, {2, 3, 4, 4});
 	samples_2d(&bspline, bspline_file, SAMPLE_CNT);
-	print_plot_command(bspline_file, "green", true);
+	print_plot_command(bspline_file, "navy", true);
 
 	string gb_file = "gb.dat";
 	GnomonedBspline gb;
 	samples_2d(&gb, gb_file, SAMPLE_CNT);
-	print_plot_command(gb_file, "blue", true);
+	print_plot_command(gb_file, "black", true);
 
 	cout << endl;
 	if (output == SCREEN)

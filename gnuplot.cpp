@@ -75,7 +75,7 @@ void print_grid_rect(int left, int up, int right, int down, bool highlight) {
 
 void print_plot_command(const string& data_file, const string& color, bool replot) {
 	// alternatively: with pm3d
-	cout << (replot ? ", " : "splot ") << "\"" << data_file << "\" with lines lc rgb \"" << color << "\"";
+	cout << (replot ? ", " : "splot ") << "\"" << data_file << "\" with lines lc rgb '" << color << "'";
 }
 
 void print_pause() {
