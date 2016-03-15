@@ -17,20 +17,34 @@ public:
 
 		if (1 < y) { // Upper half
 			if (x < 1) // Left-upper quarter
-				return y - 1;
+				return (y - 1) / 2;
 			else // Right-upper quarter
-				return x + y - 2;
+				return (x + y - 2) / 2;
 		} else { // Lower half
 			if (x < 1) // Left-lower quarter
 				return 0;
 			else // Right-lower quarter
-				return x - 1;
+				return (x - 1) / 2;
 		}
 	}
 };
 
+class GnomonedBspline: public Function2D {
+public:
+	GnomonedBspline(): Function2D(Cube(4, 6, 4, 6)), bspline({0, 0, 2, 2}, {0, 0, 2, 2}) {
+	}
 
-int SIZE = 4; // in each dimension
+	double apply(double x, double y) const {
+		return 12 * gnomon.apply(x - 4, y - 4) * bspline.apply(x - 4, y - 4);
+	}
+
+private:
+	GnomonShaped gnomon;
+	Bspline2D bspline;
+};
+
+
+int SIZE = 6; // in each dimension
 int SAMPLE_CNT = 15; // in each dimension
 
 int main(int argc, char** argv) {
@@ -64,6 +78,11 @@ int main(int argc, char** argv) {
 	Bspline2D bspline({2, 3, 3, 4}, {2, 3, 3, 4});
 	samples_2d(&bspline, bspline_file, SAMPLE_CNT);
 	print_plot_command(bspline_file, "green", true);
+
+	string gb_file = "gb.dat";
+	GnomonedBspline gb;
+	samples_2d(&gb, gb_file, SAMPLE_CNT);
+	print_plot_command(gb_file, "blue", true);
 
 	cout << endl;
 	if (output == SCREEN)
