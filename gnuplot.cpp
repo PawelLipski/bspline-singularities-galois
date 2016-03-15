@@ -8,6 +8,92 @@ using namespace std;
 
 const int SAMPLES = 31;
 
+
+class Function2D {
+
+public:
+	Function2D(const Cube& _support): support(_support) {}
+
+	virtual double apply(double x, double y) const = 0;
+
+	const Cube& get_support() const {
+		return support;
+	}
+
+private:
+	Cube support;
+};
+
+
+
+/*** Function sampling ***/
+
+double interpolate(double from, double to, int index, int interval_cnt) {
+	return from + (to - from) / interval_cnt * index;
+}
+
+void samples_2d(const Function2D* f, const string& data_file) {
+	ofstream fout(data_file);
+	int interval_cnt = SAMPLES - 1;
+	Cube support = f->get_support();
+	for (int xi = 0; xi < SAMPLES; xi++) {
+		double x = interpolate(support.left(), support.right(), xi, interval_cnt);
+		for (int yi = 0; yi < SAMPLES; yi++) {
+			double y = interpolate(support.up(), support.down(), yi, interval_cnt);
+
+			double val = f->apply(x, y);
+			fout << x << " " << y << " " << val << endl;
+		}
+	}
+	fout.close();
+}
+
+
+/*** Gnuplot script generation ***/
+
+void print_config(int size) {
+	cout << "unset border" << endl;
+	cout << "set key off" << endl;
+	cout << "unset xtics" << endl;
+	cout << "unset ytics" << endl;
+	cout << "unset ztics" << endl;
+	//cout << "set xlabel 'x'" << endl;
+	//cout << "set ylabel 'y'" << endl;
+	//cout << "set zlabel 'z'" << endl;
+
+	cout << "set xrange [0:" << size << "]" << endl;
+	cout << "set yrange [0:" << size << "]" << endl;
+
+	cout << "set hidden3d" << endl;
+	cout << "set dgrid3d " << SAMPLES << ", " << SAMPLES << endl;
+	cout << "set view 60,45" << endl;
+}
+
+void print_eps_terminal(const string& output_eps) {
+	cout << "set terminal eps" << endl;
+	cout << "set output \"eps/" << output_eps << ".eps\"" << endl;
+}
+
+void print_grid_line(int x1, int y1, int x2, int y2, bool highlight) {
+	static int line_no = 1;
+	int line_width = highlight ? 5 : 2;
+	cout << "set arrow " << line_no << " from "
+			<< x1 << "," << y1 << ",0 to "
+			<< x2 << "," << y2 << ",0 nohead lc rgb \"gray\" lw " << line_width << endl;
+	line_no++;
+}
+
+void print_plot_command(const string& data_file, const string& color, bool replot) {
+	// alternatively: with pm3d
+	cout << (replot ? ", " : "splot ") << "\"" << data_file << "\" with lines lc rgb \"" << color << "\"";
+}
+
+void print_pause() {
+	cout << "pause 15" << endl;
+}
+
+
+
 struct FunctionDef {
 	vector<double> x_knots, y_knots;
 	string color;
@@ -41,21 +127,7 @@ struct FunctionDef {
 
 };
 
-
-class Function2D {
-
-public:
-	Function2D(const Cube& _support): support(_support) {}
-
-	virtual double apply(double x, double y) const = 0;
-
-	const Cube& get_support() const {
-		return support;
-	}
-
-private:
-	Cube support;
-};
+const int function_def_cnt = sizeof(function_defs) / sizeof(function_defs[0]);
 
 
 class Bspline2D: public Function2D {
@@ -114,85 +186,16 @@ private:
 	vector<double> x_knots, y_knots;
 };
 
-const int function_def_cnt = sizeof(function_defs) / sizeof(function_defs[0]);
 
-int size;
-
-
-/*** B-spline sampling ***/
-
-double interpolate(double from, double to, int index, int interval_cnt) {
-	return from + (to - from) / interval_cnt * index;
-}
-
-void samples_2d(const Function2D* f, const string& data_file) {
-	ofstream fout(data_file);
-	int interval_cnt = SAMPLES - 1;
-	Cube support = f->get_support();
-	for (int xi = 0; xi < SAMPLES; xi++) {
-		double x = interpolate(support.left(), support.right(), xi, interval_cnt);
-		for (int yi = 0; yi < SAMPLES; yi++) {
-			double y = interpolate(support.up(), support.down(), yi, interval_cnt);
-
-			double val = f->apply(x, y);
-			fout << x << " " << y << " " << val << endl;
-		}
-	}
-	fout.close();
-}
-
-
-/*** Gnuplot script generation ***/
-
-void print_config() {
-	cout << "unset border" << endl;
-	cout << "set key off" << endl;
-	cout << "unset xtics" << endl;
-	cout << "unset ytics" << endl;
-	cout << "unset ztics" << endl;
-	//cout << "set xlabel 'x'" << endl;
-	//cout << "set ylabel 'y'" << endl;
-	//cout << "set zlabel 'z'" << endl;
-	
-	cout << "set xrange [0:" << size << "]" << endl;
-	cout << "set yrange [0:" << size << "]" << endl;
-
-	cout << "set hidden3d" << endl;
-	cout << "set dgrid3d " << SAMPLES << ", " << SAMPLES << endl;
-	cout << "set view 60,45" << endl;
-}
-
-void print_eps_terminal(const string& output_eps) {
-	cout << "set terminal eps" << endl;
-	cout << "set output \"eps/" << output_eps << ".eps\"" << endl;
-}
-
-void print_grid_line(int x1, int y1, int x2, int y2, bool highlight) {
-	static int line_no = 1;
-	int line_width = highlight ? 5 : 2;
-	cout << "set arrow " << line_no << " from "
-			<< x1 << "," << y1 << ",0 to "
-			<< x2 << "," << y2 << ",0 nohead lc rgb \"gray\" lw " << line_width << endl;
-	line_no++;
-}
+struct Bounds {
+	int left, right, up, down;
+};
 
 void output_predef_function(int index, const string& data_file) {
 	Bspline2D bspline(function_defs[index].x_knots, function_defs[index].y_knots);
 	samples_2d(&bspline, data_file);
 }
 
-void print_plot_command(const string& data_file, const string& color, bool replot) {
-	// alternatively: with pm3d
-	cout << (replot ? ", " : "splot ") << "\"" << data_file << "\" with lines lc rgb \"" << color << "\"";
-}
-
-void print_pause() {
-	cout << "pause 15" << endl;
-}
-
-struct Bounds {
-	int left, right, up, down;
-};
 
 int main(int argc, char** argv) {
 	enum OutputTerminal {
@@ -205,6 +208,7 @@ int main(int argc, char** argv) {
 	int N;
 	cin >> N;
 	vector<Bounds> bs;
+	int size = 0;
 	for (int i = 0; i < N; i++) {
 		Bounds b;
 		cin >> b.left >> b.right >> b.up >> b.down;
@@ -222,7 +226,7 @@ int main(int argc, char** argv) {
 		print_grid_line(right, down, left,  down, hl);
 		print_grid_line(left,  down, left,  up,   hl);
 	}
-	print_config();
+	print_config(size);
 	if (output == EPS)
 		print_eps_terminal(argv[1]);
 

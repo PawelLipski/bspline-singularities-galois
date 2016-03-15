@@ -21,8 +21,12 @@ for line in `./test-commands.sh`; do
 	cmd=`cut -d'#' -f1 <<< $line`
 	name=`cut -d'#' -f2 <<< $line`
 	eval $cmd > ${name}.out
-	cmp ${name}.out $refdir/${name}.out || { echo Error in ${name}.out!; all_ok=false; }
-	rm -f ${name}.out
+	cmp ${name}.out $refdir/${name}.out && {
+		rm -f ${name}.out
+	} || {
+		echo Error in ${name}.out!
+		all_ok=false
+	}
 done
 
 $all_ok && echo All ok.
