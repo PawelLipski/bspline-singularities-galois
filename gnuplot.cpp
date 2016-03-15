@@ -66,6 +66,13 @@ void print_grid_line(int x1, int y1, int x2, int y2, bool highlight) {
 	line_no++;
 }
 
+void print_grid_rect(int left, int up, int right, int down, bool highlight) {
+	print_grid_line(left,  up,   right, up,   highlight);
+	print_grid_line(right, up,   right, down, highlight);
+	print_grid_line(right, down, left,  down, highlight);
+	print_grid_line(left,  down, left,  up,   highlight);
+}
+
 void print_plot_command(const string& data_file, const string& color, bool replot) {
 	// alternatively: with pm3d
 	cout << (replot ? ", " : "splot ") << "\"" << data_file << "\" with lines lc rgb \"" << color << "\"";

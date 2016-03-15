@@ -30,7 +30,7 @@ public:
 };
 
 
-int SIZE = 2; // in each dimension
+int SIZE = 4; // in each dimension
 int SAMPLE_CNT = 15; // in each dimension
 
 int main(int argc, char** argv) {
@@ -42,13 +42,13 @@ int main(int argc, char** argv) {
 		output = SCREEN;
 	}
 
-	int left = 0, right = 2, up = 0, down = 2;
-	print_grid_line(left,  up,   right, up,   true);
-	print_grid_line(right, up,   right, down, true);
-	print_grid_line(right, down, left,  down, true);
-	print_grid_line(left,  down, left,  up,   true);
+	print_grid_rect(0, 0, 2, 2, true);
 	print_grid_line(0, 1, 2, 1, false);
 	print_grid_line(1, 0, 1, 2, false);
+
+	print_grid_rect(2, 2, 4, 4, true);
+	print_grid_line(2, 3, 4, 3, false);
+	print_grid_line(3, 2, 3, 4, false);
 
 	print_config(SIZE, SAMPLE_CNT);
 	print_rotate_view(30, 15);
@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
 	print_plot_command(gnomon_file, "red", false);
 
 	string bspline_file = "bspline.dat";
-	Bspline2D bspline({0, 1, 1, 2}, {0, 1, 1, 2});
+	Bspline2D bspline({2, 3, 3, 4}, {2, 3, 3, 4});
 	samples_2d(&bspline, bspline_file, SAMPLE_CNT);
 	print_plot_command(bspline_file, "green", true);
 

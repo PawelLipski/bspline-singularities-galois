@@ -37,6 +37,8 @@ void print_eps_terminal(const string& output_eps);
 
 void print_grid_line(int x1, int y1, int x2, int y2, bool highlight);
 
+void print_grid_rect(int left, int up, int right, int down, bool highlight);
+
 void print_plot_command(const string& data_file, const string& color, bool replot);
 
 void print_pause();
