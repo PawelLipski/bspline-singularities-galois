@@ -6,25 +6,50 @@ using namespace std;
 #include "bspline.h"
 
 
-class GnomonShaped: public Function2D {
+class LinearGnomon: public Function2D {
 public:
-	GnomonShaped(): Function2D(Cube(0, 2, 0, 2)) {
+	LinearGnomon(): Function2D(Cube(0, 2, 0, 2)) {
 	}
 
 	double apply(double x, double y) const {
 		if (x < 0 || 2 < x || y < 0 || 2 < y)
 			return 0.0;
 
-		if (1 < y) { // Upper half
-			if (x < 1) // Left-upper quarter
-				return (y - 1) / 2;
+		x--, y--;
+		if (0 < y) { // Upper half
+			if (x < 0) // Left-upper quarter
+				return y / 2;
 			else // Right-upper quarter
-				return (x + y - 2) / 2;
+				return (x + y) / 2;
 		} else { // Lower half
-			if (x < 1) // Left-lower quarter
+			if (x < 0) // Left-lower quarter
 				return 0;
 			else // Right-lower quarter
-				return (x - 1) / 2;
+				return x / 2;
+		}
+	}
+};
+
+class QuadraticGnomon: public Function2D {
+public:
+	QuadraticGnomon(): Function2D(Cube(0, 2, 0, 2)) {
+	}
+
+	double apply(double x, double y) const {
+		if (x < 0 || 2 < x || y < 0 || 2 < y)
+			return 0.0;
+
+		x--, y--;
+		if (0 < y) { // Upper half
+			if (x < 0) // Left-upper quarter
+				return y * y / 4;
+			else // Right-upper quarter
+				return (x + y) * (x + y) / 4;
+		} else { // Lower half
+			if (x < 0) // Left-lower quarter
+				return 0;
+			else // Right-lower quarter
+				return x * x / 4;
 		}
 	}
 };
@@ -39,7 +64,7 @@ public:
 	}
 
 private:
-	GnomonShaped gnomon;
+	LinearGnomon gnomon;
 	Bspline2D bspline;
 };
 
@@ -70,7 +95,7 @@ int main(int argc, char** argv) {
 		print_eps_terminal(argv[1]);
 
 	string gnomon_file = "gnomon.dat";
-	GnomonShaped gnomon;
+	LinearGnomon gnomon;
 	samples_2d(&gnomon, gnomon_file, SAMPLE_CNT);
 	print_plot_command(gnomon_file, "red", false);
 
