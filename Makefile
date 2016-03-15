@@ -1,9 +1,8 @@
 CPP = g++
 CPPFLAGS = -std=c++11 -Wall -Wshadow -Wextra -g
 CC = $(CPP) $(CPPFLAGS)
-HDRS = domain.h node.h cube.h gnuplot.h coord.h
-OBJS = domain.o node.o cube.o gnuplot.o
-PROGRAMS = draw generate render-bsplines non-rect-support
+HDRS = domain.h node.h cube.h gnuplot.h bspline.h coord.h
+PROGRAMS = draw generate non-rect-support render-bsplines
 SDLFLAGS = `sdl-config --libs --cflags`
 
 all: $(PROGRAMS)
@@ -11,13 +10,13 @@ all: $(PROGRAMS)
 draw: draw.cpp
 	$(CC) -o $@ $^ $(SDLFLAGS)
 
-generate: generate.cpp $(OBJS)
+generate: generate.cpp domain.o node.o cube.o
 	$(CC) -o $@ $^
 
-non-rect-support: non-rect-support.cpp gnuplot.o cube.o
+non-rect-support: non-rect-support.cpp bspline.o gnuplot.o cube.o
 	$(CC) -o $@ $^
 
-render-bsplines: render-bsplines.cpp gnuplot.o cube.o
+render-bsplines: render-bsplines.cpp bspline.o gnuplot.o cube.o
 	$(CC) -o $@ $^
 
 %.o: %.cpp $(HDRS)

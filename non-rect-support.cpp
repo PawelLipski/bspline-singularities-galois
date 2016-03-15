@@ -3,6 +3,7 @@
 using namespace std;
 
 #include "gnuplot.h"
+#include "bspline.h"
 
 
 class GnomonShaped: public Function2D {
@@ -32,11 +33,6 @@ public:
 int SIZE = 2; // in each dimension
 int SAMPLE_CNT = 15; // in each dimension
 
-void output_function(const string& data_file) {
-	GnomonShaped gnomon;
-	samples_2d(&gnomon, data_file, SAMPLE_CNT);
-}
-
 int main(int argc, char** argv) {
 	enum OutputTerminal {
 		EPS,
@@ -59,11 +55,17 @@ int main(int argc, char** argv) {
 	if (output == EPS)
 		print_eps_terminal(argv[1]);
 
-	string data_file = "gnomon.dat";
-	output_function(data_file);
-	print_plot_command(data_file, "red", false);
-	cout << endl;
+	string gnomon_file = "gnomon.dat";
+	GnomonShaped gnomon;
+	samples_2d(&gnomon, gnomon_file, SAMPLE_CNT);
+	print_plot_command(gnomon_file, "red", false);
 
+	string bspline_file = "bspline.dat";
+	Bspline2D bspline({0, 1, 1, 2}, {0, 1, 1, 2});
+	samples_2d(&bspline, bspline_file, SAMPLE_CNT);
+	print_plot_command(bspline_file, "green", true);
+
+	cout << endl;
 	if (output == SCREEN)
 		print_pause();
 }
