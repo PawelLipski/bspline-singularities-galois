@@ -1,22 +1,27 @@
-CC = g++
+CPP = g++
 CPPFLAGS = -std=c++11 -Wall -Wshadow -Wextra -g
-DEPS = domain.h node.h cube.h coord.h
-OBJ = generate.o domain.o node.o cube.o
-PROGRAMS = draw gnuplot generate
+CC = $(CPP) $(CPPFLAGS)
+HDRS = domain.h node.h cube.h gnuplot.h bspline.h coord.h
+PROGRAMS = draw generate non-rect-support render-bsplines
+SDLFLAGS = `sdl-config --libs --cflags`
 
 all: $(PROGRAMS)
 
-gnuplot: gnuplot.cpp
-	g++ -o $@ $< $(CPPFLAGS)
-
 draw: draw.cpp
-	g++ -o $@ $< $(CPPFLAGS) `sdl-config --libs --cflags`
+	$(CC) -o $@ $^ $(SDLFLAGS)
 
-%.o: %.cpp $(DEPS)
-	$(CC) $(CPPFLAGS) -c -o $@ $<
+generate: generate.cpp domain.o node.o cube.o
+	$(CC) -o $@ $^
 
-generate: $(OBJ)
-	$(CC) $(CPPFLAGS) -o $@ $^
+non-rect-support: non-rect-support.cpp bspline.o gnuplot.o cube.o
+	$(CC) -o $@ $^
+
+render-bsplines: render-bsplines.cpp bspline.o gnuplot.o cube.o
+	$(CC) -o $@ $^
+
+%.o: %.cpp $(HDRS)
+	$(CC) -c -o $@ $<
+
 
 .PHONY: zip-pngs clean
 
@@ -26,3 +31,4 @@ zip-pngs:
 
 clean:
 	@rm -f $(PROGRAMS) *.o
+

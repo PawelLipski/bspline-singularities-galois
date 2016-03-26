@@ -15,7 +15,7 @@ done
 
 for mesh in $meshes; do
 	for depth in $depths; do
-		echo "./generate --gnuplot --$mesh $depth | ./gnuplot -s #gnuplot_gnuplot_depth-${depth}_$mesh"
+		echo "./generate --gnuplot --$mesh $depth | ./render-bsplines -s #gnuplot_gnuplot_depth-${depth}_$mesh"
 	done
 done
 
