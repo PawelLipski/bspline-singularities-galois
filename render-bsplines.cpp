@@ -43,7 +43,7 @@ const int function_def_cnt = sizeof(function_defs) / sizeof(function_defs[0]);
 int SAMPLE_CNT = 31; // in each dimension
 
 void output_predef_function(int index, const string& data_file) {
-	Bspline2D bspline(function_defs[index].x_knots, function_defs[index].y_knots);
+	Bspline2D bspline(function_defs[index].x_knots, function_defs[index].y_knots, 1.0);
 	samples_2d(&bspline, data_file, SAMPLE_CNT);
 }
 

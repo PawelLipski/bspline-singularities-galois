@@ -56,7 +56,7 @@ public:
 
 class GnomonedBspline: public Function2D {
 public:
-	GnomonedBspline(): Function2D(Cube(4, 6, 4, 6)), bspline({0, 1, 2, 2}, {0, 1, 2, 2}) {
+	GnomonedBspline() : Function2D(Cube(4, 6, 4, 6)), bspline({0, 1, 2, 2}, {0, 1, 2, 2}, 1.0) {
 	}
 
 	double apply(double x, double y) const {
@@ -109,12 +109,12 @@ int main(int argc, char** argv) {
 
 
 	string l_bspline_file = "left_bspline.dat";
-	Bspline2D l_bspline({0, 0, 0, 2}, {0, 2, 2, 2});
+	Bspline2D l_bspline({0, 0, 0, 2}, {0, 2, 2, 2}, 2.0);
 	samples_2d(&l_bspline, l_bspline_file, SAMPLE_CNT);
 	print_plot_command(l_bspline_file, "red", false);
 
 	string r_bspline_file = "right_bspline.dat";
-	Bspline2D r_bspline({2, 2, 2, 4}, {2, 4, 4, 4});
+	Bspline2D r_bspline({2, 2, 2, 4}, {2, 4, 4, 4}, 0.5);
 	samples_2d(&r_bspline, r_bspline_file, SAMPLE_CNT);
 	print_plot_command(r_bspline_file, "navy", true);
 

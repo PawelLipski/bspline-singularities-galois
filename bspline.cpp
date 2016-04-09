@@ -2,7 +2,7 @@
 #include "bspline.h"
 
 double Bspline2D::apply(double x, double y) const {
-	return apply_1d(x_knots, x) * apply_1d(y_knots, y);
+	return constant * apply_1d(x_knots, x) * apply_1d(y_knots, y);
 }
 
 Cube Bspline2D::get_containing_cube(const vector<double>& _x_knots, const vector<double>& _y_knots) const {
