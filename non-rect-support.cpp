@@ -107,10 +107,16 @@ int main(int argc, char** argv) {
 //	samples_2d(&gnomon, gnomon_file, SAMPLE_CNT);
 //	print_plot_command(gnomon_file, "red", false);
 
-	string bspline_file = "bspline.dat";
-	Bspline2D bspline({2, 2, 2, 4}, {2, 4, 4, 4});
-	samples_2d(&bspline, bspline_file, SAMPLE_CNT);
-	print_plot_command(bspline_file, "navy", false);
+
+	string l_bspline_file = "left_bspline.dat";
+	Bspline2D l_bspline({0, 0, 0, 2}, {0, 2, 2, 2});
+	samples_2d(&l_bspline, l_bspline_file, SAMPLE_CNT);
+	print_plot_command(l_bspline_file, "red", false);
+
+	string r_bspline_file = "right_bspline.dat";
+	Bspline2D r_bspline({2, 2, 2, 4}, {2, 4, 4, 4});
+	samples_2d(&r_bspline, r_bspline_file, SAMPLE_CNT);
+	print_plot_command(r_bspline_file, "navy", true);
 
 //	string gb_file = "gb.dat";
 //	GnomonedBspline gb;
