@@ -80,11 +80,16 @@ void draw_line(int x1, int y1, int x2, int y2, int scale) {
 	}
 }
 
-void wait_until_key(int key) {
+bool wait_until_key_or_quit(int key) {
 	while (true) {
 		SDL_Event event;
-		if (SDL_PollEvent(&event) && was_key_up(event, key))
-			break;
+		int res = SDL_PollEvent(&event);
+		if (res && was_key_up(event, key)) {
+			return false;
+		}
+		if (res && was_key_up(event, SDLK_ESCAPE)) {
+			return true;
+		}
 		SDL_Delay(200);
 	}
 }
@@ -179,7 +184,10 @@ int main(int argc, char** argv) {
 			SDL_Rect mid = { Sint16(x*scale - 3), Sint16(y*scale - 3), 6, 6};
 			SDL_FillRect(screen, &mid, MGNTA);
 			SDL_Flip(screen);
-			wait_until_key(SDLK_SPACE);
+			if (wait_until_key_or_quit(SDLK_SPACE)) {
+				SDL_Quit();
+				return 0;
+			}
 			redraw();
 		}
 	}
@@ -200,7 +208,8 @@ int main(int argc, char** argv) {
 	*/
 
 	SDL_Flip(screen);
-	wait_until_key(SDLK_ESCAPE);
+	wait_until_key_or_quit(SDLK_ESCAPE);
 	SDL_Quit();
+	return 0;
 }
 
