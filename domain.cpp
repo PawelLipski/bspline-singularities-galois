@@ -388,14 +388,6 @@ void Domain::compute_bsplines_supports(MeshType type, int order) {
 void Domain::compute_bspline_support(MeshType type, int order, Cube &e, int original_bspline_num) {
 	const vector<Coord> &support_bounds = e.compute_bspline_support_2D();
 	const Cube &support_cube = Cube(support_bounds[0], support_bounds[1], support_bounds[2], support_bounds[3]);
-	const vector<double> &x_knots = get_dim_knots(e, support_cube, X_DIM);
-//	cout << "x_knots: ";
-//	for (int i = 0; i < x_knots.size(); ++i){
-//		cout << x_knots[i] << " ";
-//	}
-//	cout << endl;
-	const vector<double> &y_knots = get_dim_knots(e, support_cube, Y_DIM);
-	const Bspline2D &bspline = Bspline2D(x_knots, y_knots, 1.0);
 
 //	cout << "source el: ";
 //	e.print_bounds();
@@ -403,6 +395,22 @@ void Domain::compute_bspline_support(MeshType type, int order, Cube &e, int orig
 //	cout << "support bounds: ";
 //	support_cube.print_bounds();
 //	cout << endl;
+
+	const vector<double> &x_knots = e.get_dim_knots(support_cube, X_DIM);
+//	cout << "x_knots: ";
+//	for (int i = 0; i < x_knots.size(); ++i){
+//		cout << x_knots[i] << " ";
+//	}
+//	cout << endl;
+	const vector<double> &y_knots = e.get_dim_knots(support_cube, Y_DIM);
+	const Bspline2D &bspline = Bspline2D(x_knots, y_knots, 1.0);
+
+//	cout << "y_knots: ";
+//	for (int i = 0; i < y_knots.size(); ++i){
+//		cout << y_knots[i] << " ";
+//	}
+//	cout << endl;
+//
 //	cout << "bspline support: ";
 //	bspline.get_support().print_bounds();
 //	cout << endl;
@@ -509,23 +517,4 @@ void Domain::allocate_elements_count_by_level_vector(int depth) {
 
 int Domain::get_e_num_per_level_and_inc(int level) const {
 	return ++elements_count_by_level[level];
-}
-
-const vector<double> &Domain::get_dim_knots(Cube &source_el, const Cube &support_cube, int dim) {
-	int from = dim;
-	int to = dim + 1;
-	vector<double> knots;
-	knots.resize(4);
-	//middle elements of knots are always bounds of bspline source element
-	knots[1] = source_el.get_bound(from);
-	knots[2] = source_el.get_bound(to);
-	//1st and last elements of knots are always bspline support boundaries
-	knots[0] = support_cube.get_bound(from);
-	knots[3] = support_cube.get_bound(to);
-//	cout << "knots, at dim: " << dim << ", ";
-//	for (int i = 0; i < knots.size(); ++i){
-//		cout << knots[i] << " ";
-//	}
-//	cout << endl;
-	return knots;
 }

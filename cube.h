@@ -100,6 +100,7 @@ public:
 
 	bool is_bspline_duplicated(int bspline_num);
 
+	vector<double> get_dim_knots(const Cube &support_cube, int dim);
 
 private:
 

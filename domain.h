@@ -123,8 +123,6 @@ private:
 	mutable vector<int> elements_count_by_level;
 
 	int tree_node_id = 0;
-
-	const vector<double> &get_dim_knots(Cube &source_el, const Cube &support_cube, int dim);
 };
 
 #endif //BSPLINE_SINGULARITIES_GALOIS_DOMAIN_H

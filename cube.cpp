@@ -252,3 +252,16 @@ void Cube::add_bspline(int bspline_num) {
 	bsplines.push_back(bspline_num);
 }
 
+vector<double> Cube::get_dim_knots(const Cube &support_cube, int dim) {
+	int from = 2 * dim;
+	int to = 2 * dim + 1;
+	vector<double> knots;
+	knots.resize(dim_cnt * 2);
+	//middle elements of knots are always bounds of bspline source element
+	knots[1] = get_bound(from);
+	knots[2] = get_bound(to);
+	//1st and last elements of knots are always bspline support boundaries
+	knots[0] = support_cube.get_bound(from);
+	knots[3] = support_cube.get_bound(to);
+	return knots;
+}
