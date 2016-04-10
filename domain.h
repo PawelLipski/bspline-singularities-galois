@@ -123,6 +123,8 @@ private:
 	mutable vector<int> elements_count_by_level;
 
 	int tree_node_id = 0;
+
+	void add_bspline(const Bspline2D &bspline2D);
 };
 
 #endif //BSPLINE_SINGULARITIES_GALOIS_DOMAIN_H

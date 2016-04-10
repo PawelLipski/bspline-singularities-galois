@@ -383,6 +383,7 @@ void Domain::compute_bsplines_supports(MeshType type, int order) {
 	for (auto& e: elements) {
 		compute_bspline_support(type, order, e, e.get_num());
 	}
+	//cout << "bsplines count: " << bsplines2D.size() << endl;
 }
 
 void Domain::compute_bspline_support(MeshType type, int order, Cube &e, int original_bspline_num) {
@@ -414,6 +415,8 @@ void Domain::compute_bspline_support(MeshType type, int order, Cube &e, int orig
 //	cout << "bspline support: ";
 //	bspline.get_support().print_bounds();
 //	cout << endl;
+
+	add_bspline(bspline);
 
 	for (auto &support_candidate: elements) {
 			if (support_candidate.non_empty() && support_candidate.contained_in_box(support_cube)) {
@@ -517,4 +520,8 @@ void Domain::allocate_elements_count_by_level_vector(int depth) {
 
 int Domain::get_e_num_per_level_and_inc(int level) const {
 	return ++elements_count_by_level[level];
+}
+
+void Domain::add_bspline(const Bspline2D &bspline2D) {
+	bsplines2D.push_back(bspline2D);
 }
