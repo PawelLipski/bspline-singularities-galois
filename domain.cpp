@@ -3,8 +3,13 @@
 //#include "vector"
 #include "node.h"
 #include "domain.h"
+#include <chrono>
+#include <thread>
+
 
 using namespace std;
+
+int CORRECTNESS_ACCURACY = 10;
 
 Domain::Domain(const Cube &box) {
 	add_element(box);
@@ -33,7 +38,6 @@ bool Domain::overlaps_with_any_other(const Cube &that) const {
 			return true;
 	return false;
 }
-
 
 /*** SPLIT ELEMENTS ***/
 
@@ -383,6 +387,7 @@ void Domain::compute_bsplines_supports(MeshType type, int order) {
 	for (auto& e: elements) {
 		compute_bspline_support(type, order, e, e.get_num());
 	}
+	check_bsplines_correctness(CORRECTNESS_ACCURACY);
 	//cout << "bsplines count: " << bsplines2D.size() << endl;
 }
 
@@ -416,7 +421,7 @@ void Domain::compute_bspline_support(MeshType type, int order, Cube &e, int orig
 //	bspline.get_support().print_bounds();
 //	cout << endl;
 
-	add_bspline(bspline);
+	add_bspline2D(bspline);
 
 	for (auto &support_candidate: elements) {
 			if (support_candidate.non_empty() && support_candidate.contained_in_box(support_cube)) {
@@ -522,6 +527,35 @@ int Domain::get_e_num_per_level_and_inc(int level) const {
 	return ++elements_count_by_level[level];
 }
 
-void Domain::add_bspline(const Bspline2D &bspline2D) {
+void Domain::add_bspline2D(const Bspline2D &bspline2D) {
 	bsplines2D.push_back(bspline2D);
+}
+
+void Domain::check_bsplines_correctness(int accuracy) {
+	cout << "elements size: " << elements.size() << endl;
+	for (const auto &e: elements) {
+		double x, y;
+		double x_step = (double) e.get_size(X_DIM) / accuracy;
+		double y_step = (double) e.get_size(Y_DIM) / accuracy;
+		//e.print_bounds();
+		//cout << endl;
+		//cout << "x_step: " << x_step << endl;
+		//cout << "y_step: " << y_step << endl;
+		for (int i = 0; i <= accuracy; ++i) {
+			for (int j = 0; j <= accuracy; ++j) {
+				x = e.get_bound(0) + i * x_step;
+				y = e.get_bound(2) + j * y_step;
+				double bsplines_sum = 0;
+				for (const auto &bspline: bsplines2D) {
+					if (bspline.get_support().contained_in_box(e)) {
+						bsplines_sum += bspline.apply(x, y);
+						//cout << "adding for (x,y) = (" << x << "," << y <<"): " << bspline.apply(x,y) <<  endl;
+					}
+				}
+				if (bsplines_sum != 1 && bsplines_sum != 0) {
+					//cout << "sum for (x,y) = (" << x << "," << y <<"): " << " is: " << bsplines_sum << endl;
+				}
+			}
+		}
+	}
 }

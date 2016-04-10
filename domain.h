@@ -124,7 +124,9 @@ private:
 
 	int tree_node_id = 0;
 
-	void add_bspline(const Bspline2D &bspline2D);
+	void add_bspline2D(const Bspline2D &bspline2D);
+
+	void check_bsplines_correctness(int i);
 };
 
 #endif //BSPLINE_SINGULARITIES_GALOIS_DOMAIN_H
