@@ -10,7 +10,7 @@ all: $(PROGRAMS)
 draw: draw.cpp
 	$(CC) -o $@ $^ $(SDLFLAGS)
 
-generate: generate.cpp domain.o node.o cube.o
+generate: generate.cpp domain.o node.o bspline.o gnuplot.o cube.o
 	$(CC) -o $@ $^
 
 non-rect-support: non-rect-support.cpp bspline.o gnuplot.o cube.o

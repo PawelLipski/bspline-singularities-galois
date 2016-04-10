@@ -6,6 +6,7 @@
 #define BSPLINE_SINGULARITIES_GALOIS_DOMAIN_H
 
 #include "node.h"
+#include "bspline.h"
 
 enum MeshType {
 	UNEDGED,
@@ -117,10 +118,13 @@ private:
 	vector<Cube> elements;
 	vector<Cube> cut_off_boxes;
 	vector<Node *> tree_nodes;
+	vector<Bspline2D> bsplines2D;
 
 	mutable vector<int> elements_count_by_level;
 
 	int tree_node_id = 0;
+
+	const vector<double> &get_dim_knots(Cube &source_el, const Cube &support_cube, int dim);
 };
 
 #endif //BSPLINE_SINGULARITIES_GALOIS_DOMAIN_H

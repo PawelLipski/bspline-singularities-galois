@@ -11,6 +11,7 @@
 class Function2D {
 
 public:
+
 	Function2D(const Cube& _support): support(_support) {}
 
 	virtual double apply(double x, double y) const = 0;
