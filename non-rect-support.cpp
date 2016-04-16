@@ -93,20 +93,10 @@ int main(int argc, char** argv) {
 	print_grid_line(2, 3, 4, 3, false);
 	print_grid_line(3, 2, 3, 4, false);
 
-//	print_grid_rect(4, 4, 6, 6, true);
-//	print_grid_line(4, 5, 6, 5, false);
-//	print_grid_line(5, 4, 5, 6, false);
-
 	print_config(SIZE, SAMPLE_CNT);
 	print_rotate_view(30, 30);
 	if (output == EPS)
 		print_eps_terminal(argv[1]);
-
-//	string gnomon_file = "gnomon.dat";
-//	QuadraticGnomon gnomon;
-//	samples_2d(&gnomon, gnomon_file, SAMPLE_CNT);
-//	print_plot_command(gnomon_file, "red", false);
-
 
 	string l_bspline_file = "left_bspline.dat";
 	Bspline2D l_bspline({0, 0, 0, 2}, {0, 2, 2, 2}, 0.5);
@@ -115,6 +105,7 @@ int main(int argc, char** argv) {
 
 	string r_bspline_file = "right_bspline.dat";
 	Bspline2D r_bspline({2, 2, 2, 4}, {2, 4, 4, 4}, 0.5);
+	//Bspline2D r_bspline({2, 2, 4, 4}, {2, 2, 4, 4}, 1.0);
 	samples_2d(&r_bspline, r_bspline_file, SAMPLE_CNT);
 	print_plot_command(r_bspline_file, "navy", true);
 
@@ -122,11 +113,6 @@ int main(int argc, char** argv) {
 	Bspline2D b_bspline({0, 0, 0, 2}, {2, 4, 4, 4}, 1.0);
 	samples_2d(&b_bspline, b_bspline_file, SAMPLE_CNT);
 	print_plot_command(b_bspline_file, "black", true);
-
-//	string gb_file = "gb.dat";
-//	GnomonedBspline gb;
-//	samples_2d(&gb, gb_file, SAMPLE_CNT);
-//	print_plot_command(gb_file, "black", true);
 
 	cout << endl;
 	if (output == SCREEN)
