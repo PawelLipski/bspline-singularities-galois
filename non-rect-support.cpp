@@ -100,25 +100,24 @@ int main(int argc, char** argv) {
 		print_eps_terminal(argv[1]);
 
 	string l_bspline_file = "left_bspline.dat";
-	Bspline2D l_bspline({0, 0, 0, 2}, {0, 2, 2, 2}, 0.5);
+	Bspline2D l_bspline({0, 0, 0, 2}, {0, 2, 2, 2}, 0.3);
 	samples_2d(&l_bspline, l_bspline_file, SAMPLE_CNT);
 	print_plot_command(l_bspline_file, "red", false);
 
 	string r_bspline_file = "right_bspline.dat";
-	Bspline2D r_bspline({2, 2, 2, 4}, {2, 4, 4, 4}, 0.5);
-	//Bspline2D r_bspline({2, 2, 4, 4}, {2, 2, 4, 4}, 1.0);
+	Bspline2D r_bspline({2, 2, 2, 4}, {2, 4, 4, 4}, 0.3);
 	samples_2d(&r_bspline, r_bspline_file, SAMPLE_CNT);
 	print_plot_command(r_bspline_file, "navy", true);
 
 	string b_bspline_file = "main_bspline.dat";
 
 	Bspline2D b_bspline({0, 0, 0, 2}, {2, 4, 4, 4}, NOT_SCALED);
-	Bspline2D b_l_bspline({0, 0, 0, 2}, {2, 2, 2, 4}, NOT_SCALED);
-	Bspline2D b_r_bspline({0, 2, 2, 2}, {2, 4, 4, 4}, NOT_SCALED);
+	Bspline2D b_l_bspline({0, 0, 0, 2}, {2, 2, 2, 4}, 0.3);
+	Bspline2D b_r_bspline({0, 2, 2, 2}, {2, 4, 4, 4}, 0.3);
 	Bspline2DLinearCombination b_bspline_combination(b_bspline, b_l_bspline, b_r_bspline, NOT_SCALED);
 
 
-	samples_2d(&b_bspline, b_bspline_file, SAMPLE_CNT);
+	samples_2d(&b_bspline_combination, b_bspline_file, SAMPLE_CNT);
 	print_plot_command(b_bspline_file, "black", true);
 
 	cout << endl;

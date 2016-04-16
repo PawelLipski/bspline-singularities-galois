@@ -5,5 +5,5 @@
 #include "linearCombination.h"
 
 double Bspline2DLinearCombination::apply(double x, double y) const {
-    return 0;
+    return b_bspline.apply(x, y) + l_bspline.apply(x, y) + r_bspline.apply(x, y);
 }
