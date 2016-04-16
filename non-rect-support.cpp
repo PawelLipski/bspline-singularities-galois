@@ -4,7 +4,7 @@ using namespace std;
 
 #include "gnuplot.h"
 #include "bspline.h"
-
+#include "linearCombination.h"
 
 class LinearGnomon: public Function2D {
 public:
@@ -71,6 +71,7 @@ private:
 
 int SIZE = 6; // in each dimension
 int SAMPLE_CNT = 15; // in each dimension
+double NOT_SCALED = 1.0;
 
 int main(int argc, char** argv) {
 	enum OutputTerminal {
@@ -109,8 +110,14 @@ int main(int argc, char** argv) {
 	samples_2d(&r_bspline, r_bspline_file, SAMPLE_CNT);
 	print_plot_command(r_bspline_file, "navy", true);
 
-	string b_bspline_file = "back_bspline.dat";
-	Bspline2D b_bspline({0, 0, 0, 2}, {2, 4, 4, 4}, 1.0);
+	string b_bspline_file = "main_bspline.dat";
+
+	Bspline2D b_bspline({0, 0, 0, 2}, {2, 4, 4, 4}, NOT_SCALED);
+	Bspline2D b_l_bspline({0, 0, 0, 2}, {2, 2, 2, 4}, NOT_SCALED);
+	Bspline2D b_r_bspline({0, 2, 2, 2}, {2, 4, 4, 4}, NOT_SCALED);
+	Bspline2DLinearCombination b_bspline_combination(b_bspline, b_l_bspline, b_r_bspline, NOT_SCALED);
+
+
 	samples_2d(&b_bspline, b_bspline_file, SAMPLE_CNT);
 	print_plot_command(b_bspline_file, "black", true);
 
