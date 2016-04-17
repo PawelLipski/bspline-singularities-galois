@@ -12,7 +12,8 @@ double interpolate(double from, double to, int index, int interval_cnt) {
 	return from + (to - from) / interval_cnt * index;
 }
 
-void samples_2d(const Function2D* f, const string& data_file, int sample_cnt) {
+double samples_2d(const Function2D *f, const string &data_file, int sample_cnt) {
+	double max = 0.0;
 	ofstream fout(data_file);
 	int interval_cnt = sample_cnt - 1;
 	Cube support = f->get_support();
@@ -22,10 +23,12 @@ void samples_2d(const Function2D* f, const string& data_file, int sample_cnt) {
 			double y = interpolate(support.up(), support.down(), yi, interval_cnt);
 
 			double val = f->apply(x, y);
+			if (val > max) max = val;
 			fout << x << " " << y << " " << val << endl;
 		}
 	}
 	fout.close();
+	return max;
 }
 
 

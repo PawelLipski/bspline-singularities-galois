@@ -69,8 +69,8 @@ private:
 };
 
 
-int SIZE = 6; // in each dimension
-int SAMPLE_CNT = 15; // in each dimension
+int SIZE = 8; // in each dimension
+int SAMPLE_CNT = 30; // in each dimension
 double NOT_SCALED = 1.0;
 
 int main(int argc, char** argv) {
@@ -82,46 +82,62 @@ int main(int argc, char** argv) {
 		output = SCREEN;
 	}
 
-	print_grid_rect(0, 0, 2, 2, true);
-	print_grid_line(0, 1, 2, 1, false);
-	print_grid_line(1, 0, 1, 2, false);
+	print_grid_rect(0, 0, 4, 4, true);
+	print_grid_line(0, 2, 4, 2, false);
+	print_grid_line(2, 0, 2, 4, false);
 
-	print_grid_rect(2, 2, 4, 4, true);
-	print_grid_line(0, 3, 2, 3, false);
-	print_grid_line(1, 2, 1, 4, false);
+	print_grid_rect(4, 4, 8, 8, true);
+	print_grid_line(0, 6, 4, 6, false);
+	print_grid_line(2, 4, 2, 8, false);
 
-	print_grid_rect(0, 2, 2, 4, true);
-	print_grid_line(2, 3, 4, 3, false);
-	print_grid_line(3, 2, 3, 4, false);
+	print_grid_rect(0, 4, 4, 8, true);
+	print_grid_line(4, 6, 8, 6, false);
+	print_grid_line(6, 4, 6, 8, false);
+
+	print_grid_rect(4, 4, 6, 2, true);
+	print_grid_line(4, 3, 6, 3, false);
+	print_grid_line(5, 2, 5, 4, false);
+
+	print_grid_rect(6, 4, 8, 2, true);
+	print_grid_line(6, 3, 8, 3, false);
+	print_grid_line(7, 2, 7, 4, false);
+
+	print_grid_rect(4, 2, 6, 0, true);
+	print_grid_line(4, 1, 6, 1, false);
+	print_grid_line(5, 0, 5, 2, false);
 
 	print_config(SIZE, SAMPLE_CNT);
 	print_rotate_view(30, 30);
 	if (output == EPS)
 		print_eps_terminal(argv[1]);
 
+	double CONSTANT = 0.2;
+
 	string l_bspline_file = "left_bspline.dat";
-	Bspline2D l_bspline({0, 0, 0, 2}, {0, 2, 2, 2}, 0.3);
-	samples_2d(&l_bspline, l_bspline_file, SAMPLE_CNT);
+	Bspline2D l_bspline({0, 0, 0, 2}, {0, 2, 2, 2}, CONSTANT);
+	double max_red = samples_2d(&l_bspline, l_bspline_file, SAMPLE_CNT);
 	print_plot_command(l_bspline_file, "red", false);
 
 	string r_bspline_file = "right_bspline.dat";
-	Bspline2D r_bspline({2, 2, 2, 4}, {2, 4, 4, 4}, 0.3);
-	samples_2d(&r_bspline, r_bspline_file, SAMPLE_CNT);
+	Bspline2D r_bspline({2, 2, 2, 4}, {2, 4, 4, 4}, CONSTANT);
+	double max_navy = samples_2d(&r_bspline, r_bspline_file, SAMPLE_CNT);
 	print_plot_command(r_bspline_file, "navy", true);
 
 	string b_bspline_file = "main_bspline.dat";
 
 	Bspline2D b_bspline({0, 0, 0, 2}, {2, 4, 4, 4}, NOT_SCALED);
-	Bspline2D b_l_bspline({0, 0, 0, 2}, {2, 2, 2, 4}, 0.3);
-	Bspline2D b_r_bspline({0, 2, 2, 2}, {2, 4, 4, 4}, 0.3);
+	Bspline2D b_l_bspline({0, 0, 0, 2}, {2, 2, 2, 4}, CONSTANT);
+	Bspline2D b_r_bspline({0, 2, 2, 2}, {2, 4, 4, 4}, CONSTANT);
 	Bspline2DLinearCombination b_bspline_combination(b_bspline, b_l_bspline, b_r_bspline, NOT_SCALED);
 
 
-	samples_2d(&b_bspline_combination, b_bspline_file, SAMPLE_CNT);
+	double max_black = samples_2d(&b_bspline_combination, b_bspline_file, SAMPLE_CNT);
 	print_plot_command(b_bspline_file, "black", true);
 
 	cout << endl;
 	if (output == SCREEN)
 		print_pause();
+
+	//cout << "max red: " << max_red << ", max navy: " << max_navy << ", max black: " << max_black << endl;
 }
 

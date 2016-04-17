@@ -25,7 +25,7 @@ private:
 };
 
 
-void samples_2d(const Function2D* f, const string& data_file, int sample_cnt);
+double samples_2d(const Function2D *f, const string &data_file, int sample_cnt);
 
 
 /*** Gnuplot script generation ***/
