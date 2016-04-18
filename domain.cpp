@@ -397,35 +397,35 @@ void Domain::compute_bspline_support(MeshType type, int order, Cube &e, int orig
 	const Cube &support_cube = Cube(support_bounds[0], support_bounds[1], support_bounds[2], support_bounds[3]);
 
 
-	if (e.is_point_2D() && support_cube.get_size(X_DIM) > 4) {
-		//non-rect-support detection must be implemented here
-		Cube not_defined_cube = compute_not_defined_cube(e, support_cube);
-		//cout << "not_defined_cube:" << endl;
-		//not_defined_cube.print_bounds();
-		//cout << endl;
-		Bspline2DNonRect
-	} else {
-
-		const vector<double> &x_knots = e.get_dim_knots(support_cube, X_DIM);
-		//	cout << "x_knots: ";
-		//	for (int i = 0; i < x_knots.size(); ++i){
-		//		cout << x_knots[i] << " ";
-		//	}
-		//	cout << endl;
-		const vector<double> &y_knots = e.get_dim_knots(support_cube, Y_DIM);
-		const Bspline2D &bspline = Bspline2D(x_knots, y_knots, 1.0);
-
-		//	cout << "y_knots: ";
-		//	for (int i = 0; i < y_knots.size(); ++i){
-		//		cout << y_knots[i] << " ";
-		//	}
-		//	cout << endl;
-		//
-		//	cout << "bspline support: ";
-		//	bspline.get_support().print_bounds();
-		//	cout << endl;
-		add_bspline2D(bspline);
+//	if (e.is_point_2D() && support_cube.get_size(X_DIM) > 4) {
+//		//non-rect-support detection must be implemented here
+//		Cube not_defined_cube = compute_not_defined_cube(e, support_cube);
+//		cout << "not_defined_cube:";
+//		not_defined_cube.print_bounds();
+//		cout << endl;
+//		//Bspline2DNonRect
+//	} else {
+//
+//	}
+	const vector<double> &x_knots = e.get_dim_knots(support_cube, X_DIM);
+	cout << "x_knots: ";
+	for (int i = 0; i < x_knots.size(); ++i) {
+		cout << x_knots[i] << " ";
 	}
+	cout << endl;
+	const vector<double> &y_knots = e.get_dim_knots(support_cube, Y_DIM);
+	const Bspline2D &bspline = Bspline2D(x_knots, y_knots, 1.0);
+
+	cout << "y_knots: ";
+	for (int i = 0; i < y_knots.size(); ++i) {
+		cout << y_knots[i] << " ";
+	}
+	cout << endl;
+
+	cout << "bspline support: ";
+	bspline.get_support().print_bounds();
+	cout << endl;
+	add_bspline2D(bspline);
 
 
 	for (auto &support_candidate: elements) {
@@ -448,13 +448,13 @@ void Domain::compute_bspline_support(MeshType type, int order, Cube &e, int orig
 
 Cube Domain::compute_not_defined_cube(const Cube &e, const Cube &support_cube) const {
 	Coord middle = original_box.get_size(X_DIM) / 2;
-/*	cout << "middle: " << middle << endl;
-	cout << "source el: ";
-	e.print_bounds();
-	cout << endl;
-	cout << "support bounds: ";
-	support_cube.print_bounds();
-	cout << endl;*/
+//	cout << "middle: " << middle << endl;
+//	cout << "source el: ";
+//	e.print_bounds();
+//	cout << endl;
+//	cout << "support bounds: ";
+//	support_cube.print_bounds();
+//	cout << endl;
 
 	//{l, u, r, d}
 	vector<Coord> not_defined_vector;
@@ -601,14 +601,14 @@ void Domain::check_bsplines_correctness(int accuracy) {
 				y = e.get_bound(2) + j * y_step;
 				double bsplines_sum = 0;
 				for (const auto &bspline: bsplines2D) {
-					if (bspline.get_support().contained_in_box(e)) {
+					if (e.contained_in_box(bspline.get_support())) {
 						bsplines_sum += bspline.apply(x, y);
 						//cout << "adding for (x,y) = (" << x << "," << y <<"): " << bspline.apply(x,y) <<  endl;
 					}
 				}
-				if (bsplines_sum != 1 && bsplines_sum != 0) {
-					//cout << "sum for (x,y) = (" << x << "," << y <<"): " << " is: " << bsplines_sum << endl;
-				}
+				//if (bsplines_sum != 1 && bsplines_sum != 0) {
+				cout << "sum for (x,y) = (" << x << "," << y << "): " << " is: " << bsplines_sum << endl;
+				//}
 			}
 		}
 	}
