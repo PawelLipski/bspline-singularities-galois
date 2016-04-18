@@ -395,12 +395,17 @@ void Domain::compute_bspline_support(MeshType type, int order, Cube &e, int orig
 	const vector<Coord> &support_bounds = e.compute_bspline_support_2D();
 	const Cube &support_cube = Cube(support_bounds[0], support_bounds[1], support_bounds[2], support_bounds[3]);
 
-//	cout << "source el: ";
-//	e.print_bounds();
-//	cout << endl;
-//	cout << "support bounds: ";
-//	support_cube.print_bounds();
-//	cout << endl;
+
+	if (e.is_point_2D()) {
+		//non-rect-support detection must be implemented here
+//		cout << "source el: ";
+//		e.print_bounds();
+//		cout << endl;
+//		cout << "support bounds: ";
+//		support_cube.print_bounds();
+//		cout << endl;
+
+	}
 
 	const vector<double> &x_knots = e.get_dim_knots(support_cube, X_DIM);
 //	cout << "x_knots: ";
