@@ -68,6 +68,29 @@ private:
 	Bspline2D bspline;
 };
 
+class Bspline2DNonRect : public Bspline2D {
+public:
+	Bspline2DNonRect(const vector<double> &_x_knots, const vector<double> &_y_knots, const vector<double> &_not_defined,
+					 double _constant) :
+			Bspline2D(_x_knots, _y_knots, _constant),
+			not_defined(_not_defined) {
+	}
+
+	double apply(double x, double y) const {
+		if (x >= not_defined[0] && x <= not_defined[2] && y <= not_defined[1] && y >= not_defined[3]) {
+			return 0;
+		} else {
+			return Bspline2D::apply(x, y);
+		}
+	}
+
+private:
+
+	//not_defined vector says where Bspline2DNonRect is equal 0, its length is always 4: {left, up, right, down}
+	vector<double> not_defined;
+
+};
+
 
 int SIZE = 8; // in each dimension
 int SAMPLE_CNT = 30; // in each dimension
@@ -113,21 +136,26 @@ int main(int argc, char** argv) {
 
 	double CONSTANT = 0.2;
 
+	string main_bspline_file = "main_bspline.dat";
+	Bspline2DNonRect main_bspline({0, 4, 4, 8}, {0, 4, 4, 8}, {4, 4, 8, 0}, 0.8);
+	double max_main = samples_2d(&main_bspline, main_bspline_file, SAMPLE_CNT);
+	print_plot_command(main_bspline_file, "green", false);
+
 	string l_bspline_file = "left_bspline.dat";
-	Bspline2D l_bspline({0, 0, 0, 2}, {0, 2, 2, 2}, CONSTANT);
+	Bspline2D l_bspline({4, 4, 4, 6}, {0, 2, 2, 2}, CONSTANT);
 	double max_red = samples_2d(&l_bspline, l_bspline_file, SAMPLE_CNT);
-	print_plot_command(l_bspline_file, "red", false);
+	print_plot_command(l_bspline_file, "red", true);
 
 	string r_bspline_file = "right_bspline.dat";
-	Bspline2D r_bspline({2, 2, 2, 4}, {2, 4, 4, 4}, CONSTANT);
+	Bspline2D r_bspline({6, 6, 6, 8}, {2, 4, 4, 4}, CONSTANT);
 	double max_navy = samples_2d(&r_bspline, r_bspline_file, SAMPLE_CNT);
 	print_plot_command(r_bspline_file, "navy", true);
 
-	string b_bspline_file = "main_bspline.dat";
+	string b_bspline_file = "main_b_bspline.dat";
 
-	Bspline2D b_bspline({0, 0, 0, 2}, {2, 4, 4, 4}, NOT_SCALED);
-	Bspline2D b_l_bspline({0, 0, 0, 2}, {2, 2, 2, 4}, CONSTANT);
-	Bspline2D b_r_bspline({0, 2, 2, 2}, {2, 4, 4, 4}, CONSTANT);
+	Bspline2D b_bspline({4, 4, 4, 6}, {2, 4, 4, 4}, NOT_SCALED);
+	Bspline2D b_l_bspline({4, 4, 4, 6}, {2, 2, 2, 4}, CONSTANT);
+	Bspline2D b_r_bspline({4, 6, 6, 6}, {2, 4, 4, 4}, CONSTANT);
 	Bspline2DLinearCombination b_bspline_combination(b_bspline, b_l_bspline, b_r_bspline, NOT_SCALED);
 
 
