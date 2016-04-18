@@ -3,6 +3,7 @@
 //#include "vector"
 #include "node.h"
 #include "domain.h"
+#include "bsplineNonRect.h"
 #include <chrono>
 #include <thread>
 
@@ -402,28 +403,30 @@ void Domain::compute_bspline_support(MeshType type, int order, Cube &e, int orig
 		//cout << "not_defined_cube:" << endl;
 		//not_defined_cube.print_bounds();
 		//cout << endl;
+		Bspline2DNonRect
+	} else {
+
+		const vector<double> &x_knots = e.get_dim_knots(support_cube, X_DIM);
+		//	cout << "x_knots: ";
+		//	for (int i = 0; i < x_knots.size(); ++i){
+		//		cout << x_knots[i] << " ";
+		//	}
+		//	cout << endl;
+		const vector<double> &y_knots = e.get_dim_knots(support_cube, Y_DIM);
+		const Bspline2D &bspline = Bspline2D(x_knots, y_knots, 1.0);
+
+		//	cout << "y_knots: ";
+		//	for (int i = 0; i < y_knots.size(); ++i){
+		//		cout << y_knots[i] << " ";
+		//	}
+		//	cout << endl;
+		//
+		//	cout << "bspline support: ";
+		//	bspline.get_support().print_bounds();
+		//	cout << endl;
+		add_bspline2D(bspline);
 	}
 
-	const vector<double> &x_knots = e.get_dim_knots(support_cube, X_DIM);
-//	cout << "x_knots: ";
-//	for (int i = 0; i < x_knots.size(); ++i){
-//		cout << x_knots[i] << " ";
-//	}
-//	cout << endl;
-	const vector<double> &y_knots = e.get_dim_knots(support_cube, Y_DIM);
-	const Bspline2D &bspline = Bspline2D(x_knots, y_knots, 1.0);
-
-//	cout << "y_knots: ";
-//	for (int i = 0; i < y_knots.size(); ++i){
-//		cout << y_knots[i] << " ";
-//	}
-//	cout << endl;
-//
-//	cout << "bspline support: ";
-//	bspline.get_support().print_bounds();
-//	cout << endl;
-
-	add_bspline2D(bspline);
 
 	for (auto &support_candidate: elements) {
 			if (support_candidate.non_empty() && support_candidate.contained_in_box(support_cube)) {

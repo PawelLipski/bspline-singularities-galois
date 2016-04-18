@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include "domain.h"
+#include "bsplineNonRect.h"
 
 using namespace std;
 

@@ -5,6 +5,7 @@ using namespace std;
 #include "gnuplot.h"
 #include "bspline.h"
 #include "linearCombination.h"
+#include "bsplineNonRect.h"
 
 class LinearGnomon: public Function2D {
 public:
@@ -67,30 +68,6 @@ private:
 	QuadraticGnomon gnomon;
 	Bspline2D bspline;
 };
-
-class Bspline2DNonRect : public Bspline2D {
-public:
-	Bspline2DNonRect(const vector<double> &_x_knots, const vector<double> &_y_knots, const vector<double> &_not_defined,
-					 double _constant) :
-			Bspline2D(_x_knots, _y_knots, _constant),
-			not_defined(_not_defined) {
-	}
-
-	double apply(double x, double y) const {
-		if (x >= not_defined[0] && x <= not_defined[2] && y <= not_defined[1] && y >= not_defined[3]) {
-			return 0;
-		} else {
-			return Bspline2D::apply(x, y);
-		}
-	}
-
-private:
-
-	//not_defined vector says where Bspline2DNonRect is equal 0, its length is always 4: {left, up, right, down}
-	vector<double> not_defined;
-
-};
-
 
 int SIZE = 8; // in each dimension
 int SAMPLE_CNT = 30; // in each dimension
