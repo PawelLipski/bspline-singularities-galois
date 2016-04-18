@@ -127,6 +127,8 @@ private:
 	void add_bspline2D(const Bspline2D &bspline2D);
 
 	void check_bsplines_correctness(int i);
+
+	Cube compute_not_defined_cube(const Cube &e, const Cube &support_cube) const;
 };
 
 #endif //BSPLINE_SINGULARITIES_GALOIS_DOMAIN_H

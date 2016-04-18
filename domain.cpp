@@ -396,15 +396,12 @@ void Domain::compute_bspline_support(MeshType type, int order, Cube &e, int orig
 	const Cube &support_cube = Cube(support_bounds[0], support_bounds[1], support_bounds[2], support_bounds[3]);
 
 
-	if (e.is_point_2D()) {
+	if (e.is_point_2D() && support_cube.get_size(X_DIM) > 4) {
 		//non-rect-support detection must be implemented here
-//		cout << "source el: ";
-//		e.print_bounds();
-//		cout << endl;
-//		cout << "support bounds: ";
-//		support_cube.print_bounds();
-//		cout << endl;
-
+		Cube not_defined_cube = compute_not_defined_cube(e, support_cube);
+		//cout << "not_defined_cube:" << endl;
+		//not_defined_cube.print_bounds();
+		//cout << endl;
 	}
 
 	const vector<double> &x_knots = e.get_dim_knots(support_cube, X_DIM);
@@ -444,6 +441,55 @@ void Domain::compute_bspline_support(MeshType type, int order, Cube &e, int orig
 				}
 			}
 		}
+}
+
+Cube Domain::compute_not_defined_cube(const Cube &e, const Cube &support_cube) const {
+	Coord middle = original_box.get_size(X_DIM) / 2;
+/*	cout << "middle: " << middle << endl;
+	cout << "source el: ";
+	e.print_bounds();
+	cout << endl;
+	cout << "support bounds: ";
+	support_cube.print_bounds();
+	cout << endl;*/
+
+	//{l, u, r, d}
+	vector<Coord> not_defined_vector;
+
+	if (e.get_bound(0) < middle) {
+		//cout << "left hand side" << endl;
+		if (e.get_bound(2) < middle) {
+			//cout << "up" << endl;
+			not_defined_vector = {support_cube.get_middle(X_DIM),
+								  support_cube.get_middle(Y_DIM),
+								  support_cube.get_bound(1),
+								  support_cube.get_bound(3)};
+		} else {
+			//cout << "down" << endl;
+			not_defined_vector = {support_cube.get_middle(X_DIM),
+								  support_cube.get_bound(2),
+								  support_cube.get_bound(1),
+								  support_cube.get_middle(Y_DIM)};
+		}
+	} else {
+		//cout << "right hand side" << endl;
+		if (e.get_bound(2) < middle) {
+			//cout << "up" << endl;
+			not_defined_vector = {support_cube.get_bound(0),
+								  support_cube.get_middle(Y_DIM),
+								  support_cube.get_middle(X_DIM),
+								  support_cube.get_bound(3)};
+		} else {
+			//cout << "down" << endl;
+			not_defined_vector = {support_cube.get_bound(0),
+								  support_cube.get_bound(2),
+								  support_cube.get_middle(X_DIM),
+								  support_cube.get_middle(Y_DIM)};
+		}
+	}
+
+	Cube not_defined_cube(not_defined_vector[0], not_defined_vector[2], not_defined_vector[1], not_defined_vector[3]);
+	return not_defined_cube;
 }
 
 void Domain::print_support_for_each_bspline() const {
