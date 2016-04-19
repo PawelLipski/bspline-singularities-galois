@@ -23,8 +23,13 @@ public:
 		return y_knots;
 	}
 
+	Cube get_containing_cube() const {
+		return get_containing_cube(x_knots, y_knots);
+	}
+
 private:
-	Cube get_containing_cube(const vector<double>& _x_knots, const vector<double>& _y_knots) const;
+
+	static Cube get_containing_cube(const vector<double>& _x_knots, const vector<double>& _y_knots);
 
 	static double apply_1d(const vector<double>& knots, double point);
 

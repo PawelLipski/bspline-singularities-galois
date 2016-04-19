@@ -133,7 +133,7 @@ int main(int argc, char** argv) {
 	Bspline2D b_bspline({4, 4, 4, 6}, {2, 4, 4, 4}, NOT_SCALED);
 	Bspline2D b_l_bspline({4, 4, 4, 6}, {2, 2, 2, 4}, CONSTANT);
 	Bspline2D b_r_bspline({4, 6, 6, 6}, {2, 4, 4, 4}, CONSTANT);
-	Bspline2DLinearCombination b_bspline_combination(b_bspline, b_l_bspline, b_r_bspline, NOT_SCALED);
+	Bspline2DLinearCombination b_bspline_combination({ b_bspline, b_l_bspline, b_r_bspline });
 
 
 	double max_black = samples_2d(&b_bspline_combination, b_bspline_file, SAMPLE_CNT);

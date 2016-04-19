@@ -70,6 +70,8 @@ public:
 
 	bool overlaps_with(const Cube &other) const;
 
+	Cube get_cube_enclosing_both(const Cube &other) const;
+
 	void print_full() const;
 
 	void print_id() const;

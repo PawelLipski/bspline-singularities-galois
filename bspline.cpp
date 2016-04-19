@@ -5,7 +5,7 @@ double Bspline2D::apply(double x, double y) const {
 	return constant * apply_1d(x_knots, x) * apply_1d(y_knots, y);
 }
 
-Cube Bspline2D::get_containing_cube(const vector<double>& _x_knots, const vector<double>& _y_knots) const {
+Cube Bspline2D::get_containing_cube(const vector<double>& _x_knots, const vector<double>& _y_knots) {
 	return Cube(
 		_x_knots.front(), _x_knots.back(),
 		_y_knots.front(), _y_knots.back());

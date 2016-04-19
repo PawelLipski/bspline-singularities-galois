@@ -122,7 +122,7 @@ bool Cube::non_empty() const {
 }
 
 
-/*** OVERLAPPING ***/
+/*** OVERLAPPING & ENCLOSING ***/
 
 Coord Cube::get_overlapping_part(const Cube& other, int dim_no) const {
 	Coord from = max(get_from(dim_no), other.get_from(dim_no));
@@ -138,6 +138,16 @@ bool Cube::overlaps_with(const Cube& other) const {
 			return false;
 	}
 	return true;
+}
+
+Cube Cube::get_cube_enclosing_both(const Cube& other) const {
+	Cube result(get_dim_cnt());
+	for (int dim_no = 0; dim_no < get_dim_cnt(); dim_no++) {
+		Coord from = min(get_from(dim_no), other.get_from(dim_no));
+		Coord to = max(get_to(dim_no), other.get_to(dim_no));
+		result.set_bounds(dim_no, from, to);
+	}
+	return result;
 }
 
 
