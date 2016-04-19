@@ -6,7 +6,7 @@
 class Bspline2D: public Function2D {
 public:
 
-	Bspline2D(const vector<double> &_x_knots, const vector<double> &_y_knots, double _constant) :
+	Bspline2D(const vector<double> &_x_knots, const vector<double> &_y_knots, double _constant = 1.0) :
 			Function2D(get_containing_cube(_x_knots, _y_knots)),
 			x_knots(_x_knots),
 			y_knots(_y_knots),

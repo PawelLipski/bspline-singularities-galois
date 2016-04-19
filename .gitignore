@@ -8,6 +8,7 @@ bsplines
 draw
 generate
 render-bsplines
+render-bspline-sum
 non-rect-support
 
 eps/

@@ -9,7 +9,7 @@ class Bspline2DLinearCombination : public Function2D {
 public:
 
     Bspline2DLinearCombination(const vector<Bspline2D>& _bsplines):
-		Function2D(get_enclosing_cube(bsplines)), bsplines(_bsplines) {
+		Function2D(get_enclosing_cube(_bsplines)), bsplines(_bsplines) {
 	}
 
     double apply(double x, double y) const;
