@@ -516,6 +516,7 @@ void Domain::print_support_for_each_bspline() const {
 }
 
 void Domain::print_knots_for_each_bspline() const {
+	cout << bsplines2D.size() << endl;
 	for (const Bspline2D& bspline: bsplines2D) {
 		for (auto coord: bspline.get_x_knots())
 			cout << coord << " ";
