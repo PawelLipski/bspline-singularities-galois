@@ -406,26 +406,26 @@ void Domain::compute_bspline_support(MeshType type, int order, Cube &e, int orig
 //		//Bspline2DNonRect
 //	} else {
 //
-//	}
 	const vector<double> &x_knots = e.get_dim_knots(support_cube, X_DIM);
-	cout << "x_knots: ";
-	for (int i = 0; i < x_knots.size(); ++i) {
-		cout << x_knots[i] << " ";
-	}
-	cout << endl;
+	//	cout << "x_knots: ";
+	//	for (int i = 0; i < x_knots.size(); ++i) {
+	//		cout << x_knots[i] << " ";
+	//	}
+	//	cout << endl;
 	const vector<double> &y_knots = e.get_dim_knots(support_cube, Y_DIM);
 	const Bspline2D &bspline = Bspline2D(x_knots, y_knots, 1.0);
-
-	cout << "y_knots: ";
-	for (int i = 0; i < y_knots.size(); ++i) {
-		cout << y_knots[i] << " ";
-	}
-	cout << endl;
-
-	cout << "bspline support: ";
-	bspline.get_support().print_bounds();
-	cout << endl;
+	//
+	//	cout << "y_knots: ";
+	//	for (int i = 0; i < y_knots.size(); ++i) {
+	//		cout << y_knots[i] << " ";
+	//	}
+	//	cout << endl;
+	//
+	//	cout << "bspline support: ";
+	//	bspline.get_support().print_bounds();
+	//	cout << endl;
 	add_bspline2D(bspline);
+//	}
 
 
 	for (auto &support_candidate: elements) {
@@ -586,7 +586,6 @@ void Domain::add_bspline2D(const Bspline2D &bspline2D) {
 }
 
 void Domain::check_bsplines_correctness(int accuracy) {
-	cout << "elements size: " << elements.size() << endl;
 	for (const auto &e: elements) {
 		double x, y;
 		double x_step = (double) e.get_size(X_DIM) / accuracy;
@@ -606,9 +605,9 @@ void Domain::check_bsplines_correctness(int accuracy) {
 						//cout << "adding for (x,y) = (" << x << "," << y <<"): " << bspline.apply(x,y) <<  endl;
 					}
 				}
-				//if (bsplines_sum != 1 && bsplines_sum != 0) {
-				cout << "sum for (x,y) = (" << x << "," << y << "): " << " is: " << bsplines_sum << endl;
-				//}
+				if (bsplines_sum <= 0.9 || bsplines_sum >= 1.1) {
+					//cout << "ERROR: sum for (x,y) = (" << x << "," << y << "): " << " is: " << bsplines_sum << endl;
+				}
 			}
 		}
 	}
