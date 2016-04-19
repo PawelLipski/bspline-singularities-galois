@@ -515,6 +515,16 @@ void Domain::print_support_for_each_bspline() const {
 	}
 }
 
+void Domain::print_knots_for_each_bspline() const {
+	for (const Bspline2D& bspline: bsplines2D) {
+		for (auto coord: bspline.get_x_knots())
+			cout << coord << " ";
+		for (auto coord: bspline.get_y_knots())
+			cout << coord << " ";
+		cout << endl;
+	}
+}
+
 void Domain::print_bsplines_per_elements() const {
 	println_non_empty_elements_count();
 	for(auto& e : elements)

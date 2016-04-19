@@ -23,7 +23,8 @@ int main(int argc, char** argv) {
 		DRAW_PLAIN,
 		DRAW_SUPPORTS,
 		GALOIS,
-		GNUPLOT
+		GNUPLOT,
+		KNOTS
 	} output_format = GALOIS;
 
 	if (argc >= 2) {
@@ -39,6 +40,8 @@ int main(int argc, char** argv) {
 			output_format = GALOIS;
 		else if (opt == "-p" || opt == "--gnuplot")
 			output_format = GNUPLOT;
+		else if (opt == "-k" || opt == "--knots")
+			output_format = KNOTS;
 		else
 			any_opt = false;
 		if (any_opt) {
@@ -187,8 +190,12 @@ int main(int argc, char** argv) {
 
 	} else if (output_format == DRAW_PLAIN || output_format == GNUPLOT) {
 		domain.print_all_elements();
-	}
 
+	} else if (output_format == KNOTS) {
+		domain.print_all_elements();
+		domain.compute_bsplines_supports(mesh_type, order);
+		domain.print_knots_for_each_bspline();
+	}
 
 	return 0;
 }

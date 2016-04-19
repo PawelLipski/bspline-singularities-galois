@@ -93,6 +93,8 @@ public:
 
 	void print_support_for_each_bspline() const;
 
+	void print_knots_for_each_bspline() const;
+
 	void print_bsplines_per_elements() const;
 
 	void print_bsplines_line_by_line() const;

@@ -15,6 +15,14 @@ public:
 
 	double apply(double x, double y) const;
 
+	vector<double> get_x_knots() const {
+		return x_knots;
+	}
+
+	vector<double> get_y_knots() const {
+		return y_knots;
+	}
+
 private:
 	Cube get_containing_cube(const vector<double>& _x_knots, const vector<double>& _y_knots) const;
 
