@@ -111,34 +111,39 @@ int main(int argc, char** argv) {
 	if (output == EPS)
 		print_eps_terminal(argv[1]);
 
-	double CONSTANT = 0.2;
+	double CONSTANT = 0.25;
 
 	string main_bspline_file = "main_bspline.dat";
-	Bspline2DNonRect main_bspline({0, 4, 4, 8}, {0, 4, 4, 8}, {4, 4, 8, 0}, 0.8);
+	Bspline2DNonRect main_bspline({0, 4, 4, 8}, {0, 4, 4, 8}, {4, 4, 8, 0}, NOT_SCALED);
 	double max_main = samples_2d(&main_bspline, main_bspline_file, SAMPLE_CNT);
+	cerr << "max green: " << max_main << endl;
 	print_plot_command(main_bspline_file, "green", false);
 
 	string l_bspline_file = "left_bspline.dat";
 	Bspline2D l_bspline({4, 4, 4, 6}, {0, 2, 2, 2}, CONSTANT);
 	double max_red = samples_2d(&l_bspline, l_bspline_file, SAMPLE_CNT);
-	print_plot_command(l_bspline_file, "red", true);
+	//print_plot_command(l_bspline_file, "red", true);
 
 	string r_bspline_file = "right_bspline.dat";
 	Bspline2D r_bspline({6, 6, 6, 8}, {2, 4, 4, 4}, CONSTANT);
 	double max_navy = samples_2d(&r_bspline, r_bspline_file, SAMPLE_CNT);
-	print_plot_command(r_bspline_file, "navy", true);
+	//print_plot_command(r_bspline_file, "navy", true);
 
 	string b_bspline_file = "main_b_bspline.dat";
 
-	Bspline2D b_bspline({4, 4, 4, 6}, {2, 4, 4, 4}, NOT_SCALED);
-	Bspline2D b_l_bspline({4, 4, 4, 6}, {2, 2, 2, 4}, CONSTANT);
-	Bspline2D b_r_bspline({4, 6, 6, 6}, {2, 4, 4, 4}, CONSTANT);
+	Bspline2D b_bspline({4, 4, 4, 6}, {2, 4, 4, 4}, 0.3);
+	Bspline2D b_l_bspline({4, 4, 4, 6}, {2, 2, 2, 4}, 0.25);
+	Bspline2D b_r_bspline({4, 6, 6, 6}, {2, 4, 4, 4}, 0.25);
 	Bspline2DLinearCombination b_bspline_combination({ b_bspline, b_l_bspline, b_r_bspline });
 
-
+	cerr << b_bspline_combination.get_support().get_from(0) << endl;
+	cerr << b_bspline_combination.get_support().get_to(0) << endl;
+	cerr << b_bspline_combination.get_support().get_from(1) << endl;
+	cerr << b_bspline_combination.get_support().get_to(1) << endl;
 	double max_black = samples_2d(&b_bspline_combination, b_bspline_file, SAMPLE_CNT);
-	print_plot_command(b_bspline_file, "black", true);
 
+	//print_plot_command(b_bspline_file, "black", true);
+	cerr << "max black: " << max_black << endl;
 	cout << endl;
 	if (output == SCREEN)
 		print_pause();
