@@ -34,19 +34,19 @@ int main(int argc, char** argv) {
 		output = SCREEN;
 	}
 
-	print_grid_rect(0, 0, 4, 4, true);
-	print_grid_line(0, 2, 4, 2, false);
-	print_grid_line(2, 0, 2, 4, false);
+	print_grid_rect(4, 0, 8, 4, true);
+	//print_grid_line(0, 2, 4, 2, false);
+	//print_grid_line(2, 0, 2, 4, false);
 
 	print_grid_rect(4, 4, 8, 8, true);
-	print_grid_line(0, 6, 4, 6, false);
-	print_grid_line(2, 4, 2, 8, false);
+	//print_grid_line(0, 6, 4, 6, false);
+	//print_grid_line(2, 4, 2, 8, false);
 
 	print_grid_rect(0, 4, 4, 8, true);
-	print_grid_line(4, 6, 8, 6, false);
-	print_grid_line(6, 4, 6, 8, false);
+	//print_grid_line(4, 6, 8, 6, false);
+	//print_grid_line(6, 4, 6, 8, false);
 
-	print_grid_rect(4, 4, 6, 2, true);
+	/*print_grid_rect(4, 4, 6, 2, true);
 	print_grid_line(4, 3, 6, 3, false);
 	print_grid_line(5, 2, 5, 4, false);
 
@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
 
 	print_grid_rect(4, 2, 6, 0, true);
 	print_grid_line(4, 1, 6, 1, false);
-	print_grid_line(5, 0, 5, 2, false);
+	print_grid_line(5, 0, 5, 2, false);*/
 
 	print_config(SIZE, SAMPLE_CNT);
 	print_rotate_view(30, 330);
