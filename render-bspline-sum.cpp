@@ -57,17 +57,17 @@ int main(int argc, char** argv) {
 
 	int M; // number of B-splines
 	cin >> M;
-	vector<Bspline2D> bsplines;
+	vector<Function2D*> bsplines;
 	for (int i = 0; i < M; i++) {
 		vector<double> x_knots, y_knots;
 		read_vector(&x_knots, 4);
 		read_vector(&y_knots, 4);
-		Bspline2D bspline(x_knots, y_knots);
+		Bspline2D* bspline = new Bspline2D(x_knots, y_knots);
 		bsplines.push_back(bspline);
 	}
 
 	string sum_file = "bspline_sum.dat";
-	Bspline2DLinearCombination sum_of_all(bsplines);
+	LinearCombination sum_of_all(bsplines);
 	samples_2d(&sum_of_all, sum_file, SAMPLE_CNT);
 	print_plot_command(sum_file, "red", false);
 

@@ -7,66 +7,18 @@ using namespace std;
 #include "linearCombination.h"
 #include "bsplineNonRect.h"
 
-class LinearGnomon: public Function2D {
+class LinearFunction: public Function2D {
 public:
-	LinearGnomon(): Function2D(Cube(0, 2, 0, 2)) {
+	LinearFunction(Cube _support, double _a, double _b, double _c) :
+		Function2D(_support), a(_a), b(_b), c(_c) {
 	}
 
 	double apply(double x, double y) const {
-		if (x < 0 || 2 < x || y < 0 || 2 < y)
-			return 0.0;
-
-		x--, y--;
-		if (0 < y) { // Upper half
-			if (x < 0) // Left-upper quarter
-				return y / 2;
-			else // Right-upper quarter
-				return (x + y) / 2;
-		} else { // Lower half
-			if (x < 0) // Left-lower quarter
-				return 0;
-			else // Right-lower quarter
-				return x / 2;
-		}
-	}
-};
-
-class QuadraticGnomon: public Function2D {
-public:
-	QuadraticGnomon(): Function2D(Cube(0, 2, 0, 2)) {
-	}
-
-	double apply(double x, double y) const {
-		if (x < 0 || 2 < x || y < 0 || 2 < y)
-			return 0.0;
-
-		x--, y--;
-		if (0 < y) { // Upper half
-			if (x < 0) // Left-upper quarter
-				return y * y / 4;
-			else // Right-upper quarter
-				return (x + y) * (x + y) / 4;
-		} else { // Lower half
-			if (x < 0) // Left-lower quarter
-				return 0;
-			else // Right-lower quarter
-				return x * x / 4;
-		}
-	}
-};
-
-class GnomonedBspline: public Function2D {
-public:
-	GnomonedBspline() : Function2D(Cube(4, 6, 4, 6)), bspline({0, 1, 2, 2}, {0, 1, 2, 2}, 1.0) {
-	}
-
-	double apply(double x, double y) const {
-		return 12 * gnomon.apply(x - 4, y - 4) * bspline.apply(x - 4, y - 4);
+		return a * x + b * y + c;
 	}
 
 private:
-	QuadraticGnomon gnomon;
-	Bspline2D bspline;
+	double a, b, c;
 };
 
 int SIZE = 8; // in each dimension
@@ -112,47 +64,30 @@ int main(int argc, char** argv) {
 		print_eps_terminal(argv[1]);
 
 	string main_bspline_file = "main_bspline.dat";
-	Bspline2DNonRect main_bspline({0, 4, 4, 8}, {0, 4, 4, 8}, {4, 8, 0, 4}, 1.0);
+	Bspline2DNonRect main_bspline({0, 4, 4, 8}, {0, 4, 4, 8}, {0, 4, 0, 4}, 1.0);
 	samples_2d(&main_bspline, main_bspline_file, SAMPLE_CNT);
-	print_plot_command(main_bspline_file, "green", false);
+	print_plot_command(main_bspline_file, "red", false);
 
 	string l_bspline_file = "left_bspline.dat";
-	Bspline2D l_bspline({4, 4, 4, 6}, {0, 2, 2, 2}, 0.25);
+	Bspline2D l_bspline({2, 4, 4, 4}, {0, 2, 2, 2}, 0.25);
 	samples_2d(&l_bspline, l_bspline_file, SAMPLE_CNT);
-	print_plot_command(l_bspline_file, "red", true);
+	print_plot_command(l_bspline_file, "navy", true);
 
 	string r_bspline_file = "right_bspline.dat";
-	Bspline2D r_bspline({6, 6, 6, 8}, {2, 4, 4, 4}, 0.25);
+	Bspline2D r_bspline({0, 2, 2, 2}, {2, 4, 4, 4}, 0.25);
 	samples_2d(&r_bspline, r_bspline_file, SAMPLE_CNT);
-	print_plot_command(r_bspline_file, "navy", true);
+	print_plot_command(r_bspline_file, "cyan", true);
 
-	string b_bspline_file = "main_b_bspline.dat";
+	string glue_file = "glue.dat";
+	Bspline2D inner_glue_bspline({2, 2, 2, 4}, {2, 2, 2, 4}, 0.25);
+	Bspline2D outer_glue_bspline({2, 4, 4, 4}, {2, 4, 4, 4}, 0.25);
+	LinearFunction linear_fix(Cube(2, 4, 2, 4), 0.25, 0.25, -1.25);
+	LinearCombination glue({ &inner_glue_bspline, &outer_glue_bspline, &linear_fix });
+	samples_2d(&glue, glue_file, SAMPLE_CNT);
+	print_plot_command(glue_file, "black", true);
 
-	Bspline2D b_bspline({4, 4, 4, 6}, {2, 4, 4, 4}, 0.3);
-	Bspline2D b_l_bspline({4, 4, 4, 6}, {2, 2, 2, 4}, 0.25);
-	Bspline2D b_r_bspline({4, 6, 6, 6}, {2, 4, 4, 4}, 0.25);
-	Bspline2DLinearCombination b_bspline_combination({ b_bspline, b_l_bspline, b_r_bspline });
-
-	/*for (double x = 4.0; x <= 8.0; x += 0.25) {
-		// y_main = (8-x)^2 / 16
-		double y_main = main_bspline.apply(x, 4.0);
-		// y_comb = 0.3 * (6-x)
-		double y_left = l_bspline.apply(x, 4.0);
-		cerr << x << " " << y_main << " " << y_left << endl;
-	}*/
-
-	/*cerr << b_bspline_combination.get_support().get_from(0) << endl;
-	cerr << b_bspline_combination.get_support().get_to(0) << endl;
-	cerr << b_bspline_combination.get_support().get_from(1) << endl;
-	cerr << b_bspline_combination.get_support().get_to(1) << endl;*/
-	samples_2d(&b_bspline_combination, b_bspline_file, SAMPLE_CNT);
-
-	print_plot_command(b_bspline_file, "black", true);
-	//cerr << "max black: " << max_black << endl;
 	cout << endl;
 	if (output == SCREEN)
 		print_pause();
-
-	//cout << "max red: " << max_red << ", max navy: " << max_navy << ", max black: " << max_black << endl;
 }
 

@@ -1,24 +1,24 @@
 
-#ifndef BSPLINE_SINGULARITIES_GALOIS_BSPLINE2DLINEARCOMBINATION_H
-#define BSPLINE_SINGULARITIES_GALOIS_BSPLINE2DLINEARCOMBINATION_H
+#ifndef BSPLINE_SINGULARITIES_GALOIS_LINEARCOMBINATION_H
+#define BSPLINE_SINGULARITIES_GALOIS_LINEARCOMBINATION_H
 
 #include "gnuplot.h"
 #include "bspline.h"
 
-class Bspline2DLinearCombination : public Function2D {
+class LinearCombination : public Function2D {
 public:
 
-    Bspline2DLinearCombination(const vector<Bspline2D>& _bsplines):
-		Function2D(get_enclosing_cube(_bsplines)), bsplines(_bsplines) {
+    LinearCombination(const vector<Function2D*>& _funs):
+		Function2D(get_enclosing_cube(_funs)), funs(_funs) {
 	}
 
     double apply(double x, double y) const;
 
 private:
 
-	static Cube get_enclosing_cube(const vector<Bspline2D>& bsplines);
+	static Cube get_enclosing_cube(const vector<Function2D*>& funs);
 
-    vector<Bspline2D> bsplines;
+    vector<Function2D*> funs;
 };
 
-#endif //BSPLINE_SINGULARITIES_GALOIS_BSPLINE2DLINEARCOMBINATION_H
+#endif // BSPLINE_SINGULARITIES_GALOIS_LINEARCOMBINATION_H
