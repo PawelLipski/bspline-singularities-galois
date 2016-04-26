@@ -17,8 +17,7 @@ double samples_2d(const Function2D *f, const string &data_file, int sample_cnt) 
 	ofstream fout(data_file);
 	int interval_cnt = sample_cnt - 1;
 	Cube support = f->get_support();
-	cerr << "samples2d: " << support.left() << " " << support.right() << " " << support.up() << " " << support.down() <<
-	endl;
+	//cerr << "samples2d: " << support.left() << " " << support.right() << " " << support.up() << " " << support.down() << endl;
 	for (int xi = 0; xi < sample_cnt; xi++) {
 		double x = interpolate(support.left(), support.right(), xi, interval_cnt);
 		for (int yi = 0; yi < sample_cnt; yi++) {
