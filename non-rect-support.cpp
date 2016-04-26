@@ -111,20 +111,18 @@ int main(int argc, char** argv) {
 	if (output == EPS)
 		print_eps_terminal(argv[1]);
 
-	double CONSTANT = 0.25;
-
 	string main_bspline_file = "main_bspline.dat";
-	Bspline2DNonRect main_bspline({0, 4, 4, 8}, {0, 4, 4, 8}, {4, 4, 8, 0}, NOT_SCALED);
+	Bspline2DNonRect main_bspline({0, 4, 4, 8}, {0, 4, 4, 8}, {4, 8, 0, 4}, 1.0);
 	samples_2d(&main_bspline, main_bspline_file, SAMPLE_CNT);
 	print_plot_command(main_bspline_file, "green", false);
 
 	string l_bspline_file = "left_bspline.dat";
-	Bspline2D l_bspline({4, 4, 4, 6}, {0, 2, 2, 2}, CONSTANT);
+	Bspline2D l_bspline({4, 4, 4, 6}, {0, 2, 2, 2}, 0.25);
 	samples_2d(&l_bspline, l_bspline_file, SAMPLE_CNT);
 	print_plot_command(l_bspline_file, "red", true);
 
 	string r_bspline_file = "right_bspline.dat";
-	Bspline2D r_bspline({6, 6, 6, 8}, {2, 4, 4, 4}, CONSTANT);
+	Bspline2D r_bspline({6, 6, 6, 8}, {2, 4, 4, 4}, 0.25);
 	samples_2d(&r_bspline, r_bspline_file, SAMPLE_CNT);
 	print_plot_command(r_bspline_file, "navy", true);
 
