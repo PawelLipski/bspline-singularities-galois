@@ -22,7 +22,7 @@ private:
 };
 
 int SIZE = 8; // in each dimension
-int SAMPLE_CNT = 30; // in each dimension
+int SAMPLE_CNT = 40; // in each dimension
 double NOT_SCALED = 1.0;
 
 int main(int argc, char** argv) {
@@ -59,7 +59,7 @@ int main(int argc, char** argv) {
 	print_grid_line(5, 0, 5, 2, false);
 
 	print_config(SIZE, SAMPLE_CNT);
-	print_rotate_view(30, 30);
+	print_rotate_view(30, 330);
 	if (output == EPS)
 		print_eps_terminal(argv[1]);
 
