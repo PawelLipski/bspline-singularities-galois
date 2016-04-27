@@ -5,6 +5,20 @@
 #include "gnuplot.h"
 #include "bspline.h"
 
+class LinearFunction: public Function2D {
+public:
+	LinearFunction(Cube _support, double _a, double _b, double _c) :
+		Function2D(_support), a(_a), b(_b), c(_c) {
+	}
+
+	double apply(double x, double y) const {
+		return a * x + b * y + c;
+	}
+
+private:
+	double a, b, c;
+};
+
 class LinearCombination : public Function2D {
 public:
 

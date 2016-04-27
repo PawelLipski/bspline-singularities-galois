@@ -7,20 +7,6 @@ using namespace std;
 #include "linear-combination.h"
 #include "bspline-non-rect.h"
 
-class LinearFunction: public Function2D {
-public:
-	LinearFunction(Cube _support, double _a, double _b, double _c) :
-		Function2D(_support), a(_a), b(_b), c(_c) {
-	}
-
-	double apply(double x, double y) const {
-		return a * x + b * y + c;
-	}
-
-private:
-	double a, b, c;
-};
-
 int SIZE = 8; // in each dimension
 int SAMPLE_CNT = 40; // in each dimension
 double NOT_SCALED = 1.0;
