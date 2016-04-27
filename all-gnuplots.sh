@@ -1,24 +1,33 @@
 #!/bin/bash
 
+
+edged_4() {
+	./generate --draw-plain --edged-4 3 > grid.dat
+
+	cat grid.dat | ./render-bsplines edged-4_overview `seq 0 5` | gnuplot
+
+	for i in `seq 0 5`; do
+		cat grid.dat | ./render-bsplines edged-4_$i $i | gnuplot
+	done
+}
+
+gnomon() {
+	./render-non-rect-support gnomon | gnuplot
+}
+
+bspline_sum() {
+	for depth in {1..5}; do
+		./generate --knots --unedged $depth | ./render-bspline-sum bspline-sum-$depth | gnuplot
+	done
+}
+
+
 make || exit 1
 mkdir -p png eps
 
-#./generate --gnuplot --edged-8 3 > edged-8_grid.dat
-./generate --gnuplot --edged-4 3 > edged-4_grid.dat
-#./render-bsplines edged-8_overview 0 2 3 6 7 12 < edged-8_grid.dat | gnuplot
-#for i in `seq 0 12`; do
-#	./render-bsplines edged-8_$i $i < edged-8_grid.dat | gnuplot
-#done
-
-./generate --draw-plain --edged-4 3 | ./render-bsplines edged-4_overview `seq 0 5` | gnuplot
-
-for i in `seq 0 5`; do
-	./render-bsplines edged-4_$i $i < edged-4_grid.dat | gnuplot
-done
-
-#./generate --gnuplot --unedged 4 | ./render-bsplines unedged_overview 19 20 | gnuplot
-
-./render-non-rect-support gnomon | gnuplot
+#edged_4
+gnomon
+#bspline_sum
 
 rm -rf *.dat gpl.out
 
@@ -30,5 +39,7 @@ for eps in eps/*.eps; do
     fi
 done
 
-rm -rf eps
+rm -rf eps/
+
+eog png/gnomon.png
 
