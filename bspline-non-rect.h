@@ -84,13 +84,17 @@ public:
 	Rect get_y_shifted_support() const { return y_shifted.get_support_as_rect(); }
 
 	Rect get_glue_support() const {
-		return Rect(
-			coords.x_mid, coords.x_pivot(),
-			coords.y_mid, coords.y_pivot()
-		);
+		return get_glue_support(coords);
 	}
 
 private:
+	static Rect get_glue_support(const GnomonBsplineCoords& c) {
+		return Rect(
+			c.x_mid, c.x_pivot(),
+			c.y_mid, c.y_pivot()
+		);
+	}
+
 	static BsplineNonRect make_trunk(const GnomonBsplineCoords& c);
 	static Bspline make_x_shifted(const GnomonBsplineCoords& c);
 	static Bspline make_y_shifted(const GnomonBsplineCoords& c);

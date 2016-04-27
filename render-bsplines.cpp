@@ -28,7 +28,7 @@ void output_predef_function(int index, const string& data_file) {
 	Function2D* f;
 	Rect area;
 	if (index == 0) {
-		f = new GnomonBspline(GnomonBsplineCoords(4, 4, +4, +4));
+		f = new GnomonBspline(GnomonBsplineCoords(4, 4, 4, -4));
 		area = Rect(0, 8, 0, 8);
 	} else {
 		Bspline* bspline = new Bspline(function_defs[index].x_knots, function_defs[index].y_knots);

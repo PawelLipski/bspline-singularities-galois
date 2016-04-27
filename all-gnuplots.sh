@@ -7,6 +7,7 @@ edged_4() {
 	cat grid.dat | ./render-bsplines edged-4_overview `seq 0 5` | gnuplot
 
 	for i in `seq 0 6`; do
+	#for i in `seq 0 0`; do
 		cat grid.dat | ./render-bsplines edged-4_$i $i | gnuplot
 	done
 }
@@ -41,5 +42,5 @@ done
 
 rm -rf eps/
 
-eog png/gnomon.png
+eog png/edged-4_0.png
 

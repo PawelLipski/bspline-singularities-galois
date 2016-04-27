@@ -66,7 +66,7 @@ LinearCombination GnomonBspline::make_glue(const GnomonBsplineCoords& c) {
 	);
 
 	return LinearCombination(
-		{ inner, outer, fix }
+		{ inner, outer, new ZeroOutside(fix, get_glue_support(c)) }
 	);
 }
 

@@ -3,7 +3,6 @@
 #define BSPLINE_SINGULARITIES_GALOIS_LINEARCOMBINATION_H
 
 #include "gnuplot.h"
-#include "bspline.h"
 
 class LinearFunction: public Function2D {
 public:
@@ -19,9 +18,21 @@ private:
 	double a, b, c;
 };
 
+class ZeroOutside: public Function2D {
+public:
+	ZeroOutside(const Function2D* _fun, const Rect& _area) :
+		fun(_fun), area(_area) {
+	}
+
+	double apply(double x, double y) const;
+
+private:
+	const Function2D* fun;
+	Rect area;
+};
+
 class LinearCombination : public Function2D {
 public:
-
     LinearCombination(const vector<Function2D*>& _funs):
 		funs(_funs) {
 	}
