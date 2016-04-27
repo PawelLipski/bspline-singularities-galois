@@ -11,7 +11,7 @@
 class BsplineNonRect : public Bspline {
 public:
     BsplineNonRect(const vector<double> &_x_knots, const vector<double> &_y_knots, const vector<double> &_not_defined,
-                     double _constant = 1.0) :
+                     double _constant = 1.0):
             Bspline(_x_knots, _y_knots, _constant),
             not_defined(_not_defined) {
     }
@@ -19,10 +19,8 @@ public:
     double apply(double x, double y) const;
 
 private:
-
-    //not_defined vector says where BsplineNonRect is equal 0, its length is always 4: {left, up, right, down}
+    // not_defined vector says where BsplineNonRect is equal 0, its length is always 4: {left, up, right, down}
     vector<double> not_defined;
-
 };
 
 struct GnomonBsplineCoords {
@@ -71,6 +69,10 @@ public:
 	const Bspline& get_x_shifted() const { return x_shifted; }
 	const Bspline& get_y_shifted() const { return y_shifted; }
 	const LinearCombination& get_glue() const { return glue; }
+
+	Rect get_support() const {
+		return get_trunk_support();	
+	}
 
 	Rect get_trunk_support() const { 
 		return Rect(

@@ -22,14 +22,14 @@ struct FunctionDef {
 const int function_def_cnt = sizeof(function_defs) / sizeof(function_defs[0]);
 
 
-int SAMPLE_CNT = 31; // in each dimension
+int SAMPLE_CNT = 50; // in each dimension
 
 void output_predef_function(int index, const string& data_file) {
 	Function2D* f;
 	Rect area;
 	if (index == 0) {
-		f = new GnomonBspline(GnomonBsplineCoords(4, 4, 4, -4));
-		area = Rect(0, 8, 0, 8);
+		f = new GnomonBspline(GnomonBsplineCoords(8, 8, -8, 8));
+		area = Rect(0, 16, 0, 16);
 	} else {
 		Bspline* bspline = new Bspline(function_defs[index].x_knots, function_defs[index].y_knots);
 		f = bspline;
