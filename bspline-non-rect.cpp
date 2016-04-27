@@ -2,7 +2,7 @@
 // Created by Bartosz Janota on 18/04/16.
 //
 
-#include "bsplineNonRect.h"
+#include "bspline-non-rect.h"
 #include "bspline.h"
 
 double Bspline2DNonRect::apply(double x, double y) const {

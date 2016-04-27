@@ -3,7 +3,6 @@
 //#include "vector"
 #include "node.h"
 #include "domain.h"
-#include "bsplineNonRect.h"
 #include <chrono>
 #include <thread>
 

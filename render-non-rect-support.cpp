@@ -4,8 +4,8 @@ using namespace std;
 
 #include "gnuplot.h"
 #include "bspline.h"
-#include "linearCombination.h"
-#include "bsplineNonRect.h"
+#include "linear-combination.h"
+#include "bspline-non-rect.h"
 
 class LinearFunction: public Function2D {
 public:

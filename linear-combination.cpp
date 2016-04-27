@@ -1,6 +1,6 @@
 #include <ostream>
 #include <iostream>
-#include "linearCombination.h"
+#include "linear-combination.h"
 
 double LinearCombination::apply(double x, double y) const {
 	double result = 0.0;

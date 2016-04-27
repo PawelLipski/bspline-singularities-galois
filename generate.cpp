@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 #include "domain.h"
-#include "bsplineNonRect.h"
+#include "bspline-non-rect.h"
 
 using namespace std;
 
