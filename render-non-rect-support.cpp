@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
 	print_grid_rect(0, 4, 4, 8, true);
 
 	print_config(SIZE, SAMPLE_CNT);
-	print_rotate_view(30, 330);
+	print_rotate_view(30, 150);
 	if (output == EPS)
 		print_eps_terminal(argv[1]);
 
@@ -63,9 +63,12 @@ int main(int argc, char** argv) {
 	print_plot_command(glue_file, "black", true);
 	*/
 
-	GnomonBsplineCoords coords(4, 4, -4, -4);
-	GnomonBspline total(coords);
-	plot(total, Rect2D(0, 8, 0, 8), "red");
+	GnomonBsplineCoords coords(4, 4, +4, +4);
+	GnomonBspline gb(coords);
+	plot(gb.get_trunk(), gb.get_trunk_support(), "red");
+	plot(gb.get_x_shifted(), gb.get_x_shifted_support(), "navy");
+	plot(gb.get_y_shifted(), gb.get_y_shifted_support(), "cyan");
+	plot(gb.get_glue(), gb.get_glue_support(), "black");
 
 	cout << endl;
 	if (output == SCREEN)

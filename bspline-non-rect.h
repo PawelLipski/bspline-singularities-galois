@@ -58,13 +58,37 @@ struct GnomonBsplineCoords {
 
 class GnomonBspline : public LinearCombination {
 public:
-    GnomonBspline(const GnomonBsplineCoords& coords):
+    GnomonBspline(const GnomonBsplineCoords& c):
 			LinearCombination({ &trunk, &x_shifted, &y_shifted, &glue }),
-            trunk(make_trunk(coords)),
-            x_shifted(make_x_shifted(coords)),
-			y_shifted(make_y_shifted(coords)),
-			glue(make_glue(coords)) {
+			coords(c),
+            trunk(make_trunk(c)),
+            x_shifted(make_x_shifted(c)),
+			y_shifted(make_y_shifted(c)),
+			glue(make_glue(c)) {
     }
+
+	const Bspline2DNonRect& get_trunk() const { return trunk; }
+	const Bspline2D& get_x_shifted() const { return x_shifted; }
+	const Bspline2D& get_y_shifted() const { return y_shifted; }
+	const LinearCombination& get_glue() const { return glue; }
+
+	Rect2D get_trunk_support() const { 
+		return Rect2D(
+			coords.x_from(), coords.x_to(),
+			coords.y_from(), coords.y_to()
+		);
+	}
+
+	Rect2D get_x_shifted_support() const { return x_shifted.get_support_as_rect(); }
+
+	Rect2D get_y_shifted_support() const { return y_shifted.get_support_as_rect(); }
+
+	Rect2D get_glue_support() const {
+		return Rect2D(
+			coords.x_mid, coords.x_pivot(),
+			coords.y_mid, coords.y_pivot()
+		);
+	}
 
 private:
 	static Bspline2DNonRect make_trunk(const GnomonBsplineCoords& c);
@@ -72,6 +96,7 @@ private:
 	static Bspline2D make_y_shifted(const GnomonBsplineCoords& c);
 	static LinearCombination make_glue(const GnomonBsplineCoords& c);
 
+	GnomonBsplineCoords coords;
 	Bspline2DNonRect trunk;
 	Bspline2D x_shifted;
 	Bspline2D y_shifted;
