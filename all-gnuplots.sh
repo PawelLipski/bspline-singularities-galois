@@ -6,7 +6,7 @@ edged_4() {
 
 	cat grid.dat | ./render-bsplines edged-4_overview `seq 0 5` | gnuplot
 
-	for i in `seq 0 5`; do
+	for i in `seq 0 6`; do
 		cat grid.dat | ./render-bsplines edged-4_$i $i | gnuplot
 	done
 }

@@ -9,33 +9,14 @@ struct FunctionDef {
 	vector<double> x_knots, y_knots;
 	string color;
 } function_defs[] = {
-	// edged-8
-//	{ {0, 0, 4, 4},     {0, 0, 4, 4},     "green" },
-//	{ {0, 0, 4, 4},     {4, 4, 6, 8},     "brown" },
-//	{ {0, 4, 4, 6},     {10, 12, 12, 16}, "red" },
-//	{ {4, 4, 6, 8},     {0, 4, 4, 6},     "navy" },
-//	{ {6, 6, 7, 8},     {8, 9, 10, 10},   "purple" },
-//	{ {6, 6, 7, 8},     {7, 8, 9, 10},    "dark-blue" },
-//	{ {7, 8, 9, 10},    {6, 7, 8, 9},     "magenta" },
-//	{ {6, 8, 10, 12},   {12, 12, 16, 16}, "blue" },
-//	{ {9, 10, 10, 12},  {10, 10, 12, 12}, "turquoise" },
-//	{ {10, 10, 12, 12}, {0, 4, 4, 6},     "dark-green" },
-//	{ {10, 12, 12, 16}, {6, 6, 8, 10},    "cyan" },
-//	{ {10, 12, 12, 16}, {6, 8, 10, 10},   "cyan" },
-//	{ {12, 12, 16, 16}, {10, 12, 12, 16}, "orange" },
-
-	// edged-4
+	// edged-4 only
+	{ {-1, -1, -1, -1}, {-1, -1, -1, -1}, "turquoise" }, // special one, for the gnomon case
 	{ {0, 0, 4, 4},     {0, 0, 4, 4},     "green" },
 	{ {0, 4, 4, 6},     {10, 12, 12, 16}, "red" },
 	{ {4, 8, 12, 12},   {0, 4, 4, 6},     "navy" },
 	{ {7, 8, 9, 10},    {6, 7, 8, 9},     "magenta" },
 	{ {6, 8, 10, 12},   {12, 12, 16, 16}, "blue" },
 	{ {12, 12, 16, 16}, {8, 12, 12, 16},  "orange" },
-	
-	// unedged
-//	{ {0, 8, 12, 16},   {16, 20, 24, 32}, "red" },
-//	{ {12, 16, 20, 24}, {0, 8, 12, 14},   "navy" },
-
 };
 
 const int function_def_cnt = sizeof(function_defs) / sizeof(function_defs[0]);
@@ -46,13 +27,13 @@ int SAMPLE_CNT = 31; // in each dimension
 void output_predef_function(int index, const string& data_file) {
 	Function2D* f;
 	Rect area;
-	if (index < 0) {
-		//f = new GnomonBspline(GnomonBsplineCoords());
-		//area = Rect();
+	if (index == 0) {
+		f = new GnomonBspline(GnomonBsplineCoords(4, 4, +4, +4));
+		area = Rect(0, 8, 0, 8);
 	} else {
 		Bspline* bspline = new Bspline(function_defs[index].x_knots, function_defs[index].y_knots);
-		area = bspline->get_support_as_rect();
 		f = bspline;
+		area = bspline->get_support_as_rect();
 	}
 	samples_2d(*f, area, data_file, SAMPLE_CNT);
 }
