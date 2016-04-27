@@ -3,7 +3,7 @@
 make || exit 1
 mkdir -p png eps
 
-./non-rect-support gnomon | gnuplot
+./render-non-rect-support gnomon | gnuplot
 #for depth in {1..5}; do
 #	./generate --knots --unedged $depth | ./render-bspline-sum bspline-sum-$depth | gnuplot
 #done

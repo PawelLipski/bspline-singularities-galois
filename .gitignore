@@ -9,7 +9,7 @@ draw
 generate
 render-bsplines
 render-bspline-sum
-non-rect-support
+render-non-rect-support
 
 eps/
 png/

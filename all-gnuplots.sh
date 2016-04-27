@@ -18,7 +18,7 @@ done
 
 #./generate --gnuplot --unedged 4 | ./render-bsplines unedged_overview 19 20 | gnuplot
 
-./non-rect-support gnomon | gnuplot
+./render-non-rect-support gnomon | gnuplot
 
 rm -rf *.dat gpl.out
 
