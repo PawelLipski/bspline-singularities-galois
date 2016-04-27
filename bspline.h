@@ -1,14 +1,21 @@
 #ifndef BSPLINE_SINGULARITIES_GALOIS_BSPLINE_H
 #define BSPLINE_SINGULARITIES_GALOIS_BSPLINE_H
 
+#include <algorithm>
 #include "gnuplot.h"
+
+static vector<double> asc(vector<double> v) {
+	if (!is_sorted(v.begin(), v.end()))
+		reverse(v.begin(), v.end());
+	return v;
+}
 
 class Bspline2D: public Function2D {
 public:
 
 	Bspline2D(const vector<double> &_x_knots, const vector<double> &_y_knots, double _constant = 1.0):
-			x_knots(_x_knots),
-			y_knots(_y_knots),
+			x_knots(asc(_x_knots)),
+			y_knots(asc(_y_knots)),
 			constant(_constant) {
 	}
 

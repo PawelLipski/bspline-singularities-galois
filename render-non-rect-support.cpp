@@ -34,11 +34,11 @@ int main(int argc, char** argv) {
 	print_grid_rect(0, 4, 4, 8, true);
 
 	print_config(SIZE, SAMPLE_CNT);
-	print_rotate_view(30, 150);
+	print_rotate_view(30, 330);
 	if (output == EPS)
 		print_eps_terminal(argv[1]);
 
-	GnomonBsplineCoords coords(4, 4, +4, +4);
+	GnomonBsplineCoords coords(4, 4, -4, -4);
 	GnomonBspline gb(coords);
 	plot(gb.get_trunk(), gb.get_trunk_support(), "red");
 	plot(gb.get_x_shifted(), gb.get_x_shifted_support(), "navy");
