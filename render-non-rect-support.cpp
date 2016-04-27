@@ -10,6 +10,15 @@ using namespace std;
 int SIZE = 8; // in each dimension
 int SAMPLE_CNT = 40; // in each dimension
 
+void plot(const Function2D& f, const Rect2D& area, string color) {
+	static bool replot = false;
+
+	string file = "plot-" + color + ".dat";
+	samples_2d(f, area, file, SAMPLE_CNT);
+	print_plot_command(file, color, replot);
+	replot = true;
+}
+
 int main(int argc, char** argv) {
 	enum OutputTerminal {
 		EPS,
@@ -56,9 +65,7 @@ int main(int argc, char** argv) {
 
 	GnomonBsplineCoords coords(4, 4, -4, -4);
 	GnomonBspline total(coords);
-	string total_file = "total.dat";
-	samples_2d(total, Rect2D(0, 8, 0, 8), total_file, SAMPLE_CNT);
-	print_plot_command(total_file, "red", false);
+	plot(total, Rect2D(0, 8, 0, 8), "red");
 
 	cout << endl;
 	if (output == SCREEN)
