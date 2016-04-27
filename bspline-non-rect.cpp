@@ -31,16 +31,16 @@ Bspline2DNonRect GnomonBspline::make_trunk(const GnomonBsplineCoords& c) {
 
 Bspline2D GnomonBspline::make_x_shifted(const GnomonBsplineCoords& c) {
 	return Bspline2D(
-		{ c.x_pivot(), c.x_to(), c.x_to(), c.x_to() },
-		{ c.y_mid, c.y_pivot(), c.y_pivot(), c.y_pivot() },
+		{ c.x_pivot(), c.x_pivot(), c.x_pivot(), c.x_to() },
+		{ c.y_mid, c.y_mid, c.y_mid, c.y_pivot() },
 		0.25
 	);
 }
 
 Bspline2D GnomonBspline::make_y_shifted(const GnomonBsplineCoords& c) {
 	return Bspline2D(
-		{ c.x_mid, c.x_pivot(), c.x_pivot(), c.x_pivot() },
-		{ c.y_pivot(), c.y_to(), c.y_to(), c.y_to() },
+		{ c.x_mid, c.x_mid, c.x_mid, c.x_pivot() },
+		{ c.y_pivot(), c.y_pivot(), c.y_pivot(), c.y_to() },
 		0.25
 	);
 }
