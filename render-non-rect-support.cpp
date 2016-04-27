@@ -9,7 +9,6 @@ using namespace std;
 
 int SIZE = 8; // in each dimension
 int SAMPLE_CNT = 40; // in each dimension
-double NOT_SCALED = 1.0;
 
 int main(int argc, char** argv) {
 	enum OutputTerminal {
@@ -20,35 +19,17 @@ int main(int argc, char** argv) {
 		output = SCREEN;
 	}
 
+	print_grid_rect(0, 0, 4, 4, true);
 	print_grid_rect(4, 0, 8, 4, true);
-	//print_grid_line(0, 2, 4, 2, false);
-	//print_grid_line(2, 0, 2, 4, false);
-
 	print_grid_rect(4, 4, 8, 8, true);
-	//print_grid_line(0, 6, 4, 6, false);
-	//print_grid_line(2, 4, 2, 8, false);
-
 	print_grid_rect(0, 4, 4, 8, true);
-	//print_grid_line(4, 6, 8, 6, false);
-	//print_grid_line(6, 4, 6, 8, false);
-
-	/*print_grid_rect(4, 4, 6, 2, true);
-	print_grid_line(4, 3, 6, 3, false);
-	print_grid_line(5, 2, 5, 4, false);
-
-	print_grid_rect(6, 4, 8, 2, true);
-	print_grid_line(6, 3, 8, 3, false);
-	print_grid_line(7, 2, 7, 4, false);
-
-	print_grid_rect(4, 2, 6, 0, true);
-	print_grid_line(4, 1, 6, 1, false);
-	print_grid_line(5, 0, 5, 2, false);*/
 
 	print_config(SIZE, SAMPLE_CNT);
 	print_rotate_view(30, 330);
 	if (output == EPS)
 		print_eps_terminal(argv[1]);
 
+	/*
 	string main_bspline_file = "main_bspline.dat";
 	Bspline2DNonRect main_bspline({0, 4, 4, 8}, {0, 4, 4, 8}, {0, 4, 0, 4}, 1.0);
 	samples_2d(main_bspline, main_bspline.get_support_as_rect(), main_bspline_file, SAMPLE_CNT);
@@ -71,6 +52,13 @@ int main(int argc, char** argv) {
 	LinearCombination glue({ &inner_glue_bspline, &outer_glue_bspline, &linear_fix });
 	samples_2d(glue, Rect2D(2, 4, 2, 4), glue_file, SAMPLE_CNT);
 	print_plot_command(glue_file, "black", true);
+	*/
+
+	GnomonBsplineCoords coords(4, 4, -4, -4);
+	GnomonBspline total(coords);
+	string total_file = "total.dat";
+	samples_2d(total, Rect2D(0, 8, 0, 8), total_file, SAMPLE_CNT);
+	print_plot_command(total_file, "red", false);
 
 	cout << endl;
 	if (output == SCREEN)

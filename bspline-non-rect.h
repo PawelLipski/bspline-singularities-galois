@@ -66,8 +66,6 @@ public:
 			glue(make_glue(coords)) {
     }
 
-    double apply(double x, double y) const;
-
 private:
 	static Bspline2DNonRect make_trunk(const GnomonBsplineCoords& c);
 	static Bspline2D make_x_shifted(const GnomonBsplineCoords& c);
