@@ -4,9 +4,9 @@ make || exit 1
 mkdir -p png eps
 
 ./render-non-rect-support gnomon | gnuplot
-#for depth in {1..5}; do
-#	./generate --knots --unedged $depth | ./render-bspline-sum bspline-sum-$depth | gnuplot
-#done
+for depth in {1..5}; do
+	./generate --knots --unedged $depth | ./render-bspline-sum bspline-sum-$depth | gnuplot
+done
 
 rm -rf *.dat gpl.out
 

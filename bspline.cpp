@@ -1,5 +1,6 @@
 
 #include "bspline.h"
+#include "gnuplot.h"
 
 double Bspline2D::apply(double x, double y) const {
 	return constant * apply_1d(x_knots, x) * apply_1d(y_knots, y);
@@ -9,6 +10,12 @@ Cube Bspline2D::get_containing_cube(const vector<double>& _x_knots, const vector
 	return Cube(
 		_x_knots.front(), _x_knots.back(),
 		_y_knots.front(), _y_knots.back());
+}
+
+Rect2D Bspline2D::get_support_as_rect() const {
+	return Rect2D(
+		x_knots.front(), x_knots.back(),
+		y_knots.front(), y_knots.back());
 }
 
 double Bspline2D::apply_1d(const vector<double>& knots, double point) {

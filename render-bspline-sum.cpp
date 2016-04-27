@@ -1,4 +1,5 @@
 
+#include <climits>
 #include <iostream>
 using namespace std;
 
@@ -39,6 +40,7 @@ int main(int argc, char** argv) {
 		bs.push_back(b);
 		size = max(size, max(b.right, b.down));
 	}
+	int x_from = INT_MAX, x_to = 0, y_from = INT_MAX, y_to = 0;
 	for (int i = 0; i < N; i++) {
 		const Bounds& b = bs[i];
 		int left = b.left, right = b.right, up = b.up, down = b.down;
@@ -49,6 +51,10 @@ int main(int argc, char** argv) {
 		print_grid_line(right, up,   right, down, hl);
 		print_grid_line(right, down, left,  down, hl);
 		print_grid_line(left,  down, left,  up,   hl);
+		x_from = min(x_from, left);
+		x_to = max(x_to, right);
+		y_from = min(y_from, up);
+		y_to = max(y_to, down);
 	}
 	print_config(size, SAMPLE_CNT);
 	print_rotate_view(30, 45);
@@ -68,7 +74,8 @@ int main(int argc, char** argv) {
 
 	string sum_file = "bspline_sum.dat";
 	LinearCombination sum_of_all(bsplines);
-	samples_2d(&sum_of_all, sum_file, SAMPLE_CNT);
+	Rect2D support(x_from, x_to, y_from, y_to);
+	samples_2d(sum_of_all, support, sum_file, SAMPLE_CNT);
 	print_plot_command(sum_file, "red", false);
 
 	cout << endl;

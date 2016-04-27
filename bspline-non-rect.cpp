@@ -59,15 +59,7 @@ LinearCombination GnomonBspline::make_glue(const GnomonBsplineCoords& c) {
 		0.25
 	);
 
-	/* TODO
-	double fix_x_from = min(c.x_mid, c.x_pivot());
-	double fix_x_to = max(c.x_mid, c.x_pivot());
-	double fiy_y_from = min(c.y_mid, c.y_pivot());
-	double fiy_y_to = may(c.y_mid, c.y_pivot());
-	*/
 	LinearFunction* fix = new LinearFunction(
-		// TODO!
-		Cube(0, 0, 0, 0),
 		-1.0 / c.shift_x,
 		-1.0 / c.shift_y,
 		0.75 + c.x_mid / c.shift_x + c.y_mid / c.shift_y
