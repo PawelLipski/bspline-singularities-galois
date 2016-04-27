@@ -392,8 +392,8 @@ void Domain::compute_bsplines_supports(MeshType type, int order) {
 }
 
 void Domain::compute_bspline_support(MeshType type, int order, Cube &e, int original_bspline_num) {
-	const vector<Coord> &support_bounds = e.compute_bspline_support_2D();
-	const Cube &support_cube = Cube(support_bounds[0], support_bounds[1], support_bounds[2], support_bounds[3]);
+	vector<Coord> support_bounds = e.compute_bspline_support_2D();
+	Cube support_cube(support_bounds[0], support_bounds[1], support_bounds[2], support_bounds[3]);
 
 
 //	if (e.is_point_2D() && support_cube.get_size(X_DIM) > 4) {
@@ -405,14 +405,14 @@ void Domain::compute_bspline_support(MeshType type, int order, Cube &e, int orig
 //		//Bspline2DNonRect
 //	} else {
 //
-	const vector<double> &x_knots = e.get_dim_knots(support_cube, X_DIM);
+	vector<double> x_knots = e.get_dim_knots(support_cube, X_DIM);
 	//	cout << "x_knots: ";
 	//	for (int i = 0; i < x_knots.size(); ++i) {
 	//		cout << x_knots[i] << " ";
 	//	}
 	//	cout << endl;
-	const vector<double> &y_knots = e.get_dim_knots(support_cube, Y_DIM);
-	const Bspline2D &bspline = Bspline2D(x_knots, y_knots, 1.0);
+	vector<double> y_knots = e.get_dim_knots(support_cube, Y_DIM);
+	Bspline2D bspline(x_knots, y_knots, 1.0);
 	//
 	//	cout << "y_knots: ";
 	//	for (int i = 0; i < y_knots.size(); ++i) {
