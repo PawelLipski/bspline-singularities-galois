@@ -12,7 +12,7 @@ double interpolate(double from, double to, int index, int interval_cnt) {
 	return from + (to - from) / interval_cnt * index;
 }
 
-double samples_2d(const Function2D& f, const Rect2D& area, const string &data_file, int sample_cnt) {
+double samples_2d(const Function2D& f, const Rect& area, const string &data_file, int sample_cnt) {
 	double max = 0.0;
 	ofstream fout(data_file);
 	int interval_cnt = sample_cnt - 1;

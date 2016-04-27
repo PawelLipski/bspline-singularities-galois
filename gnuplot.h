@@ -13,15 +13,15 @@ public:
 	virtual double apply(double x, double y) const = 0;
 };
 
-struct Rect2D {
+struct Rect {
 	double x_from, x_to, y_from, y_to;
-	Rect2D() {}
-	Rect2D(double _x_from, double _x_to, double _y_from, double _y_to):
+	Rect() {}
+	Rect(double _x_from, double _x_to, double _y_from, double _y_to):
 		x_from(_x_from), x_to(_x_to), y_from(_y_from), y_to(_y_to) {
 	}
 };
 
-double samples_2d(const Function2D& f, const Rect2D& area, const string &data_file, int sample_cnt);
+double samples_2d(const Function2D& f, const Rect& area, const string &data_file, int sample_cnt);
 
 
 /*** Gnuplot script generation ***/

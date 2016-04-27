@@ -402,7 +402,7 @@ void Domain::compute_bspline_support(MeshType type, int order, Cube &e, int orig
 //		cout << "not_defined_cube:";
 //		not_defined_cube.print_bounds();
 //		cout << endl;
-//		//Bspline2DNonRect
+//		//BsplineNonRect
 //	} else {
 //
 	vector<double> x_knots = e.get_dim_knots(support_cube, X_DIM);
@@ -412,7 +412,7 @@ void Domain::compute_bspline_support(MeshType type, int order, Cube &e, int orig
 	//	}
 	//	cout << endl;
 	vector<double> y_knots = e.get_dim_knots(support_cube, Y_DIM);
-	Bspline2D bspline(x_knots, y_knots, 1.0);
+	Bspline bspline(x_knots, y_knots, 1.0);
 	//
 	//	cout << "y_knots: ";
 	//	for (int i = 0; i < y_knots.size(); ++i) {
@@ -516,7 +516,7 @@ void Domain::print_support_for_each_bspline() const {
 
 void Domain::print_knots_for_each_bspline() const {
 	cout << bsplines2D.size() << endl;
-	for (const Bspline2D& bspline: bsplines2D) {
+	for (const Bspline& bspline: bsplines2D) {
 		for (auto coord: bspline.get_x_knots())
 			cout << coord << " ";
 		for (auto coord: bspline.get_y_knots())
@@ -591,7 +591,7 @@ int Domain::get_e_num_per_level_and_inc(int level) const {
 	return ++elements_count_by_level[level];
 }
 
-void Domain::add_bspline2D(const Bspline2D &bspline2D) {
+void Domain::add_bspline2D(const Bspline &bspline2D) {
 	bsplines2D.push_back(bspline2D);
 }
 

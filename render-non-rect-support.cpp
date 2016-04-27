@@ -10,7 +10,7 @@ using namespace std;
 int SIZE = 8; // in each dimension
 int SAMPLE_CNT = 40; // in each dimension
 
-void plot(const Function2D& f, const Rect2D& area, string color) {
+void plot(const Function2D& f, const Rect& area, string color) {
 	static bool replot = false;
 
 	string file = "plot-" + color + ".dat";

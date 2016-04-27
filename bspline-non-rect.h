@@ -8,11 +8,11 @@
 #ifndef BSPLINE_SINGULARITIES_GALOIS_BSPLINENONRECT_H
 #define BSPLINE_SINGULARITIES_GALOIS_BSPLINENONRECT_H
 
-class Bspline2DNonRect : public Bspline2D {
+class BsplineNonRect : public Bspline {
 public:
-    Bspline2DNonRect(const vector<double> &_x_knots, const vector<double> &_y_knots, const vector<double> &_not_defined,
+    BsplineNonRect(const vector<double> &_x_knots, const vector<double> &_y_knots, const vector<double> &_not_defined,
                      double _constant = 1.0) :
-            Bspline2D(_x_knots, _y_knots, _constant),
+            Bspline(_x_knots, _y_knots, _constant),
             not_defined(_not_defined) {
     }
 
@@ -20,7 +20,7 @@ public:
 
 private:
 
-    //not_defined vector says where Bspline2DNonRect is equal 0, its length is always 4: {left, up, right, down}
+    //not_defined vector says where BsplineNonRect is equal 0, its length is always 4: {left, up, right, down}
     vector<double> not_defined;
 
 };
@@ -67,39 +67,39 @@ public:
 			glue(make_glue(c)) {
     }
 
-	const Bspline2DNonRect& get_trunk() const { return trunk; }
-	const Bspline2D& get_x_shifted() const { return x_shifted; }
-	const Bspline2D& get_y_shifted() const { return y_shifted; }
+	const BsplineNonRect& get_trunk() const { return trunk; }
+	const Bspline& get_x_shifted() const { return x_shifted; }
+	const Bspline& get_y_shifted() const { return y_shifted; }
 	const LinearCombination& get_glue() const { return glue; }
 
-	Rect2D get_trunk_support() const { 
-		return Rect2D(
+	Rect get_trunk_support() const { 
+		return Rect(
 			coords.x_from(), coords.x_to(),
 			coords.y_from(), coords.y_to()
 		);
 	}
 
-	Rect2D get_x_shifted_support() const { return x_shifted.get_support_as_rect(); }
+	Rect get_x_shifted_support() const { return x_shifted.get_support_as_rect(); }
 
-	Rect2D get_y_shifted_support() const { return y_shifted.get_support_as_rect(); }
+	Rect get_y_shifted_support() const { return y_shifted.get_support_as_rect(); }
 
-	Rect2D get_glue_support() const {
-		return Rect2D(
+	Rect get_glue_support() const {
+		return Rect(
 			coords.x_mid, coords.x_pivot(),
 			coords.y_mid, coords.y_pivot()
 		);
 	}
 
 private:
-	static Bspline2DNonRect make_trunk(const GnomonBsplineCoords& c);
-	static Bspline2D make_x_shifted(const GnomonBsplineCoords& c);
-	static Bspline2D make_y_shifted(const GnomonBsplineCoords& c);
+	static BsplineNonRect make_trunk(const GnomonBsplineCoords& c);
+	static Bspline make_x_shifted(const GnomonBsplineCoords& c);
+	static Bspline make_y_shifted(const GnomonBsplineCoords& c);
 	static LinearCombination make_glue(const GnomonBsplineCoords& c);
 
 	GnomonBsplineCoords coords;
-	Bspline2DNonRect trunk;
-	Bspline2D x_shifted;
-	Bspline2D y_shifted;
+	BsplineNonRect trunk;
+	Bspline x_shifted;
+	Bspline y_shifted;
 	LinearCombination glue;
 };
 

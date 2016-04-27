@@ -45,13 +45,15 @@ int SAMPLE_CNT = 31; // in each dimension
 
 void output_predef_function(int index, const string& data_file) {
 	Function2D* f;
-	Rect2D area;
-	//if (index < 0)
-	//	f = new GnomonBspline(GnomonBsplineCoords());
-	//else
-		Bspline2D* bspline = new Bspline2D(function_defs[index].x_knots, function_defs[index].y_knots);
+	Rect area;
+	if (index < 0) {
+		//f = new GnomonBspline(GnomonBsplineCoords());
+		//area = Rect();
+	} else {
+		Bspline* bspline = new Bspline(function_defs[index].x_knots, function_defs[index].y_knots);
 		area = bspline->get_support_as_rect();
 		f = bspline;
+	}
 	samples_2d(*f, area, data_file, SAMPLE_CNT);
 }
 

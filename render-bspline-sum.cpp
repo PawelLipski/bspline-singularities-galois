@@ -68,13 +68,13 @@ int main(int argc, char** argv) {
 		vector<double> x_knots, y_knots;
 		read_vector(&x_knots, 4);
 		read_vector(&y_knots, 4);
-		Bspline2D* bspline = new Bspline2D(x_knots, y_knots);
+		Bspline* bspline = new Bspline(x_knots, y_knots);
 		bsplines.push_back(bspline);
 	}
 
 	string sum_file = "bspline_sum.dat";
 	LinearCombination sum_of_all(bsplines);
-	Rect2D support(x_from, x_to, y_from, y_to);
+	Rect support(x_from, x_to, y_from, y_to);
 	samples_2d(sum_of_all, support, sum_file, SAMPLE_CNT);
 	print_plot_command(sum_file, "red", false);
 

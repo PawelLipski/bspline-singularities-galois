@@ -2,23 +2,23 @@
 #include "bspline.h"
 #include "gnuplot.h"
 
-double Bspline2D::apply(double x, double y) const {
+double Bspline::apply(double x, double y) const {
 	return constant * apply_1d(x_knots, x) * apply_1d(y_knots, y);
 }
 
-Cube Bspline2D::get_containing_cube(const vector<double>& _x_knots, const vector<double>& _y_knots) {
+Cube Bspline::get_containing_cube(const vector<double>& _x_knots, const vector<double>& _y_knots) {
 	return Cube(
 		_x_knots.front(), _x_knots.back(),
 		_y_knots.front(), _y_knots.back());
 }
 
-Rect2D Bspline2D::get_support_as_rect() const {
-	return Rect2D(
+Rect Bspline::get_support_as_rect() const {
+	return Rect(
 		x_knots.front(), x_knots.back(),
 		y_knots.front(), y_knots.back());
 }
 
-double Bspline2D::apply_1d(const vector<double>& knots, double point) {
+double Bspline::apply_1d(const vector<double>& knots, double point) {
 	int order = knots.size() - 2;
 
 	// 0..order o's, 0..order b's

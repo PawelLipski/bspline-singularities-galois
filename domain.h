@@ -120,13 +120,13 @@ private:
 	vector<Cube> elements;
 	vector<Cube> cut_off_boxes;
 	vector<Node *> tree_nodes;
-	vector<Bspline2D> bsplines2D;
+	vector<Bspline> bsplines2D;
 
 	mutable vector<int> elements_count_by_level;
 
 	int tree_node_id = 0;
 
-	void add_bspline2D(const Bspline2D &bspline2D);
+	void add_bspline2D(const Bspline &bspline2D);
 
 	void check_bsplines_correctness(int i);
 
