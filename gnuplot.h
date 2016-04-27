@@ -15,6 +15,7 @@ public:
 
 struct Rect2D {
 	double x_from, x_to, y_from, y_to;
+	Rect2D() {}
 	Rect2D(double _x_from, double _x_to, double _y_from, double _y_to):
 		x_from(_x_from), x_to(_x_to), y_from(_y_from), y_to(_y_to) {
 	}

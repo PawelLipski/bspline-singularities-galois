@@ -25,9 +25,9 @@ bspline_sum() {
 make || exit 1
 mkdir -p png eps
 
-#edged_4
+edged_4
 gnomon
-#bspline_sum
+bspline_sum
 
 rm -rf *.dat gpl.out
 

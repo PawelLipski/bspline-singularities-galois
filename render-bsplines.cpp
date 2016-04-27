@@ -3,6 +3,7 @@
 using namespace std;
 
 #include "bspline.h"
+#include "bspline-non-rect.h"
 
 struct FunctionDef {
 	vector<double> x_knots, y_knots;
@@ -32,8 +33,8 @@ struct FunctionDef {
 	{ {12, 12, 16, 16}, {8, 12, 12, 16},  "orange" },
 	
 	// unedged
-	{ {0, 8, 12, 16},   {16, 20, 24, 32}, "red" },
-	{ {12, 16, 20, 24}, {0, 8, 12, 14},   "navy" },
+//	{ {0, 8, 12, 16},   {16, 20, 24, 32}, "red" },
+//	{ {12, 16, 20, 24}, {0, 8, 12, 14},   "navy" },
 
 };
 
@@ -43,8 +44,15 @@ const int function_def_cnt = sizeof(function_defs) / sizeof(function_defs[0]);
 int SAMPLE_CNT = 31; // in each dimension
 
 void output_predef_function(int index, const string& data_file) {
-	Bspline2D bspline(function_defs[index].x_knots, function_defs[index].y_knots, 1.0);
-	samples_2d(bspline, bspline.get_support_as_rect(), data_file, SAMPLE_CNT);
+	Function2D* f;
+	Rect2D area;
+	//if (index < 0)
+	//	f = new GnomonBspline(GnomonBsplineCoords());
+	//else
+		Bspline2D* bspline = new Bspline2D(function_defs[index].x_knots, function_defs[index].y_knots);
+		area = bspline->get_support_as_rect();
+		f = bspline;
+	samples_2d(*f, area, data_file, SAMPLE_CNT);
 }
 
 struct Bounds {
