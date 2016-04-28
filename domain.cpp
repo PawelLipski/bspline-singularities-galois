@@ -432,6 +432,10 @@ void Domain::compute_bspline_support(MeshType type, int order, Cube &e, int orig
 				if (type == EDGED_4 && e.is_point_2D()) {
 					Coord min_el_size = e.get_neighbor(0)->get_size(0) / 2;
 					if (min_el_size > 1 && support_candidate.get_size(0) < min_el_size) {
+						cerr << "e.x = " << e.get_from(X_DIM) << ", e.y = " << e.get_from(Y_DIM)
+							<< ", min_el_size = " << min_el_size
+							<< ", support_candidate.get_size(X_DIM) = " << support_candidate.get_size(X_DIM) << endl;
+						// We just detected a gnomon-shaped B-spline!
 						continue;
 					}
 				}

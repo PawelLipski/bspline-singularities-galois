@@ -7,6 +7,7 @@
 
 #include "node.h"
 #include "bspline.h"
+#include "bspline-non-rect.h"
 
 enum MeshType {
 	UNEDGED,
@@ -14,6 +15,10 @@ enum MeshType {
 	EDGED_8
 };
 
+struct AnyRepresentationBspline {
+	Bspline* regular;
+	GnomonBspline* gnomon;
+};
 
 class Domain {
 public:
