@@ -396,15 +396,15 @@ void Domain::compute_bspline_support(MeshType type, int order, Cube &e, int orig
 	Cube support_cube(support_bounds[0], support_bounds[1], support_bounds[2], support_bounds[3]);
 
 
-//	if (e.is_point_2D() && support_cube.get_size(X_DIM) > 4) {
-//		//non-rect-support detection must be implemented here
-//		Cube not_defined_cube = compute_not_defined_cube(e, support_cube);
-//		cout << "not_defined_cube:";
-//		not_defined_cube.print_bounds();
-//		cout << endl;
-//		//BsplineNonRect
-//	} else {
-//
+	//	if (e.is_point_2D() && support_cube.get_size(X_DIM) > 4) {
+	//		//non-rect-support detection must be implemented here
+	//		Cube not_defined_cube = compute_not_defined_cube(e, support_cube);
+	//		cout << "not_defined_cube:";
+	//		not_defined_cube.print_bounds();
+	//		cout << endl;
+	//		//BsplineNonRect
+	//	} else {
+	//
 	vector<double> x_knots = e.get_dim_knots(support_cube, X_DIM);
 	//	cout << "x_knots: ";
 	//	for (int i = 0; i < x_knots.size(); ++i) {
@@ -424,40 +424,40 @@ void Domain::compute_bspline_support(MeshType type, int order, Cube &e, int orig
 	//	bspline.get_support().print_bounds();
 	//	cout << endl;
 	add_bspline2D(bspline);
-//	}
+	//	}
 
 
 	for (auto &support_candidate: elements) {
-			if (support_candidate.non_empty() && support_candidate.contained_in_box(support_cube)) {
-				if (type == EDGED_4 && e.is_point_2D()) {
-					Coord min_el_size = e.get_neighbor(0)->get_size(0) / 2;
-					if (min_el_size > 1 && support_candidate.get_size(0) < min_el_size) {
-						cerr << "e.x = " << e.get_from(X_DIM) << ", e.y = " << e.get_from(Y_DIM)
-							<< ", min_el_size = " << min_el_size
-							<< ", support_candidate.get_size(X_DIM) = " << support_candidate.get_size(X_DIM) << endl;
-						// We just detected a gnomon-shaped B-spline!
-						continue;
-					}
-				}
-				if (!support_candidate.is_bspline_duplicated(original_bspline_num)) {
-					support_candidate.add_bspline(original_bspline_num);
-				}
-				if (order > 2) {
-					compute_bspline_support(type, order - 1, support_candidate, original_bspline_num);
+		if (support_candidate.non_empty() && support_candidate.contained_in_box(support_cube)) {
+			if (type == EDGED_4 && e.is_point_2D()) {
+				Coord min_el_size = e.get_neighbor(0)->get_size(0) / 2;
+				if (min_el_size > 1 && support_candidate.get_size(0) < min_el_size) {
+					cerr << "e.x = " << e.get_from(X_DIM) << ", e.y = " << e.get_from(Y_DIM)
+						<< ", min_el_size = " << min_el_size
+						<< ", support_candidate.get_size(X_DIM) = " << support_candidate.get_size(X_DIM) << endl;
+					// We just detected a gnomon-shaped B-spline!
+					continue;
 				}
 			}
+			if (!support_candidate.is_bspline_duplicated(original_bspline_num)) {
+				support_candidate.add_bspline(original_bspline_num);
+			}
+			if (order > 2) {
+				compute_bspline_support(type, order - 1, support_candidate, original_bspline_num);
+			}
 		}
+	}
 }
 
 Cube Domain::compute_not_defined_cube(const Cube &e, const Cube &support_cube) const {
 	Coord middle = original_box.get_size(X_DIM) / 2;
-//	cout << "middle: " << middle << endl;
-//	cout << "source el: ";
-//	e.print_bounds();
-//	cout << endl;
-//	cout << "support bounds: ";
-//	support_cube.print_bounds();
-//	cout << endl;
+	//	cout << "middle: " << middle << endl;
+	//	cout << "source el: ";
+	//	e.print_bounds();
+	//	cout << endl;
+	//	cout << "support bounds: ";
+	//	support_cube.print_bounds();
+	//	cout << endl;
 
 	//{l, u, r, d}
 	vector<Coord> not_defined_vector;
@@ -467,30 +467,30 @@ Cube Domain::compute_not_defined_cube(const Cube &e, const Cube &support_cube) c
 		if (e.get_bound(2) < middle) {
 			//cout << "up" << endl;
 			not_defined_vector = {support_cube.get_middle(X_DIM),
-								  support_cube.get_middle(Y_DIM),
-								  support_cube.get_bound(1),
-								  support_cube.get_bound(3)};
+				support_cube.get_middle(Y_DIM),
+				support_cube.get_bound(1),
+				support_cube.get_bound(3)};
 		} else {
 			//cout << "down" << endl;
 			not_defined_vector = {support_cube.get_middle(X_DIM),
-								  support_cube.get_bound(2),
-								  support_cube.get_bound(1),
-								  support_cube.get_middle(Y_DIM)};
+				support_cube.get_bound(2),
+				support_cube.get_bound(1),
+				support_cube.get_middle(Y_DIM)};
 		}
 	} else {
 		//cout << "right hand side" << endl;
 		if (e.get_bound(2) < middle) {
 			//cout << "up" << endl;
 			not_defined_vector = {support_cube.get_bound(0),
-								  support_cube.get_middle(Y_DIM),
-								  support_cube.get_middle(X_DIM),
-								  support_cube.get_bound(3)};
+				support_cube.get_middle(Y_DIM),
+				support_cube.get_middle(X_DIM),
+				support_cube.get_bound(3)};
 		} else {
 			//cout << "down" << endl;
 			not_defined_vector = {support_cube.get_bound(0),
-								  support_cube.get_bound(2),
-								  support_cube.get_middle(X_DIM),
-								  support_cube.get_middle(Y_DIM)};
+				support_cube.get_bound(2),
+				support_cube.get_middle(X_DIM),
+				support_cube.get_middle(Y_DIM)};
 		}
 	}
 

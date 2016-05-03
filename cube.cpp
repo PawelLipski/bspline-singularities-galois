@@ -21,7 +21,7 @@ Cube::Cube(Coord l, Coord r, Coord u, Coord d): dim_cnt(2) {
 
 Cube::Cube(const Cube &cube, int n, int l, int id, int flag) :
 	dim_cnt(cube.dim_cnt), bounds(cube.bounds), neighbors(cube.neighbors), level(l), num(n), id_within_level(id) {
-}
+	}
 
 
 /*** GETTERS ***/

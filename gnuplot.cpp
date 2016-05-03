@@ -65,8 +65,8 @@ void print_grid_line(int x1, int y1, int x2, int y2, bool highlight) {
 	static int line_no = 1;
 	int line_width = highlight ? 5 : 2;
 	cout << "set arrow " << line_no << " from "
-			<< x1 << "," << y1 << ",0 to "
-			<< x2 << "," << y2 << ",0 nohead lc rgb \"gray\" lw " << line_width << endl;
+		<< x1 << "," << y1 << ",0 to "
+		<< x2 << "," << y2 << ",0 nohead lc rgb \"gray\" lw " << line_width << endl;
 	line_no++;
 }
 

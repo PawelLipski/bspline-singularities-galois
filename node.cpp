@@ -10,7 +10,7 @@ Node::Node() : num(-1) { }
 
 Node::Node(const Cube &node_cube, int node_num) :
 	cube(node_cube), num(node_num) {
-}
+	}
 
 void Node::add_child(Node *child) {
 	children.push_back(child);

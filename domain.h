@@ -15,7 +15,7 @@ enum MeshType {
 	EDGED_8
 };
 
-struct AnyRepresentationBspline {
+struct BsplineChoice {
 	Bspline* regular;
 	GnomonBspline* gnomon;
 };
