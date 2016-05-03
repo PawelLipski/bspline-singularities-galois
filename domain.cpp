@@ -384,47 +384,18 @@ void Domain::untweak_bounds() {
 /*** B-SPLINES ***/
 
 void Domain::compute_bsplines_supports(MeshType type, int order) {
-	for (auto& e: elements) {
+	for (auto& e: elements)
 		compute_bspline_support(type, order, e, e.get_num());
-	}
-	check_bsplines_correctness(CORRECTNESS_ACCURACY);
-	//cout << "bsplines count: " << bsplines2D.size() << endl;
 }
 
 void Domain::compute_bspline_support(MeshType type, int order, Cube &e, int original_bspline_num) {
 	vector<Coord> support_bounds = e.compute_bspline_support_2D();
 	Cube support_cube(support_bounds[0], support_bounds[1], support_bounds[2], support_bounds[3]);
 
-
-	//	if (e.is_point_2D() && support_cube.get_size(X_DIM) > 4) {
-	//		//non-rect-support detection must be implemented here
-	//		Cube not_defined_cube = compute_not_defined_cube(e, support_cube);
-	//		cout << "not_defined_cube:";
-	//		not_defined_cube.print_bounds();
-	//		cout << endl;
-	//		//BsplineNonRect
-	//	} else {
-	//
 	vector<double> x_knots = e.get_dim_knots(support_cube, X_DIM);
-	//	cout << "x_knots: ";
-	//	for (int i = 0; i < x_knots.size(); ++i) {
-	//		cout << x_knots[i] << " ";
-	//	}
-	//	cout << endl;
 	vector<double> y_knots = e.get_dim_knots(support_cube, Y_DIM);
 	Bspline bspline(x_knots, y_knots, 1.0);
-	//
-	//	cout << "y_knots: ";
-	//	for (int i = 0; i < y_knots.size(); ++i) {
-	//		cout << y_knots[i] << " ";
-	//	}
-	//	cout << endl;
-	//
-	//	cout << "bspline support: ";
-	//	bspline.get_support().print_bounds();
-	//	cout << endl;
-	add_bspline2D(bspline);
-	//	}
+	bsplines2D.push_back(bspline);
 
 
 	for (auto &support_candidate: elements) {
@@ -451,42 +422,29 @@ void Domain::compute_bspline_support(MeshType type, int order, Cube &e, int orig
 
 Cube Domain::compute_not_defined_cube(const Cube &e, const Cube &support_cube) const {
 	Coord middle = original_box.get_size(X_DIM) / 2;
-	//	cout << "middle: " << middle << endl;
-	//	cout << "source el: ";
-	//	e.print_bounds();
-	//	cout << endl;
-	//	cout << "support bounds: ";
-	//	support_cube.print_bounds();
-	//	cout << endl;
 
 	//{l, u, r, d}
 	vector<Coord> not_defined_vector;
 
 	if (e.get_bound(0) < middle) {
-		//cout << "left hand side" << endl;
 		if (e.get_bound(2) < middle) {
-			//cout << "up" << endl;
 			not_defined_vector = {support_cube.get_middle(X_DIM),
 				support_cube.get_middle(Y_DIM),
 				support_cube.get_bound(1),
 				support_cube.get_bound(3)};
 		} else {
-			//cout << "down" << endl;
 			not_defined_vector = {support_cube.get_middle(X_DIM),
 				support_cube.get_bound(2),
 				support_cube.get_bound(1),
 				support_cube.get_middle(Y_DIM)};
 		}
 	} else {
-		//cout << "right hand side" << endl;
 		if (e.get_bound(2) < middle) {
-			//cout << "up" << endl;
 			not_defined_vector = {support_cube.get_bound(0),
 				support_cube.get_middle(Y_DIM),
 				support_cube.get_middle(X_DIM),
 				support_cube.get_bound(3)};
 		} else {
-			//cout << "down" << endl;
 			not_defined_vector = {support_cube.get_bound(0),
 				support_cube.get_bound(2),
 				support_cube.get_middle(X_DIM),
@@ -595,34 +553,3 @@ int Domain::get_e_num_per_level_and_inc(int level) const {
 	return ++elements_count_by_level[level];
 }
 
-void Domain::add_bspline2D(const Bspline &bspline2D) {
-	bsplines2D.push_back(bspline2D);
-}
-
-void Domain::check_bsplines_correctness(int accuracy) {
-	for (const auto &e: elements) {
-		double x, y;
-		double x_step = (double) e.get_size(X_DIM) / accuracy;
-		double y_step = (double) e.get_size(Y_DIM) / accuracy;
-		//e.print_bounds();
-		//cout << endl;
-		//cout << "x_step: " << x_step << endl;
-		//cout << "y_step: " << y_step << endl;
-		for (int i = 0; i <= accuracy; ++i) {
-			for (int j = 0; j <= accuracy; ++j) {
-				x = e.get_bound(0) + i * x_step;
-				y = e.get_bound(2) + j * y_step;
-				double bsplines_sum = 0;
-				for (const auto &bspline: bsplines2D) {
-					if (e.contained_in_box(bspline.get_support())) {
-						bsplines_sum += bspline.apply(x, y);
-						//cout << "adding for (x,y) = (" << x << "," << y <<"): " << bspline.apply(x,y) <<  endl;
-					}
-				}
-				if (bsplines_sum <= 0.9 || bsplines_sum >= 1.1) {
-					//cout << "ERROR: sum for (x,y) = (" << x << "," << y << "): " << " is: " << bsplines_sum << endl;
-				}
-			}
-		}
-	}
-}

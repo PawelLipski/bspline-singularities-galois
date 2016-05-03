@@ -131,10 +131,6 @@ private:
 
 	int tree_node_id = 0;
 
-	void add_bspline2D(const Bspline &bspline2D);
-
-	void check_bsplines_correctness(int i);
-
 	Cube compute_not_defined_cube(const Cube &e, const Cube &support_cube) const;
 };
 

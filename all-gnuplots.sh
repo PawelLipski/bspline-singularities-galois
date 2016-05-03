@@ -27,8 +27,8 @@ make || exit 1
 mkdir -p png eps
 
 edged_4
-#gnomon
-#bspline_sum
+gnomon
+bspline_sum
 
 rm -rf *.dat gpl.out
 
