@@ -18,7 +18,7 @@ gnomon() {
 
 bspline_sum() {
 	for depth in {1..5}; do
-		./generate --knots --unedged $depth | ./render-bspline-sum bspline-sum-$depth | gnuplot
+		./generate --knots --edged-4 $depth | ./render-bspline-sum bspline-sum-$depth | gnuplot
 	done
 }
 
@@ -42,5 +42,5 @@ done
 
 rm -rf eps/
 
-eog png/gnomon.png
+#eog png/gnomon.png
 

@@ -78,7 +78,7 @@ int main(int argc, char** argv) {
 			read_vector(&y_knots, 4);
 			Bspline* regular = new Bspline(x_knots, y_knots);
 			bsplines.push_back(regular);
-		} else {
+		} else {  // type == "Gnomon"
 			double x_mid, y_mid, shift_x, shift_y;
 			cin >> x_mid >> y_mid >> shift_x >> shift_y;
 			GnomonBspline* gnomon = new GnomonBspline(x_mid, y_mid, shift_x, shift_y);
