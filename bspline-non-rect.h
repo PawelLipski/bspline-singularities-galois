@@ -56,6 +56,10 @@ struct GnomonBsplineCoords {
 
 class GnomonBspline : public LinearCombination {
 public:
+    GnomonBspline(double _x_mid, double _y_mid, double _shift_x, double _shift_y):
+		GnomonBspline(GnomonBsplineCoords(_x_mid, _y_mid, _shift_x, _shift_y)) {
+	}
+
     GnomonBspline(const GnomonBsplineCoords& c):
 			LinearCombination({ &trunk, &x_shifted, &y_shifted, &glue }),
 			coords(c),
@@ -64,6 +68,11 @@ public:
 			y_shifted(make_y_shifted(c)),
 			glue(make_glue(c)) {
     }
+
+	double get_x_mid() const { return coords.x_mid; }
+	double get_y_mid() const { return coords.y_mid; }
+	double get_shift_x() const { return coords.shift_x; }
+	double get_shift_y() const { return coords.shift_y; }
 
 	const BsplineNonRect& get_trunk() const { return trunk; }
 	const Bspline& get_x_shifted() const { return x_shifted; }

@@ -27,6 +27,10 @@ int main(int argc, char** argv) {
 		EPS,
 		SCREEN
 	} output = EPS;
+	if (argc != 2) {
+		cerr << "Usage: " << argv[0] << " -s or " << argv[0] << " <file>" << endl;
+		exit(2);
+	}
 	if (string(argv[1]) == "-s") {
 		output = SCREEN;
 	}
@@ -65,11 +69,21 @@ int main(int argc, char** argv) {
 	cin >> M;
 	vector<Function2D*> bsplines;
 	for (int i = 0; i < M; i++) {
-		vector<double> x_knots, y_knots;
-		read_vector(&x_knots, 4);
-		read_vector(&y_knots, 4);
-		Bspline* bspline = new Bspline(x_knots, y_knots);
-		bsplines.push_back(bspline);
+		string type; 
+		// Regular or Gnomon
+		cin >> type;
+		if (type == "Regular") {
+			vector<double> x_knots, y_knots;
+			read_vector(&x_knots, 4);
+			read_vector(&y_knots, 4);
+			Bspline* regular = new Bspline(x_knots, y_knots);
+			bsplines.push_back(regular);
+		} else {
+			double x_mid, y_mid, shift_x, shift_y;
+			cin >> x_mid >> y_mid >> shift_x >> shift_y;
+			GnomonBspline* gnomon = new GnomonBspline(x_mid, y_mid, shift_x, shift_y);
+			bsplines.push_back(gnomon);
+		}
 	}
 
 	string sum_file = "bspline_sum.dat";

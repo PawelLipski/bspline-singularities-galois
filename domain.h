@@ -16,9 +16,14 @@ enum MeshType {
 };
 
 struct BsplineChoice {
-	Bspline* regular;
-	GnomonBspline* gnomon;
+	Bspline* regular = nullptr;
+	GnomonBspline* gnomon = nullptr;
 };
+
+// -1, 0 or +1 depending on the sign of val
+template <typename T> int sign(T val) {
+	return (T(0) < val) - (val < T(0));
+}
 
 class Domain {
 public:
@@ -125,7 +130,7 @@ private:
 	vector<Cube> elements;
 	vector<Cube> cut_off_boxes;
 	vector<Node *> tree_nodes;
-	vector<Bspline> bsplines2D;
+	vector<BsplineChoice> bsplines;
 
 	mutable vector<int> elements_count_by_level;
 

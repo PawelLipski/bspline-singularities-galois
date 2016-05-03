@@ -388,25 +388,36 @@ void Domain::compute_bsplines_supports(MeshType type, int order) {
 		compute_bspline_support(type, order, e, e.get_num());
 }
 
+// Computes support for B-spline centered at the element `e'.
 void Domain::compute_bspline_support(MeshType type, int order, Cube &e, int original_bspline_num) {
 	vector<Coord> support_bounds = e.compute_bspline_support_2D();
 	Cube support_cube(support_bounds[0], support_bounds[1], support_bounds[2], support_bounds[3]);
 
-	vector<double> x_knots = e.get_dim_knots(support_cube, X_DIM);
-	vector<double> y_knots = e.get_dim_knots(support_cube, Y_DIM);
-	Bspline bspline(x_knots, y_knots, 1.0);
-	bsplines2D.push_back(bspline);
-
+	BsplineChoice choice;
 
 	for (auto &support_candidate: elements) {
 		if (support_candidate.non_empty() && support_candidate.contained_in_box(support_cube)) {
 			if (type == EDGED_4 && e.is_point_2D()) {
 				Coord min_el_size = e.get_neighbor(0)->get_size(0) / 2;
 				if (min_el_size > 1 && support_candidate.get_size(0) < min_el_size) {
-					cerr << "e.x = " << e.get_from(X_DIM) << ", e.y = " << e.get_from(Y_DIM)
-						<< ", min_el_size = " << min_el_size
-						<< ", support_candidate.get_size(X_DIM) = " << support_candidate.get_size(X_DIM) << endl;
 					// We just detected a gnomon-shaped B-spline!
+
+					/*cerr << "e.x = " << e.get_from(X_DIM) << ", e.y = " << e.get_from(Y_DIM)
+						<< ", min_el_size = " << min_el_size
+						<< ", support_candidate.get_size(X_DIM) = " << support_candidate.get_size(X_DIM) << endl;*/
+					
+					Coord x_mid = e.left();  // can be right() as well, nvm
+					// -1 or +1, depending on where the rejected candidate element lies
+					int shift_x_sign = sign(support_candidate.left() - e.left());
+					// The actual shift needed to define a GnomonBspline
+					Coord shift_x = shift_x_sign * min_el_size;
+
+					Coord y_mid = e.down();
+					int shift_y_sign = sign(support_candidate.down() - e.down());
+					Coord shift_y = shift_y_sign * min_el_size;
+
+					if (choice.gnomon == nullptr)
+						choice.gnomon = new GnomonBspline(x_mid, y_mid, shift_x, shift_y);
 					continue;
 				}
 			}
@@ -418,6 +429,15 @@ void Domain::compute_bspline_support(MeshType type, int order, Cube &e, int orig
 			}
 		}
 	}
+
+	if (choice.gnomon == nullptr) {
+		// Most common case, the B-spline is regular and not gmonon.
+		vector<double> x_knots = e.get_dim_knots(support_cube, X_DIM);
+		vector<double> y_knots = e.get_dim_knots(support_cube, Y_DIM);
+		choice.regular = new Bspline(x_knots, y_knots);
+	}
+
+	bsplines.push_back(choice);
 }
 
 Cube Domain::compute_not_defined_cube(const Cube &e, const Cube &support_cube) const {
@@ -477,13 +497,22 @@ void Domain::print_support_for_each_bspline() const {
 }
 
 void Domain::print_knots_for_each_bspline() const {
-	cout << bsplines2D.size() << endl;
-	for (const Bspline& bspline: bsplines2D) {
-		for (auto coord: bspline.get_x_knots())
-			cout << coord << " ";
-		for (auto coord: bspline.get_y_knots())
-			cout << coord << " ";
-		cout << endl;
+	cout << bsplines.size() << endl;
+	for (const BsplineChoice& choice: bsplines) {
+		if (choice.regular != nullptr) {
+			cout << "Regular ";
+			for (auto coord: choice.regular->get_x_knots())
+				cout << coord << " ";
+			for (auto coord: choice.regular->get_y_knots())
+				cout << coord << " ";
+			cout << endl;
+		} else {
+			const GnomonBspline& gb = *choice.gnomon;
+			cout << "Gnomon "
+				<< gb.get_x_mid() << " " << gb.get_y_mid() << " "
+				<< gb.get_shift_x() << " " << gb.get_shift_y()
+				<< endl;
+		}
 	}
 }
 
