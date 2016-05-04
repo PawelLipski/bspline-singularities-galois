@@ -50,7 +50,7 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	MeshType mesh_type = EDGED_8;
+	MeshType mesh_type = EDGED_4;
 
 	if (argc >= 2) {
 		bool any_mesh = true;

@@ -22,6 +22,48 @@ void read_vector(vector<double>* out, int cnt) {
 	}
 }
 
+double get_coef(double** B, int row, int col) {
+	return B[row][col];
+}
+
+void set_coef(double** B, int row, int col, double value) {
+	B[row][col] = value;
+}
+
+void subtract_row(double** B, double* L, int N, int pivot, int from) {
+
+	double ratio = get_coef(B, from, pivot) / get_coef(B, pivot, pivot); 
+
+	set_coef(B, from, pivot, 0.0);
+	for (int col = pivot + 1; col <= N; col++) {
+		double orig = get_coef(B, from, col);
+		double factor = get_coef(B, pivot, col);
+		set_coef(B, from, col, orig - factor * ratio);
+	}
+	L[from] -= L[pivot] * ratio;
+}
+
+void extract_single_unknown(double** B, double* L, double* U, int N, int row) {
+
+	double result = L[row];
+	for (int col = row + 1; col < N; col++)
+		result -= get_coef(B, row, col) * U[col];
+	result /= get_coef(B, row, row);
+
+	U[row] = result;
+}
+
+void gauss_solve(double** B, double* L, double* U, int N) {
+
+	for (int pivot = 0; pivot < N-1; pivot++) {
+		for (int from = pivot + 1; from < N; from++)
+			subtract_row(B, L, N, pivot, from);
+	}
+
+	for (int row = N-1; row >= 0; row--)
+		extract_single_unknown(B, L, U, N, row);
+}
+
 int main(int argc, char** argv) {
 	enum OutputTerminal {
 		EPS,
@@ -86,8 +128,31 @@ int main(int argc, char** argv) {
 		}
 	}
 
+	double** B = new double*[N];
+	for (int i = 0; i < N; i++)
+		B[i] = new double[M];
+	// M == N, always
+	for (int i = 0; i < N; i++) {
+		const Bounds& b = bs[i];
+		double x = (b.left + b.right) / 2.0;
+		double y = (b.up + b.down) / 2.0;
+		for (int j = 0; j < M; j++)
+			B[i][j] = bsplines[j]->apply(x, y);		
+	}
+
+	double* L = new double[N];
+	for (int i = 0; i < N; i++)
+		L[i] = 1.0;
+
+	double* U = new double[N];
+	gauss_solve(B, L, U, N);
+
+	//for (int i = 0; i < N; i++)
+	//	cout << U[i] << endl;
+	vector<double> coefs(U, U+N);
+
 	string sum_file = "bspline_sum.dat";
-	LinearCombination sum_of_all(bsplines);
+	LinearCombination sum_of_all(bsplines, coefs);
 	Rect support(x_from, x_to, y_from, y_to);
 	samples_2d(sum_of_all, support, sum_file, SAMPLE_CNT);
 	print_plot_command(sum_file, "red", false);
