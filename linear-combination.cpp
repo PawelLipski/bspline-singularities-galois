@@ -3,8 +3,8 @@
 
 double LinearCombination::apply(double x, double y) const {
 	double result = 0.0;
-	for (const Function2D* fun: funs)
-		result += fun->apply(x, y);
+	for (unsigned i = 0; i < funs.size(); i++)
+		result += funs[i]->apply(x, y) * coefs[i];
 	return result;
 }
 

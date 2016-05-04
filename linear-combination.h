@@ -34,13 +34,18 @@ private:
 class LinearCombination : public Function2D {
 public:
     LinearCombination(const vector<Function2D*>& _funs):
-		funs(_funs) {
+		funs(_funs), coefs(_funs.size(), 1.0) {
+	}
+
+    LinearCombination(const vector<Function2D*>& _funs, const vector<double>& _coefs):
+		funs(_funs), coefs(_coefs) {
 	}
 
     double apply(double x, double y) const;
 
 private:
     vector<Function2D*> funs;
+	vector<double> coefs;
 };
 
 #endif // BSPLINE_SINGULARITIES_GALOIS_LINEARCOMBINATION_H
