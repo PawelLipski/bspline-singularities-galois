@@ -8,7 +8,7 @@ using namespace std;
 #include "linear-combination.h"
 #include "bspline-non-rect.h"
 
-int SAMPLE_CNT = 127; // in each dimension
+int SAMPLE_CNT = 63; // in each dimension
 
 struct Bounds {
 	int left, right, up, down;
@@ -128,6 +128,7 @@ int main(int argc, char** argv) {
 		}
 	}
 
+	/*
 	double** B = new double*[N];
 	for (int i = 0; i < N; i++)
 		B[i] = new double[M];
@@ -152,15 +153,16 @@ int main(int argc, char** argv) {
 	vector<double> coefs(U, U+N);
 	LinearCombination sum_of_all(bsplines, coefs);
 
-	/*
-	for (int i = 0; i < N; i++) {
-		const Bounds& b = bs[i];
-		double x = (b.left + b.right) / 2.0;
-		double y = (b.up + b.down) / 2.0;
-		cerr << x << " " << y << " " << sum_of_all.apply(x, y) << endl;
-	}
+	
+	//for (int i = 0; i < N; i++) {
+	//	const Bounds& b = bs[i];
+	//	double x = (b.left + b.right) / 2.0;
+	//	double y = (b.up + b.down) / 2.0;
+	//	cerr << x << " " << y << " " << sum_of_all.apply(x, y) << endl;
+	//}
 	*/
 
+	LinearCombination sum_of_all(bsplines);
 	string sum_file = "bspline_sum.dat";
 	Rect support(x_from, x_to, y_from, y_to);
 	samples_2d(sum_of_all, support, sum_file, SAMPLE_CNT);
