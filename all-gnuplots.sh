@@ -18,6 +18,7 @@ gnomon() {
 
 bspline_sum() {
 	for depth in {1..5}; do
+		echo Sum for depth = ${depth}...
 		./generate --knots --edged-4 $depth | ./render-bspline-sum bspline-sum-$depth | gnuplot
 	done
 }

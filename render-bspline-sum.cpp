@@ -8,7 +8,7 @@ using namespace std;
 #include "linear-combination.h"
 #include "bspline-non-rect.h"
 
-int SAMPLE_CNT = 63; // in each dimension
+int SAMPLE_CNT = 31; // in each dimension
 
 struct Bounds {
 	int left, right, up, down;
@@ -32,7 +32,7 @@ void set_coef(double** B, int row, int col, double value) {
 
 void subtract_row(double** B, double* L, int N, int pivot, int from) {
 
-	double ratio = get_coef(B, from, pivot) / get_coef(B, pivot, pivot); 
+	double ratio = get_coef(B, from, pivot) / get_coef(B, pivot, pivot);
 
 	set_coef(B, from, pivot, 0.0);
 	for (int col = pivot + 1; col <= N; col++) {
@@ -109,9 +109,9 @@ int main(int argc, char** argv) {
 
 	int M; // number of B-splines
 	cin >> M;
-	vector<Function2D*> bsplines;
+	vector<Function2D*> unscaled_bsplines;
 	for (int i = 0; i < M; i++) {
-		string type; 
+		string type;
 		// Regular or Gnomon
 		cin >> type;
 		if (type == "Regular") {
@@ -119,14 +119,22 @@ int main(int argc, char** argv) {
 			read_vector(&x_knots, 4);
 			read_vector(&y_knots, 4);
 			Bspline* regular = new Bspline(x_knots, y_knots);
-			bsplines.push_back(regular);
+			unscaled_bsplines.push_back(regular);
 		} else {  // type == "Gnomon"
 			double x_mid, y_mid, shift_x, shift_y;
 			cin >> x_mid >> y_mid >> shift_x >> shift_y;
 			GnomonBspline* gnomon = new GnomonBspline(x_mid, y_mid, shift_x, shift_y);
-			bsplines.push_back(gnomon);
+			unscaled_bsplines.push_back(gnomon);
 		}
 	}
+
+	LinearCombination sum_of_unscaled(unscaled_bsplines);
+	vector<Function2D*> scaled_bsplines;
+	for (const Function2D* unscaled_bspline: unscaled_bsplines) {
+		Quotient* scaled_bspline = new Quotient(unscaled_bspline, &sum_of_unscaled);
+		scaled_bsplines.push_back(scaled_bspline);
+	}
+	LinearCombination sum_of_scaled(scaled_bsplines);
 
 	/*
 	double** B = new double*[N];
@@ -162,10 +170,9 @@ int main(int argc, char** argv) {
 	//}
 	*/
 
-	LinearCombination sum_of_all(bsplines);
 	string sum_file = "bspline_sum.dat";
 	Rect support(x_from, x_to, y_from, y_to);
-	samples_2d(sum_of_all, support, sum_file, SAMPLE_CNT);
+	samples_2d(sum_of_scaled, support, sum_file, SAMPLE_CNT);
 	print_plot_command(sum_file, "red", false);
 
 	cout << endl;

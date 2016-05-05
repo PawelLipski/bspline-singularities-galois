@@ -6,7 +6,7 @@
 
 class LinearFunction: public Function2D {
 public:
-	LinearFunction(double _a, double _b, double _c) :
+	LinearFunction(double _a, double _b, double _c):
 		a(_a), b(_b), c(_c) {
 	}
 
@@ -20,7 +20,7 @@ private:
 
 class ZeroOutside: public Function2D {
 public:
-	ZeroOutside(const Function2D* _fun, const Rect& _area) :
+	ZeroOutside(const Function2D* _fun, const Rect& _area):
 		fun(_fun), area(_area) {
 	}
 
@@ -29,6 +29,18 @@ public:
 private:
 	const Function2D* fun;
 	Rect area;
+};
+
+class Quotient: public Function2D {
+public:
+	Quotient(const Function2D* _dividend, const Function2D* _divisor):
+		dividend(_dividend), divisor(_divisor) {
+	}
+
+	double apply(double x, double y) const;
+
+private:
+	const Function2D *dividend, *divisor;
 };
 
 class LinearCombination : public Function2D {
