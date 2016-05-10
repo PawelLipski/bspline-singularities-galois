@@ -50,6 +50,7 @@ void print_config(int size, int sample_cnt) {
 
 	cout << "set hidden3d nooffset" << endl;
 	cout << "set dgrid3d " << sample_cnt << ", " << sample_cnt << endl;
+	cout << "set object 1 rectangle from screen 0,0 to screen 1,1 fillcolor rgb \"white\" behind" << endl;
 }
 
 void print_rotate_view(int x, int y) {

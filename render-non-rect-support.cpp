@@ -24,9 +24,8 @@ int main(int argc, char** argv) {
 		EPS,
 		SCREEN
 	} output = EPS;
-	if (argc == 2 && string(argv[1]) == "-s") {
+	if (argc == 1 || string(argv[1]) == "-s")
 		output = SCREEN;
-	}
 
 	print_grid_rect(0, 0, 4, 4, true);
 	print_grid_rect(4, 0, 8, 4, true);
@@ -34,7 +33,10 @@ int main(int argc, char** argv) {
 	print_grid_rect(0, 4, 4, 8, true);
 
 	print_config(SIZE, SAMPLE_CNT);
-	print_rotate_view(30, 330);
+	int angle = 330;
+	if (argc == 3)
+		angle = atoi(argv[2]);
+	print_rotate_view(30, angle);
 	if (output == EPS)
 		print_eps_terminal(argv[1]);
 

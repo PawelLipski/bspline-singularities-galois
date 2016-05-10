@@ -12,6 +12,7 @@ render-bspline-sum
 render-non-rect-support
 
 eps/
+gif/
 png/
 flops-estimates/tmp/
 flops-estimates/fit.log
