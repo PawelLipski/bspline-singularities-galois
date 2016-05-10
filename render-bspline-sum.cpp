@@ -23,23 +23,16 @@ int main(int argc, char** argv) {
 		EPS,
 		SCREEN
 	} output = EPS;
-	if (argc != 2) {
-		cerr << "Usage: " << argv[0] << " -s or " << argv[0] << " <file>" << endl;
-		exit(2);
-	}
-	if (string(argv[1]) == "-s") {
+	if (argc == 1 || string(argv[1]) == "-s") 
 		output = SCREEN;
-	}
 
-	generate_and_render_grid(3);
+	int size = generate_and_render_grid(3);
 
 	int N; // number of elements
 	cin >> N;
-	int size = 0;
 	for (int i = 0; i < N; i++) {
 		Bounds b;
 		cin >> b.left >> b.right >> b.up >> b.down;
-		size = max(size, max(b.right, b.down));
 	}
 
 	print_config(size, SAMPLE_CNT);

@@ -79,7 +79,7 @@ void print_grid_rect(int left, int up, int right, int down, bool highlight) {
 	print_grid_line(left,  down, left,  up,   highlight);
 }
 
-void generate_and_render_grid(int depth) {
+int generate_and_render_grid(int depth) {
 	string d = to_string(depth);
 	string grid_file = "grid-" + d + ".dat";
 	string cmd = "./generate --draw-plain " + d + " > " + grid_file;
@@ -107,6 +107,7 @@ void generate_and_render_grid(int depth) {
 		print_grid_line(right, down, left,  down, hl);
 		print_grid_line(left,  down, left,  up,   hl);
 	}
+	return size;
 }
 
 void print_plot_command(const string& data_file, const string& color, bool replot) {

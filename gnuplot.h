@@ -44,7 +44,8 @@ void print_grid_line(int x1, int y1, int x2, int y2, bool highlight);
 
 void print_grid_rect(int left, int up, int right, int down, bool highlight);
 
-void generate_and_render_grid(int depth);
+// Returns grid size.
+int generate_and_render_grid(int depth);
 
 void print_plot_command(const string& data_file, const string& color, bool replot);
 
