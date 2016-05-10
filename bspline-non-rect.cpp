@@ -1,6 +1,3 @@
-//
-// Created by Bartosz Janota on 18/04/16.
-//
 
 #include <algorithm>
 #include <fstream>
@@ -95,7 +92,6 @@ NurbsOverAdaptedGrid::NurbsOverAdaptedGrid(int depth) {
 
 	int M; // number of B-splines
 	fin >> M;
-	vector<Function2D*> unscaled_bsplines;
 	for (int i = 0; i < M; i++) {
 		string type;
 		// Regular or Gnomon
