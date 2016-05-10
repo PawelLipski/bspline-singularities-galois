@@ -6,7 +6,9 @@ using namespace std;
 #include "bspline-non-rect.h"
 #include "gnuplot.h"
 
-int SAMPLE_CNT = 50; // in each dimension
+int SAMPLE_CNT = 31; // in each dimension
+
+string colors[] = { "turquoise", "green", "red", "navy", "magenta", "blue", "orange" };
 
 int main(int argc, char** argv) {
 	enum OutputTerminal {
@@ -23,11 +25,12 @@ int main(int argc, char** argv) {
 		print_eps_terminal(argv[1]);
 
 	NurbsOverAdaptedGrid nurbs(3);
+	int no = 0;
 	for (int i = 2; i < argc; i++) {
 		string file = string() + "bspline-" + argv[i] + ".dat";
 		int index = atoi(argv[i]);
 		samples_2d(nurbs.get_bspline(index), nurbs.get_bspline_support(index), file, SAMPLE_CNT);
-		print_plot_command(file, "red", i > 2); // TODO color
+		print_plot_command(file, colors[no++], i > 2);
 	}
 	cout << endl;
 	if (output == SCREEN)
