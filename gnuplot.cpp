@@ -48,7 +48,7 @@ void print_config(int size, int sample_cnt) {
 	cout << "set xrange [0:" << size << "]" << endl;
 	cout << "set yrange [0:" << size << "]" << endl;
 
-	cout << "set hidden3d" << endl;
+	cout << "set hidden3d nooffset" << endl;
 	cout << "set dgrid3d " << sample_cnt << ", " << sample_cnt << endl;
 }
 

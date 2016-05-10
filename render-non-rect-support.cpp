@@ -8,12 +8,12 @@ using namespace std;
 #include "bspline-non-rect.h"
 
 int SIZE = 8; // in each dimension
-int SAMPLE_CNT = 40; // in each dimension
+int SAMPLE_CNT = 41; // in each dimension
 
-void plot(const Function2D& f, const Rect& area, string color) {
+void plot(const Function2D& f, const Rect& area, string color, int tag = 1) {
 	static bool replot = false;
 
-	string file = "plot-" + color + ".dat";
+	string file = "plot-" + color + "-" + to_string(tag) + ".dat";
 	samples_2d(f, area, file, SAMPLE_CNT);
 	print_plot_command(file, color, replot);
 	replot = true;
@@ -40,7 +40,9 @@ int main(int argc, char** argv) {
 
 	GnomonBsplineCoords coords(4, 4, -4, -4);
 	GnomonBspline gb(coords);
-	plot(gb.get_trunk(), gb.get_trunk_support(), "red");
+	plot(gb.get_trunk(), gb.get_trunk_support_1(), "red", 1);
+	plot(gb.get_trunk(), gb.get_trunk_support_2(), "red", 2);
+	plot(gb.get_trunk(), gb.get_trunk_support_3(), "red", 3);
 	plot(gb.get_x_shifted(), gb.get_x_shifted_support(), "navy");
 	plot(gb.get_y_shifted(), gb.get_y_shifted_support(), "cyan");
 	plot(gb.get_glue(), gb.get_glue_support(), "black");

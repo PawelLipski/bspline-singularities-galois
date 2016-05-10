@@ -90,6 +90,27 @@ public:
 		);
 	}
 
+	Rect get_trunk_support_1() const { 
+		return Rect(
+			coords.x_from(), coords.x_mid,
+			coords.y_from(), coords.y_mid
+		);
+	}
+
+	Rect get_trunk_support_2() const { 
+		return Rect(
+			coords.x_mid, coords.x_to(),
+			coords.y_from(), coords.y_mid
+		);
+	}
+
+	Rect get_trunk_support_3() const { 
+		return Rect(
+			coords.x_from(), coords.x_mid,
+			coords.y_mid, coords.y_to()
+		);
+	}
+
 	Rect get_x_shifted_support() const { return x_shifted.get_support_as_rect(); }
 
 	Rect get_y_shifted_support() const { return y_shifted.get_support_as_rect(); }
