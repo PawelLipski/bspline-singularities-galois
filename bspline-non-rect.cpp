@@ -3,6 +3,7 @@
 //
 
 #include <algorithm>
+#include <fstream>
 #include "bspline-non-rect.h"
 #include "bspline.h"
 #include "cube.h"
@@ -68,5 +69,55 @@ LinearCombination GnomonBspline::make_glue(const GnomonBsplineCoords& c) {
 	return LinearCombination(
 			{ inner, outer, new ZeroOutside(fix, get_glue_support(c)) }
 			);
+}
+
+void read_vector(ifstream& in, vector<double>* out, int cnt) {
+	for (int i = 0; i < cnt; i++) {
+		double x;
+		in >> x;
+		out->push_back(x);
+	}
+}
+
+NurbsOverAdaptedGrid::NurbsOverAdaptedGrid(int depth) {
+	string d = to_string(depth);
+	string grid_file = "grid-" + d + ".dat";
+	string cmd = "./generate --knots " + d + " > " + grid_file;
+	system(cmd.c_str());
+	ifstream fin(grid_file);
+
+	int N; // number of elements
+	fin >> N;
+	for (int i = 0; i < N; i++) {
+		Bounds b;
+		fin >> b.left >> b.right >> b.up >> b.down;
+	}
+
+	int M; // number of B-splines
+	fin >> M;
+	vector<Function2D*> unscaled_bsplines;
+	for (int i = 0; i < M; i++) {
+		string type;
+		// Regular or Gnomon
+		fin >> type;
+		if (type == "Regular") {
+			vector<double> x_knots, y_knots;
+			read_vector(fin, &x_knots, 4);
+			read_vector(fin, &y_knots, 4);
+			Bspline* regular = new Bspline(x_knots, y_knots);
+			unscaled_bsplines.push_back(regular);
+		} else {  // type == "Gnomon"
+			double x_mid, y_mid, shift_x, shift_y;
+			fin >> x_mid >> y_mid >> shift_x >> shift_y;
+			GnomonBspline* gnomon = new GnomonBspline(x_mid, y_mid, shift_x, shift_y);
+			unscaled_bsplines.push_back(gnomon);
+		}
+	}
+
+	LinearCombination* sum_of_unscaled = new LinearCombination(unscaled_bsplines);
+	for (const Function2D* unscaled_bspline: unscaled_bsplines) {
+		Quotient* scaled_bspline = new Quotient(unscaled_bspline, sum_of_unscaled);
+		scaled_bsplines.push_back(scaled_bspline);
+	}
 }
 

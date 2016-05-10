@@ -139,4 +139,20 @@ private:
 	LinearCombination glue;
 };
 
+class NurbsOverAdaptedGrid {
+public:
+	NurbsOverAdaptedGrid(int depth);
+
+	const Function2D* get_bspline(int index) {
+		return scaled_bsplines[index];
+	}
+
+	vector<Function2D*> get_all_bsplines() {
+		return scaled_bsplines;
+	}
+
+private:
+	vector<Function2D*> scaled_bsplines;
+};
+
 #endif //BSPLINE_SINGULARITIES_GALOIS_BSPLINENONRECT_H
