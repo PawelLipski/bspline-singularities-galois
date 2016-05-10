@@ -33,14 +33,14 @@ private:
 
 class Quotient: public Function2D {
 public:
-	Quotient(const Function2D* _dividend, const Function2D* _divisor):
+	Quotient(const Function2D& _dividend, const Function2D& _divisor):
 		dividend(_dividend), divisor(_divisor) {
 	}
 
 	double apply(double x, double y) const;
 
-private:
-	const Function2D *dividend, *divisor;
+protected:
+	const Function2D &dividend, &divisor;
 };
 
 class LinearCombination : public Function2D {

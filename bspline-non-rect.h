@@ -136,6 +136,59 @@ private:
 	LinearCombination glue;
 };
 
+class GnomonNurbs : public Quotient {
+public:
+    GnomonNurbs(const GnomonBspline& _gnomon_bspline, const Function2D& _divisor):
+		Quotient(_gnomon_bspline, _divisor),
+		gnomon_bspline(_gnomon_bspline),
+		trunk(_gnomon_bspline.get_trunk(), _divisor),
+		x_shifted(_gnomon_bspline.get_x_shifted(), _divisor),
+		y_shifted(_gnomon_bspline.get_y_shifted(), _divisor),
+		glue(_gnomon_bspline.get_glue(), _divisor) {
+	}
+
+	const Quotient& get_trunk() const { return trunk; }
+	const Quotient& get_x_shifted() const { return x_shifted; }
+	const Quotient& get_y_shifted() const { return y_shifted; }
+	const Quotient& get_glue() const { return glue; }
+
+	Rect get_support() const {
+		return gnomon_bspline.get_support();	
+	}
+
+	Rect get_trunk_support() const { 
+		return gnomon_bspline.get_trunk_support();
+	}
+
+	Rect get_trunk_support_1() const { 
+		return gnomon_bspline.get_trunk_support_1();
+	}
+
+	Rect get_trunk_support_2() const { 
+		return gnomon_bspline.get_trunk_support_2();
+	}
+
+	Rect get_trunk_support_3() const { 
+		return gnomon_bspline.get_trunk_support_3();
+	}
+
+	Rect get_x_shifted_support() const {
+		return gnomon_bspline.get_x_shifted_support();
+	}
+
+	Rect get_y_shifted_support() const {
+		return gnomon_bspline.get_y_shifted_support();
+	}
+
+	Rect get_glue_support() const {
+		return gnomon_bspline.get_glue_support();
+	}
+
+private:
+	GnomonBspline gnomon_bspline;
+	Quotient trunk, x_shifted, y_shifted, glue;
+};
+
 class NurbsOverAdaptedGrid {
 public:
 	NurbsOverAdaptedGrid(int depth);

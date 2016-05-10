@@ -112,7 +112,12 @@ NurbsOverAdaptedGrid::NurbsOverAdaptedGrid(int depth) {
 
 	LinearCombination* sum_of_unscaled = new LinearCombination(unscaled_bsplines);
 	for (const Function2D* unscaled_bspline: unscaled_bsplines) {
-		Quotient* scaled_bspline = new Quotient(unscaled_bspline, sum_of_unscaled);
+		const GnomonBspline* gb = dynamic_cast<const GnomonBspline*>(unscaled_bspline);
+		Quotient* scaled_bspline;
+		if (gb != nullptr)
+			scaled_bspline = new GnomonNurbs(*gb, *sum_of_unscaled);
+		else
+			scaled_bspline = new Quotient(*unscaled_bspline, *sum_of_unscaled);
 		scaled_bsplines.push_back(scaled_bspline);
 	}
 }
