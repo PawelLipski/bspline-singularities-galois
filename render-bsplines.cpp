@@ -15,7 +15,7 @@ int main(int argc, char** argv) {
 		EPS,
 		SCREEN
 	} output = EPS;
-	if (argc == 1 || string(argv[1]) == "-s")
+	if (string(argv[1]) == "-s")
 		output = SCREEN;
 
 	int size = generate_and_render_grid(3);
@@ -24,13 +24,20 @@ int main(int argc, char** argv) {
 	if (output == EPS)
 		print_eps_terminal(argv[1]);
 
+	string type = argv[2]; // Regular or Gnomon
 	NurbsOverAdaptedGrid nurbs(3);
 	int no = 0;
-	for (int i = 2; i < argc; i++) {
+	for (int i = 3; i < argc; i++) {
 		string file = string() + "bspline-" + argv[i] + ".dat";
 		int index = atoi(argv[i]);
-		samples_2d(nurbs.get_bspline(index), nurbs.get_bspline_support(index), file, SAMPLE_CNT);
-		print_plot_command(file, colors[no++], i > 2);
+		Rect support = nurbs.get_bspline_support(index);
+		if (type == "Regular") {
+			samples_2d(nurbs.get_bspline(index), support, file, SAMPLE_CNT);
+			print_plot_command(file, colors[no++], i > 3);
+		} else {
+			//const GnomonBspline& bspline = dynamic_cast<const GnomonBspline&>(nurbs.get_bspline(index));
+			//samples_2d(bspline, support, file, SAMPLE_CNT);
+		}
 	}
 	cout << endl;
 	if (output == SCREEN)

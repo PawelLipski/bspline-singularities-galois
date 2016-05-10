@@ -149,7 +149,10 @@ public:
 	}
 
 	Rect get_bspline_support(int index) {
-		return dynamic_cast<Bspline*>(unscaled_bsplines[index])->get_support_as_rect();
+		Bspline* regular = dynamic_cast<Bspline*>(unscaled_bsplines[index]);
+		if (regular != nullptr)
+			return regular->get_support_as_rect();
+		return dynamic_cast<GnomonBspline*>(unscaled_bsplines[index])->get_support();
 	}
 
 private:
