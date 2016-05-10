@@ -4,4 +4,4 @@ for i in `seq 0 5 355`; do
 	echo $i
 	./render-non-rect-support non-rect-support-`printf "%.3i" $i` $i | gnuplot
 done
-convert +antialias -delay 10 -density 300 -loop 0 -resize 800x600 eps/non-rect-support-*.eps gif/non-rect-support.gif
+convert -delay 10 -density 150 -loop 0 -resize 1024x768 eps/non-rect-support-*.eps gif/non-rect-support.gif
