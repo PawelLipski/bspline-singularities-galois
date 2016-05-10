@@ -10,10 +10,6 @@ using namespace std;
 
 int SAMPLE_CNT = 31; // in each dimension
 
-struct Bounds {
-	int left, right, up, down;
-};
-
 void read_vector(vector<double>* out, int cnt) {
 	for (int i = 0; i < cnt; i++) {
 		double x;
@@ -34,27 +30,18 @@ int main(int argc, char** argv) {
 	if (string(argv[1]) == "-s") {
 		output = SCREEN;
 	}
+
+	generate_and_render_grid(3);
+
 	int N; // number of elements
 	cin >> N;
-	vector<Bounds> bs;
 	int size = 0;
 	for (int i = 0; i < N; i++) {
 		Bounds b;
 		cin >> b.left >> b.right >> b.up >> b.down;
-		bs.push_back(b);
 		size = max(size, max(b.right, b.down));
 	}
-	for (int i = 0; i < N; i++) {
-		const Bounds& b = bs[i];
-		int left = b.left, right = b.right, up = b.up, down = b.down;
-		if (left == right && up == down)
-			continue;  // skip vertices
-		bool hl = left == right || up == down;  // highlight double edges
-		print_grid_line(left,  up,   right, up,   hl);
-		print_grid_line(right, up,   right, down, hl);
-		print_grid_line(right, down, left,  down, hl);
-		print_grid_line(left,  down, left,  up,   hl);
-	}
+
 	print_config(size, SAMPLE_CNT);
 	print_rotate_view(30, 45);
 	if (output == EPS)

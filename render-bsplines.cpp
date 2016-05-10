@@ -38,10 +38,6 @@ void output_predef_function(int index, const string& data_file) {
 	samples_2d(*f, area, data_file, SAMPLE_CNT);
 }
 
-struct Bounds {
-	int left, right, up, down;
-};
-
 int main(int argc, char** argv) {
 	enum OutputTerminal {
 		EPS,

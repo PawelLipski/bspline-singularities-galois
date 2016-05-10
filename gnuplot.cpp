@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+#include <sstream>
 
 #include "gnuplot.h"
 
@@ -76,6 +77,36 @@ void print_grid_rect(int left, int up, int right, int down, bool highlight) {
 	print_grid_line(right, up,   right, down, highlight);
 	print_grid_line(right, down, left,  down, highlight);
 	print_grid_line(left,  down, left,  up,   highlight);
+}
+
+void generate_and_render_grid(int depth) {
+	string d = to_string(depth);
+	string grid_file = "grid-" + d + ".dat";
+	string cmd = "./generate --draw-plain " + d + " > " + grid_file;
+	system(cmd.c_str());
+	ifstream fin(grid_file);
+
+	int N; // number of elements
+	fin >> N;
+	vector<Bounds> bs;
+	int size = 0;
+	for (int i = 0; i < N; i++) {
+		Bounds b;
+		fin >> b.left >> b.right >> b.up >> b.down;
+		bs.push_back(b);
+		size = max(size, max(b.right, b.down));
+	}
+	for (int i = 0; i < N; i++) {
+		const Bounds& b = bs[i];
+		int left = b.left, right = b.right, up = b.up, down = b.down;
+		if (left == right && up == down)
+			continue;  // skip vertices
+		bool hl = left == right || up == down;  // highlight double edges
+		print_grid_line(left,  up,   right, up,   hl);
+		print_grid_line(right, up,   right, down, hl);
+		print_grid_line(right, down, left,  down, hl);
+		print_grid_line(left,  down, left,  up,   hl);
+	}
 }
 
 void print_plot_command(const string& data_file, const string& color, bool replot) {

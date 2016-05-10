@@ -30,6 +30,10 @@ double samples_2d(const Function2D& f, const Rect& area, const string &data_file
 
 /*** Gnuplot script generation ***/
 
+struct Bounds {
+	int left, right, up, down;
+};
+
 void print_config(int size, int sample_cnt);
 
 void print_rotate_view(int x, int y);
@@ -39,6 +43,8 @@ void print_eps_terminal(const string& output_eps);
 void print_grid_line(int x1, int y1, int x2, int y2, bool highlight);
 
 void print_grid_rect(int left, int up, int right, int down, bool highlight);
+
+void generate_and_render_grid(int depth);
 
 void print_plot_command(const string& data_file, const string& color, bool replot);
 
