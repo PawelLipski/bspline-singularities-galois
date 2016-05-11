@@ -1,13 +1,13 @@
 rm -rf eps/
 mkdir -p eps gif
 
-if false; then
-for i in `seq 0 5 355`; do
-	echo $i
-	./render-non-rect-support non-rect-support-`printf "%.3i" $i` $i | gnuplot
-done
-convert -delay 10 -density 150 -loop 0 -resize 1024x768 eps/non-rect-support-*.eps gif/non-rect-support.gif
-fi
+gnomon() {
+	for i in `seq 0 5 355`; do
+		echo $i
+		./render-non-rect-support non-rect-support-`printf "%.3i" $i` $i | gnuplot
+	done
+	convert -delay 10 -density 150 -loop 0 -resize 1024x768 eps/non-rect-support-*.eps gif/non-rect-support.gif
+}
 
 overview() {
 	tag=$1
@@ -20,6 +20,6 @@ overview() {
 	convert -delay 10 -density 150 -loop 1 -resize 1024x768 eps/nurbs-overview-$tag-*.eps gif/nurbs-overview-${tag}.gif
 }
 
-overview part1 1 9 18 21
-overview part2 36 41 44
-
+#overview part1 1 9 18 21
+#overview part2 36 41 44
+#gnomon

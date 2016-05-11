@@ -8,7 +8,10 @@ nurbs() {
 }
 
 gnomon() {
-	./render-non-rect-support gnomon | gnuplot
+	./render-non-rect-support gnomon-trunk 330 1 | gnuplot
+	./render-non-rect-support gnomon-xshifted 330 2 | gnuplot
+	./render-non-rect-support gnomon-yshifted 330 3 | gnuplot
+	./render-non-rect-support gnomon-glue 330 4 | gnuplot
 }
 
 bspline_sum() {
@@ -23,8 +26,8 @@ make || exit 1
 rm -rf eps/
 mkdir -p png eps
 
-nurbs
-#gnomon
+#nurbs
+gnomon
 #bspline_sum
 
 rm -rf *.dat gpl.out

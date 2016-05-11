@@ -32,9 +32,12 @@ int main(int argc, char** argv) {
 	print_grid_rect(4, 4, 8, 8, true);
 	print_grid_rect(0, 4, 4, 8, true);
 
+	print_grid_line(0, 2, 4, 2, false);
+	print_grid_line(2, 0, 2, 4, false);
+
 	print_config(SIZE, SAMPLE_CNT);
 	int angle = 330;
-	if (argc == 3)
+	if (argc >= 3)
 		angle = atoi(argv[2]);
 	print_rotate_view(30, angle);
 	if (output == EPS)
@@ -42,12 +45,16 @@ int main(int argc, char** argv) {
 
 	GnomonBsplineCoords coords(4, 4, -4, -4);
 	GnomonBspline gb(coords);
-	plot(gb.get_trunk(), gb.get_trunk_support_1(), "red", 1);
-	plot(gb.get_trunk(), gb.get_trunk_support_2(), "red", 2);
-	plot(gb.get_trunk(), gb.get_trunk_support_3(), "red", 3);
-	plot(gb.get_x_shifted(), gb.get_x_shifted_support(), "navy");
-	plot(gb.get_y_shifted(), gb.get_y_shifted_support(), "cyan");
-	plot(gb.get_glue(), gb.get_glue_support(), "black");
+	int part = 0;
+	if (argc >= 4)
+		part = atoi(argv[3]);
+	#define P(x) if (part == 0 || part == x)
+	P(1) plot(gb.get_trunk(), gb.get_trunk_support_1(), "red", 1);
+	P(1) plot(gb.get_trunk(), gb.get_trunk_support_2(), "red", 2);
+	P(1) plot(gb.get_trunk(), gb.get_trunk_support_3(), "red", 3);
+	P(2) plot(gb.get_x_shifted(), gb.get_x_shifted_support(), "navy");
+	P(3) plot(gb.get_y_shifted(), gb.get_y_shifted_support(), "cyan");
+	P(4) plot(gb.get_glue(), gb.get_glue_support(), "black");
 
 	cout << endl;
 	if (output == SCREEN)
