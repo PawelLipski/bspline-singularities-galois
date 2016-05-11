@@ -1,14 +1,9 @@
 #!/bin/bash
 
 
-edged_4() {
-	./generate --draw-plain --edged-4 3 > grid.dat
-
-	cat grid.dat | ./render-bsplines edged-4_overview `seq 0 5` | gnuplot
-
-	for i in `seq 0 6`; do
-	#for i in `seq 0 0`; do
-		cat grid.dat | ./render-bsplines edged-4_$i $i | gnuplot
+nurbs() {
+	for i in 1 9 18 21 36 41 44; do
+		./render-bsplines nurbs-$i 45 Regular $i | gnuplot
 	done
 }
 
@@ -25,11 +20,12 @@ bspline_sum() {
 
 
 make || exit 1
+rm -rf eps/
 mkdir -p png eps
 
-#edged_4
+nurbs
 #gnomon
-bspline_sum
+#bspline_sum
 
 rm -rf *.dat gpl.out
 

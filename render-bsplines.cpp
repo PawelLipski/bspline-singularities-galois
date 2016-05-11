@@ -6,7 +6,7 @@ using namespace std;
 #include "bspline-non-rect.h"
 #include "gnuplot.h"
 
-int SAMPLE_CNT = 41; // in each dimension
+int SAMPLE_CNT = 31; // in each dimension
 
 int hardcoded_colors[] = { 1, 9, 18, 21, 36, 41, 44 };
 string colors[] = { "turquoise", "green", "red", "navy", "magenta", "blue", "orange" };

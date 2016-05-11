@@ -15,9 +15,9 @@ overview() {
 	for i in `seq 0 5 120`; do
 		echo $tag $i
 		i0=`printf "%.3i" $i`
-		./render-bsplines bsplines-overview-$tag-$i0 $i Regular $@ | gnuplot
+		./render-bsplines nurbs-overview-$tag-$i0 $i Regular $@ | gnuplot
 	done
-	convert -delay 10 -density 150 -loop 1 -resize 1024x768 eps/bsplines-overview-$tag-*.eps gif/bsplines-overview-${tag}.gif
+	convert -delay 10 -density 150 -loop 1 -resize 1024x768 eps/nurbs-overview-$tag-*.eps gif/nurbs-overview-${tag}.gif
 }
 
 overview part1 1 9 18 21
