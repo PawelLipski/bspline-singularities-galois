@@ -18,14 +18,16 @@ void print_rect(const SDL_Rect& rect) {
 	cout << rect.x << ", " << rect.y << " => " << rect.x << " x " << rect.y << endl;
 }
 
+enum Type {
+	FULL, EDGE, VERTEX
+};
+
 void draw_element(int x, int y, int w, int h, int scale, int contour) {
 	SDL_Rect rect = { Sint16(x*scale), Sint16(y*scale), Uint16(w*scale), Uint16(h*scale) };
 
-	Uint32 color;
-	enum {
-		FULL, EDGE, VERTEX
-	} type;
+	Type type;
 
+	Uint32 color;
 	if (w == 0 && h == 0) {
 		type = VERTEX;
 		rect.x -= 2;
@@ -45,7 +47,6 @@ void draw_element(int x, int y, int w, int h, int scale, int contour) {
 		type = FULL;
 		color = RED;
 	}
-	//print_rect(rect);
 	SDL_FillRect(screen, &rect, color);
 
 	if (type == FULL) {
@@ -53,9 +54,43 @@ void draw_element(int x, int y, int w, int h, int scale, int contour) {
 		rect.y += contour;
 		rect.w -= contour * 2;
 		rect.h -= contour * 2;
-		//print_rect(rect);
 		SDL_FillRect(screen, &rect, BLACK);
-		//rects.push_back(rect);
+	}
+}
+
+void draw_element_clear(int x, int y, int w, int h, int scale, int contour) {
+	SDL_Rect rect = { Sint16(x*scale), Sint16(y*scale), Uint16(w*scale), Uint16(h*scale) };
+
+	Uint32 color;
+	Type type;
+
+	if (w == 0 && h == 0) {
+		/*type = VERTEX;
+		rect.x -= 2;
+		rect.y -= 2;
+		rect.w = 4;
+		rect.h = 4;
+		color = BLUE;*/
+	} else if (w == 0 || h == 0) {
+		/*type = EDGE;
+		(w == 0 ? rect.w : rect.h) = 1;
+		color = WHITE;*/
+	} else {
+		//rect.x++;
+		//rect.y++;
+		//rect.w -= 2;
+		//rect.h -= 2;
+		type = FULL;
+		color = BLACK;
+	}
+	SDL_FillRect(screen, &rect, color);
+
+	if (type == FULL) {
+		rect.x += contour;
+		rect.y += contour;
+		rect.w -= contour * 2;
+		rect.h -= contour * 2;
+		SDL_FillRect(screen, &rect, WHITE);
 	}
 }
 
@@ -108,6 +143,13 @@ void redraw() {
 	}
 }
 
+void redraw_clear() {
+	SDL_FillRect(screen, NULL, WHITE);
+	for (auto& rect: rects) {
+		draw_element_clear(rect.x, rect.y, rect.w, rect.h, scale, 2);
+	}
+}
+
 void draw_inside(int index) {
 	const auto& r = rects[index];
 	SDL_Rect inside = { Sint16(r.x*scale + 3), Sint16(r.y*scale + 3), Uint16(r.w*scale - 6), Uint16(r.h*scale - 6) };
@@ -121,12 +163,15 @@ int main(int argc, char** argv) {
 		PLAIN,
 		NEIGHBORS,
 		SUPPORTS,
+		CLEAR,
 	} input_format = PLAIN;
 
 	if (argc >= 2) {
 		bool any_format = true;
 		string opt(argv[1]);
-		if (opt == "-n" || opt == "--neighbors")
+		if (opt == "-c" || opt == "--clear")
+			input_format = CLEAR;
+		else if (opt == "-n" || opt == "--neighbors")
 			input_format = NEIGHBORS;
 		else if (opt == "-s" || opt == "--supports")
 			input_format = SUPPORTS;
@@ -159,7 +204,10 @@ int main(int argc, char** argv) {
 		RectDef rect = { left, up, w, h };
 		rects.push_back(rect);
 	}
-	redraw();
+	if (input_format == CLEAR)
+		redraw_clear();
+	else
+		redraw();
 
 	if (input_format == NEIGHBORS) {
 		int M;
@@ -191,21 +239,6 @@ int main(int argc, char** argv) {
 			redraw();
 		}
 	}
-
-	/*
-	// Elimination tree
-	int M;
-	cin >> M;
-	for (int i = 0; i < M; i++) {
-	int left, right, up, down, num, level;
-	cin >> left >> right >> up >> down >> num >> level;
-	int w = right - left;
-	int h = down - up;
-	draw_element(left, up, w, h, 16, 0, num, level);
-	SDL_Delay(1000);
-	SDL_Flip(screen);
-	}
-	*/
 
 	SDL_Flip(screen);
 	wait_until_key_or_quit(SDLK_ESCAPE);
