@@ -18,6 +18,11 @@ enum MeshType {
 struct BsplineChoice {
 	Bspline* regular = nullptr;
 	GnomonBspline* gnomon = nullptr;
+	Cube get_support() const {
+		if (regular)
+			return regular->get_support();
+		return gnomon->get_support_as_cube();
+	}
 };
 
 // -1, 0 or +1 depending on the sign of val
@@ -58,6 +63,8 @@ public:
 	void print_tree_nodes_count() const;
 
 	void print_galois_output() const;
+
+	void print_tree_postorder(const Node*, vector<bool>* bspline_printed) const;
 
 	static void print_line(Coord x1, Coord y1, Coord x2, Coord y2);
 

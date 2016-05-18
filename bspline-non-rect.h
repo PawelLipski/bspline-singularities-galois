@@ -1,5 +1,6 @@
 
 #include "bspline.h"
+#include "cube.h"
 #include "linear-combination.h"
 
 #ifndef BSPLINE_SINGULARITIES_GALOIS_BSPLINENONRECT_H
@@ -75,6 +76,11 @@ public:
 	const Bspline& get_x_shifted() const { return x_shifted; }
 	const Bspline& get_y_shifted() const { return y_shifted; }
 	const LinearCombination& get_glue() const { return glue; }
+
+	Cube get_support_as_cube() {
+		Rect s = get_support();
+		return Cube(s.x_from, s.x_to, s.y_from, s.y_to);
+	}
 
 	Rect get_support() const {
 		return get_trunk_support();	

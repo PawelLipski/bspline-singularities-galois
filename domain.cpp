@@ -306,7 +306,7 @@ void Domain::tree_process_cut_off_box(int dim, Node *node, bool toggle_dim) {
 	tree_process_cut_off_box(dim, second_half_node, toggle_dim);
 }
 
-const vector<Node *> &Domain::get_tree_nodes() const {
+const vector<Node *>& Domain::get_tree_nodes() const {
 	return tree_nodes;
 }
 
@@ -317,6 +317,25 @@ void Domain::print_elements_per_tree_nodes() const {
 		print_elements_count_within_node(node);
 		print_elements_level_and_id_within_box(node);
 		print_node_children(node);
+	}
+
+	// compute the supports here
+	print_tree_postorder(tree_nodes[0], new vector<bool>(bsplines.size(), false));
+}
+
+void Domain::print_tree_postorder(const Node* node, vector<bool>* bspline_printed) const {
+	for (const Node* n: node->get_children())
+		print_tree_postorder(n, bspline_printed);
+	//cout << node->get_num() << endl;
+
+	// Now print all the bsplines that:
+	// as of now, their support is fully enclosed in already traversed elements
+	// It is enough just to lookup get_cube of the node!
+	for (unsigned i = 0; i < bsplines.size(); i++) {
+		if (!(*bspline_printed)[i] && bsplines[i].get_support().contained_in_box(node->get_cube())) {
+			cout << i << endl;
+			(*bspline_printed)[i] = true;
+		}
 	}
 }
 

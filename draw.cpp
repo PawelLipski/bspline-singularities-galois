@@ -14,7 +14,88 @@ SDL_Surface* screen;
 #define BLUE  0x0000ff
 #define WHITE 0xffffff
 
-//vector<SDL_Rect> rects;
+int perm[] = {
+	0,
+	40,
+	11,
+	44,
+	1,
+	10,
+	28,
+	43,
+	39,
+	47,
+	29,
+	38,
+	2,
+	20,
+	19,
+	37,
+	3,
+	60,
+	13,
+	64,
+	4,
+	12,
+	26,
+	63,
+	36,
+	67,
+	27,
+	35,
+	5,
+	21,
+	18,
+	34,
+	6,
+	15,
+	7,
+	14,
+	24,
+	33,
+	25,
+	32,
+	8,
+	9,
+	16,
+	17,
+	22,
+	23,
+	30,
+	31,
+	65,
+	66,
+	61,
+	62,
+	72,
+	73,
+	74,
+	75,
+	78,
+	79,
+	68,
+	69,
+	70,
+	71,
+	76,
+	77,
+	45,
+	46,
+	41,
+	42,
+	52,
+	53,
+	54,
+	55,
+	58,
+	59,
+	48,
+	49,
+	50,
+	51,
+	56,
+	57,
+};
 
 void print_rect(const SDL_Rect& rect) {
 	cout << rect.x << ", " << rect.y << " => " << rect.x << " x " << rect.y << endl;
@@ -65,7 +146,7 @@ void draw_element_clear(int x, int y, int w, int h, int scale, int contour) {
 
 	Uint32 color;
 	Type type;
-
+	
 	if (w == 0 && h == 0) {
 		/*type = VERTEX;
 		rect.x -= 2;
@@ -263,6 +344,7 @@ int main(int argc, char** argv) {
 				supports[i].push_back(index);
 			}
 		}
+		vector<vector<bool>> matrix(M, vector<bool>(M));
 		for (int i = 0; i < M; i++) {
 			for (int j = 0; j < M; j++) {
 				vector<int> common(M);
@@ -270,9 +352,27 @@ int main(int argc, char** argv) {
 					supports[i].begin(), supports[i].end(),
 					supports[j].begin(), supports[j].end(),
 					common.begin());
+				matrix[i][j] = iter == common.begin();
 				int sz = SIZE / M;
 				SDL_Rect rect = { Sint16(j*sz), Sint16(i*sz), Uint16(sz-1), Uint16(sz-1) };
-				SDL_FillRect(screen, &rect, iter == common.begin() ? WHITE : RED);
+				SDL_FillRect(screen, &rect, matrix[i][j] ? WHITE : RED);
+			}
+		}
+		if (depth == 3) {
+			SDL_Flip(screen);
+			wait_until_key_or_quit(SDLK_SPACE);
+			vector<vector<bool>> matrix2(M, vector<bool>(M));
+			for (int i = 0; i < M; i++) {
+				for (int j = 0; j < M; j++) {
+					matrix2[perm[i]][perm[j]] = matrix[i][j];
+				}
+			}
+			for (int i = 0; i < M; i++) {
+				for (int j = 0; j < M; j++) {
+					int sz = SIZE / M;
+					SDL_Rect rect = { Sint16(j*sz), Sint16(i*sz), Uint16(sz-1), Uint16(sz-1) };
+					SDL_FillRect(screen, &rect, matrix2[i][j] ? WHITE : GREEN);
+				}
 			}
 		}
 	}
