@@ -17,9 +17,12 @@ overview() {
 		i0=`printf "%.3i" $i`
 		./render-bsplines nurbs-overview-$tag-$i0 $i Regular $@ | gnuplot
 	done
-	convert -delay 10 -density 150 -loop 1 -resize 1024x768 eps/nurbs-overview-$tag-*.eps gif/nurbs-overview-${tag}.gif
+	for i in `seq 125 5 180`; do
+		cp eps/nurbs-overview-$tag-120.eps eps/nurbs-overview-$tag-${i}.eps
+	done
+	convert -delay 10 -density 150 -loop 0 -resize 1024x768 eps/nurbs-overview-$tag-*.eps gif/nurbs-overview-${tag}.gif
 }
 
-#overview part1 1 9 18 21
-#overview part2 36 41 44
+overview part1 1 9 18 21
+overview part2 36 41 44
 #gnomon
