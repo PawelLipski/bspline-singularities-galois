@@ -1,3 +1,4 @@
+#include <cstdio>
 #include <iostream>
 #include <SDL/SDL.h>
 #include <vector>
@@ -72,9 +73,10 @@ void draw_element_clear(int x, int y, int w, int h, int scale, int contour) {
 		rect.h = 4;
 		color = BLUE;*/
 	} else if (w == 0 || h == 0) {
-		/*type = EDGE;
-		(w == 0 ? rect.w : rect.h) = 1;
-		color = WHITE;*/
+		type = EDGE;
+		(w == 0 ? rect.w : rect.h) = 2;
+		(w == 0 ? rect.x : rect.y) += 4;
+		color = BLACK;
 	} else {
 		//rect.x++;
 		//rect.y++;
@@ -146,7 +148,7 @@ void redraw() {
 void redraw_clear() {
 	SDL_FillRect(screen, NULL, WHITE);
 	for (auto& rect: rects) {
-		draw_element_clear(rect.x, rect.y, rect.w, rect.h, scale, 2);
+		draw_element_clear(rect.x, rect.y, rect.w, rect.h, scale, 1);
 	}
 }
 
@@ -183,10 +185,11 @@ int main(int argc, char** argv) {
 		}
 	}
 
+	int depth = argc == 1 ? 3 : atoi(argv[1]);
 	if (input_format == NEIGHBORS)
-		scale = argc == 1 ? 4 : (32 >> atoi(argv[1]));
+		scale = 32 >> depth;
 	else
-		scale = argc == 1 ? 32 : (256 >> atoi(argv[1]));
+		scale = 256 >> depth;
 
 
 	SDL_Init(SDL_INIT_VIDEO);
@@ -204,10 +207,14 @@ int main(int argc, char** argv) {
 		RectDef rect = { left, up, w, h };
 		rects.push_back(rect);
 	}
-	if (input_format == CLEAR)
+	if (input_format == CLEAR) {
 		redraw_clear();
-	else
+		char bmp[100];
+		sprintf(bmp, "mesh-%i.bmp", depth);
+		SDL_SaveBMP(screen, bmp);
+	} else {
 		redraw();
+	}
 
 	if (input_format == NEIGHBORS) {
 		int M;
