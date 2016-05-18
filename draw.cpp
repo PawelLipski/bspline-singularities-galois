@@ -168,19 +168,19 @@ int main(int argc, char** argv) {
 		SUPPORTS,
 		CLEAR,
 		MATRIX
-	} input_format = PLAIN;
+	} mode = PLAIN;
 
 	if (argc >= 2) {
 		bool any_format = true;
 		string opt(argv[1]);
 		if (opt == "-c" || opt == "--clear")
-			input_format = CLEAR;
+			mode = CLEAR;
 		else if (opt == "-m" || opt == "--matrix")
-			input_format = MATRIX;
+			mode = MATRIX;
 		else if (opt == "-n" || opt == "--neighbors")
-			input_format = NEIGHBORS;
+			mode = NEIGHBORS;
 		else if (opt == "-s" || opt == "--supports")
-			input_format = SUPPORTS;
+			mode = SUPPORTS;
 		else
 			any_format = false;
 		if (any_format) {
@@ -190,7 +190,7 @@ int main(int argc, char** argv) {
 	}
 
 	int depth = argc == 1 ? 3 : atoi(argv[1]);
-	if (input_format == NEIGHBORS)
+	if (mode == NEIGHBORS)
 		scale = 32 >> depth;
 	else
 		scale = 256 >> depth;
@@ -211,16 +211,16 @@ int main(int argc, char** argv) {
 		RectDef rect = { left, up, w, h };
 		rects.push_back(rect);
 	}
-	if (input_format == CLEAR) {
+	if (mode == CLEAR) {
 		redraw_clear();
 		char bmp[100];
 		sprintf(bmp, "mesh-%i.bmp", depth);
 		SDL_SaveBMP(screen, bmp);
-	} else {
+	} else if (mode != MATRIX) {
 		redraw();
 	}
 
-	if (input_format == NEIGHBORS) {
+	if (mode == NEIGHBORS) {
 		int M;
 		cin >> M;
 		for (int i = 0; i < M; i++) {
@@ -228,7 +228,7 @@ int main(int argc, char** argv) {
 			cin >> left >> up >> right >> down;
 			draw_line(left, up, right, down, scale);
 		}
-	} else if (input_format == SUPPORTS) {
+	} else if (mode == SUPPORTS) {
 		int M;
 		cin >> M;
 		for (int i = 0; i < M; i++) {
@@ -249,10 +249,11 @@ int main(int argc, char** argv) {
 			}
 			redraw();
 		}
-	} else if (input_format == MATRIX) {
+	} else if (mode == MATRIX) {
 		int M;
 		cin >> M;
 		vector<vector<int>> supports(M);
+
 		for (int i = 0; i < M; i++) {
 			int x, y, cnt;
 			cin >> x >> y >> cnt;		
@@ -269,9 +270,10 @@ int main(int argc, char** argv) {
 					supports[i].begin(), supports[i].end(),
 					supports[j].begin(), supports[j].end(),
 					common.begin());
-				cout << (iter == common.begin() ? "." : "X");
+				int sz = SIZE / M;
+				SDL_Rect rect = { Sint16(j*sz), Sint16(i*sz), Uint16(sz-1), Uint16(sz-1) };
+				SDL_FillRect(screen, &rect, iter == common.begin() ? WHITE : RED);
 			}
-			cout << endl;
 		}
 	}
 
