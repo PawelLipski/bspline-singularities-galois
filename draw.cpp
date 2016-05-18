@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cstdio>
 #include <iostream>
 #include <SDL/SDL.h>
@@ -166,6 +167,7 @@ int main(int argc, char** argv) {
 		NEIGHBORS,
 		SUPPORTS,
 		CLEAR,
+		MATRIX
 	} input_format = PLAIN;
 
 	if (argc >= 2) {
@@ -173,6 +175,8 @@ int main(int argc, char** argv) {
 		string opt(argv[1]);
 		if (opt == "-c" || opt == "--clear")
 			input_format = CLEAR;
+		else if (opt == "-m" || opt == "--matrix")
+			input_format = MATRIX;
 		else if (opt == "-n" || opt == "--neighbors")
 			input_format = NEIGHBORS;
 		else if (opt == "-s" || opt == "--supports")
@@ -244,6 +248,30 @@ int main(int argc, char** argv) {
 				return 0;
 			}
 			redraw();
+		}
+	} else if (input_format == MATRIX) {
+		int M;
+		cin >> M;
+		vector<vector<int>> supports(M);
+		for (int i = 0; i < M; i++) {
+			int x, y, cnt;
+			cin >> x >> y >> cnt;		
+			for (int j = 0; j < cnt; j++) {
+				int index;
+				cin >> index;
+				supports[i].push_back(index);
+			}
+		}
+		for (int i = 0; i < M; i++) {
+			for (int j = 0; j < M; j++) {
+				vector<int> common(M);
+				auto iter = set_intersection(
+					supports[i].begin(), supports[i].end(),
+					supports[j].begin(), supports[j].end(),
+					common.begin());
+				cout << (iter == common.begin() ? "." : "X");
+			}
+			cout << endl;
 		}
 	}
 
