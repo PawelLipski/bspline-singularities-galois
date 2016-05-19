@@ -52,6 +52,33 @@ struct GnomonBsplineCoords {
 	}
 };
 
+class GlueFunction : public LinearCombination {
+public:
+	GlueFunction(const GnomonBsplineCoords& c):
+		LinearCombination({ &inner, &outer, &fix }),
+		inner(make_inner(c)),
+		outer(make_outer(c)),
+		fix_unconstrained(make_fix_unconstrained(c)),
+		fix(&fix_unconstrained, get_support(c)) {
+	}
+
+private:
+	static Rect get_support(const GnomonBsplineCoords& c) {
+		return Rect(
+			c.x_mid, c.x_pivot(),
+			c.y_mid, c.y_pivot()
+		);
+	}
+
+	static Bspline make_inner(const GnomonBsplineCoords& c);
+	static Bspline make_outer(const GnomonBsplineCoords& c);
+	static LinearFunction make_fix_unconstrained(const GnomonBsplineCoords& c);
+
+	Bspline inner, outer;
+	LinearFunction fix_unconstrained;
+	ZeroOutside fix;
+};
+
 class GnomonBspline : public LinearCombination {
 public:
     GnomonBspline(double _x_mid, double _y_mid, double _shift_x, double _shift_y):
@@ -64,7 +91,7 @@ public:
             trunk(make_trunk(c)),
             x_shifted(make_x_shifted(c)),
 			y_shifted(make_y_shifted(c)),
-			glue(make_glue(c)) {
+			glue(c) {
     }
 
 	double get_x_mid() const { return coords.x_mid; }
@@ -75,7 +102,7 @@ public:
 	const BsplineNonRect& get_trunk() const { return trunk; }
 	const Bspline& get_x_shifted() const { return x_shifted; }
 	const Bspline& get_y_shifted() const { return y_shifted; }
-	const LinearCombination& get_glue() const { return glue; }
+	const GlueFunction& get_glue() const { return glue; }
 
 	Cube get_support_as_cube() {
 		Rect s = get_support();
@@ -133,13 +160,13 @@ private:
 	static BsplineNonRect make_trunk(const GnomonBsplineCoords& c);
 	static Bspline make_x_shifted(const GnomonBsplineCoords& c);
 	static Bspline make_y_shifted(const GnomonBsplineCoords& c);
-	static LinearCombination make_glue(const GnomonBsplineCoords& c);
+	static GlueFunction make_glue(const GnomonBsplineCoords& c);
 
 	GnomonBsplineCoords coords;
 	BsplineNonRect trunk;
 	Bspline x_shifted;
 	Bspline y_shifted;
-	LinearCombination glue;
+	GlueFunction glue;
 };
 
 class GnomonNurbs : public Quotient {

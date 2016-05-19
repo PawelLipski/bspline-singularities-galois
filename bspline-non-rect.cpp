@@ -43,29 +43,28 @@ Bspline GnomonBspline::make_y_shifted(const GnomonBsplineCoords& c) {
 			);
 }
 
-LinearCombination GnomonBspline::make_glue(const GnomonBsplineCoords& c) {
-	// TODO I know those allocs are evil xD
-	Bspline* inner = new Bspline(
-			{ c.x_mid, c.x_mid, c.x_mid, c.x_pivot() },
-			{ c.y_mid, c.y_mid, c.y_mid, c.y_pivot() },
-			0.25
-			);
+Bspline GlueFunction::make_inner(const GnomonBsplineCoords& c) {
+	return Bspline(
+		{ c.x_mid, c.x_mid, c.x_mid, c.x_pivot() },
+		{ c.y_mid, c.y_mid, c.y_mid, c.y_pivot() },
+		0.25
+	);
+}
 
-	Bspline* outer = new Bspline(
-			{ c.x_mid, c.x_pivot(), c.x_pivot(), c.x_pivot() },
-			{ c.y_mid, c.y_pivot(), c.y_pivot(), c.y_pivot() },
-			0.25
-			);
+Bspline GlueFunction::make_outer(const GnomonBsplineCoords& c) {
+	return Bspline(
+		{ c.x_mid, c.x_pivot(), c.x_pivot(), c.x_pivot() },
+		{ c.y_mid, c.y_pivot(), c.y_pivot(), c.y_pivot() },
+		0.25
+	);
+}
 
-	LinearFunction* fix = new LinearFunction(
-			-1.0 / c.shift_x,
-			-1.0 / c.shift_y,
-			0.75 + c.x_mid / c.shift_x + c.y_mid / c.shift_y
-			);
-
-	return LinearCombination(
-			{ inner, outer, new ZeroOutside(fix, get_glue_support(c)) }
-			);
+LinearFunction GlueFunction::make_fix_unconstrained(const GnomonBsplineCoords& c) {
+	return LinearFunction(
+		-1.0 / c.shift_x,
+		-1.0 / c.shift_y,
+		0.75 + c.x_mid / c.shift_x + c.y_mid / c.shift_y
+	);
 }
 
 void read_vector(ifstream& in, vector<double>* out, int cnt) {
