@@ -11,7 +11,11 @@ gnomon() {
 	./render-non-rect-support gnomon-trunk 330 1 | gnuplot
 	./render-non-rect-support gnomon-xshifted 330 2 | gnuplot
 	./render-non-rect-support gnomon-yshifted 330 3 | gnuplot
+	./render-non-rect-support gnomon-all-but-glue 330 -3 | gnuplot
 	./render-non-rect-support gnomon-glue 330 4 | gnuplot
+	./render-non-rect-support gnomon-glue-inner 330 5 | gnuplot
+	./render-non-rect-support gnomon-glue-outer 330 6 | gnuplot
+	./render-non-rect-support gnomon-glue-fix 330 7 | gnuplot
 }
 
 bspline_sum() {

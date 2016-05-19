@@ -62,6 +62,10 @@ public:
 		fix(&fix_unconstrained, get_support(c)) {
 	}
 
+	Bspline get_inner() const { return inner; }
+	Bspline get_outer() const { return outer; }
+	ZeroOutside get_fix() const { return fix; }
+	
 private:
 	static Rect get_support(const GnomonBsplineCoords& c) {
 		return Rect(

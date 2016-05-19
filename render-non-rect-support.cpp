@@ -48,13 +48,17 @@ int main(int argc, char** argv) {
 	int part = 0;
 	if (argc >= 4)
 		part = atoi(argv[3]);
-	#define P(x) if (part == 0 || part == x)
+	#define P(x) if (part == 0 || part == x || (part < 0 && part <= -x))
 	P(1) plot(gb.get_trunk(), gb.get_trunk_support_1(), "red", 1);
 	P(1) plot(gb.get_trunk(), gb.get_trunk_support_2(), "red", 2);
 	P(1) plot(gb.get_trunk(), gb.get_trunk_support_3(), "red", 3);
 	P(2) plot(gb.get_x_shifted(), gb.get_x_shifted_support(), "navy");
 	P(3) plot(gb.get_y_shifted(), gb.get_y_shifted_support(), "cyan");
 	P(4) plot(gb.get_glue(), gb.get_glue_support(), "black");
+	#define Q(x) if (part == x)
+	Q(5) plot(gb.get_glue().get_inner(), gb.get_glue_support(), "orange");
+	Q(6) plot(gb.get_glue().get_outer(), gb.get_glue_support(), "blue");
+	Q(7) plot(gb.get_glue().get_fix(), gb.get_glue_support(), "green");
 
 	cout << endl;
 	if (output == SCREEN)
