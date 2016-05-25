@@ -3,7 +3,7 @@
 rm -rf tmp
 mkdir tmp
 
-max_depth=32
+max_depth=56
 generate_cmd=${1-../generate --galois}
 output_prefix=${2-flops-generate}
 
@@ -39,7 +39,7 @@ gnuplot << EOF
 	fit fit(x) 'tmp/total-flops' via $fit_via
 	set xlabel 'N'
 	set ylabel 'Flops'
-	set key left top
+	set key left top font ",14"
 	plot 'tmp/total-flops' with points title 'measured flops(N)', \
 		fit(x) title sprintf($fit_fun_sprintf) with lines
 EOF
