@@ -13,6 +13,7 @@ for depth in `seq $max_depth`; do
     analyser -f tmp/mesh-$depth > tmp/flops-$depth
     cat tmp/flops-$depth | awk 'BEGIN { max=0 } { sum+=$3; if ($1>max) max=$1 } END {print max+1, sum}' >> tmp/total-flops
 done
+awk 'NR % 3 == 0' tmp/total-flops > tmp/total-flops-spaced
 
 x__b() {
 	output_suffix=x__b
@@ -40,7 +41,7 @@ gnuplot << EOF
 	set xlabel 'N'
 	set ylabel 'Flops'
 	set key left top font ",14"
-	plot 'tmp/total-flops' with points title 'measured flops(N)', \
+	plot 'tmp/total-flops-spaced' with points title 'measured flops(N)', \
 		fit(x) title sprintf($fit_fun_sprintf) with lines
 EOF
 }
