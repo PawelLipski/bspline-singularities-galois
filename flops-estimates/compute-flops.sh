@@ -41,7 +41,7 @@ gnuplot << EOF
 	set xlabel 'N'
 	set ylabel 'Flops'
 	set key left top font ",14"
-	plot 'tmp/total-flops-spaced' with points title 'measured flops(N)', \
+	plot 'tmp/total-flops-spaced' with points pointsize 3 title 'measured flops(N)', \
 		fit(x) title sprintf($fit_fun_sprintf) with lines
 EOF
 }
