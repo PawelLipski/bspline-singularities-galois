@@ -193,6 +193,11 @@ void Cube::split_halves(int dim, Cube* first, Cube* second) const {
 	split(dim, get_middle(dim), first, second);
 }
 
+void Cube::split_thirds(int dim, Cube *first, Cube *second, Cube *third) const {
+	//to be implented
+	//split(dim, get_middle(dim), first, second);
+}
+
 
 /*** TWEAKING ***/
 

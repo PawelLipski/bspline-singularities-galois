@@ -84,6 +84,8 @@ public:
 
 	void split_halves(int dim, Cube *first, Cube *second) const;
 
+	void split_thirds(int dim, Cube *first, Cube *second, Cube *third) const;
+
 	void scale_up(int factor);
 
 	void spread(int bound_no, int shift);

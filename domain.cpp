@@ -67,7 +67,7 @@ void Domain::split_eight_side_elements_within_box_2D(Cube cube) {
 }
 
 // Splits each element within the given box into 4 smaller ones.
-void Domain::split_elements_within_box_2D(const Cube &box) {
+void Domain::split_elements_within_box_into_4_2D(const Cube &box) {
 	vector<Cube> old_elements;
 	elements.swap(old_elements);
 	for (const auto& e: old_elements) {
@@ -87,10 +87,40 @@ void Domain::split_elements_within_box_2D(const Cube &box) {
 	}
 }
 
-// Splits each element into 4 smaller ones.
-void Domain::split_all_elements_2D() {
-	split_elements_within_box_2D(original_box);
+// Splits each element within the given box into 4 smaller ones.
+void Domain::split_elements_within_box_into_6_2D(const Cube &box) {
+	vector<Cube> old_elements;
+	elements.swap(old_elements);
+	for (const auto &e: old_elements) {
+		if (e.non_empty() && e.contained_in_box(box)) {
+			Cube e1, e2, e3;
+			e.split_thirds(X_DIM, &e1, &e2, &e3);
+			Cube e11, e12, e21, e22, e31, e32;
+			e1.split_halves(Y_DIM, &e11, &e12);
+			e2.split_halves(Y_DIM, &e21, &e22);
+			e3.split_halves(Y_DIM, &e31, &e32);
+			add_element(e11);
+			add_element(e12);
+			add_element(e21);
+			add_element(e22);
+			add_element(e31);
+			add_element(e32);
+		} else {
+			add_element(e);
+		}
+	}
 }
+
+// Splits each element into 4 smaller ones.
+void Domain::split_all_elements_into_4_2D() {
+	split_elements_within_box_into_4_2D(original_box);
+}
+
+// Splits each element into 6 smaller ones.
+void Domain::split_all_elements_into_6_2D() {
+	split_elements_within_box_into_6_2D(original_box);
+}
+
 
 
 /*** ADD ELEMENTS ***/

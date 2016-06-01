@@ -6,9 +6,12 @@
 using namespace std;
 
 
-
-Cube get_outmost_box(Coord size) {
-	return Cube(0, size, 0, size);
+Cube get_outmost_box(Coord size, MeshShape shape) {
+	if (shape == QUADRATIC) {
+		return Cube(0, size, 0, size);
+	} else {
+		return Cube(0, 2 * size, 0, size);
+	}
 }
 
 Cube get_inner_box(Coord middle, Coord edge_offset) {
@@ -104,40 +107,53 @@ int main(int argc, char** argv) {
 
 
 	Coord size = (output_format == GALOIS ? 4L : 2L) << depth;  // so that the smallest elements are of size 1x1
-	Cube outmost_box(get_outmost_box(size));
+	//cout << "size: " << size << endl;
+	Cube outmost_box(get_outmost_box(size, mesh_shape));
+	//outmost_box.print_bounds();
+	//cout << endl;
 	Domain domain(outmost_box);
 
+	Coord middle;
+	Coord edge_offset;
+	Cube outer_box;
+
 	// Build a regular 4x4 grid.
-	domain.split_all_elements_2D();  // 1 -> 4 elements
-	domain.split_all_elements_2D();  // 4 -> 16 elements
-	if (mesh_type == EDGED_8 && depth > 1)
-		domain.split_eight_side_elements_within_box_2D(outmost_box);
+	if (mesh_shape == QUADRATIC) {
+		domain.split_all_elements_into_4_2D();  // 1 -> 4 elements (2x2)
+		domain.split_all_elements_into_4_2D();  // 4 -> 16 elements (4x4)
+		if (mesh_type == EDGED_8 && depth > 1)
+			domain.split_eight_side_elements_within_box_2D(outmost_box);
 
-	Coord middle = size / 2;
-	Coord edge_offset = size / 4;
-	Cube outer_box = outmost_box;
+		middle = size / 2;
+		edge_offset = size / 4;
+		outer_box = outmost_box;
 
 
-	// Generate the adapted grid.
-	for (int i = 1; i < depth; i++) {
-		Cube inner_box(get_inner_box(middle, edge_offset));
+		// Generate the adapted grid.
+		for (int i = 1; i < depth; i++) {
+			Cube inner_box(get_inner_box(middle, edge_offset));
 
-		if (mesh_type == EDGED_4 || mesh_type == EDGED_8) {
-			bool edged_8 = mesh_type == EDGED_8;
-			domain.add_edge_2D(X_DIM, outer_box, inner_box.up(),    4, edged_8);  // horizontal
-			domain.add_edge_2D(X_DIM, outer_box, inner_box.down(),  4, edged_8);
-			domain.add_edge_2D(Y_DIM, outer_box, inner_box.left(),  4, edged_8);  // vertical
-			domain.add_edge_2D(Y_DIM, outer_box, inner_box.right(), 4, edged_8);
-			domain.add_corner_vertices_2D(inner_box);
+			if (mesh_type == EDGED_4 || mesh_type == EDGED_8) {
+				bool edged_8 = mesh_type == EDGED_8;
+				domain.add_edge_2D(X_DIM, outer_box, inner_box.up(), 4, edged_8);  // horizontal
+				domain.add_edge_2D(X_DIM, outer_box, inner_box.down(), 4, edged_8);
+				domain.add_edge_2D(Y_DIM, outer_box, inner_box.left(), 4, edged_8);  // vertical
+				domain.add_edge_2D(Y_DIM, outer_box, inner_box.right(), 4, edged_8);
+				domain.add_corner_vertices_2D(inner_box);
+			}
+
+			// Internal 4 elements -> 16 elements
+			domain.split_elements_within_box_into_4_2D(inner_box);
+			if (mesh_type == EDGED_8 && i < depth - 1)
+				domain.split_eight_side_elements_within_box_2D(inner_box);
+
+			edge_offset /= 2;
+			outer_box = inner_box;
 		}
-
-		// Internal 4 elements -> 16 elements
-		domain.split_elements_within_box_2D(inner_box);
-		if (mesh_type == EDGED_8 && i < depth-1)
-			domain.split_eight_side_elements_within_box_2D(inner_box);
-
-		edge_offset /= 2;
-		outer_box = inner_box;
+	} else if (mesh_shape == RECTANGULAR) {
+		//build rectangular mesh, 4x6 grid (edge)
+		domain.split_all_elements_into_6_2D();  // 1 -> 6 elements (2x3)
+		domain.split_all_elements_into_4_2D();  // 4 -> 24 elements (4x6)
 	}
 
 	domain.allocate_elements_count_by_level_vector(depth);

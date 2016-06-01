@@ -49,9 +49,13 @@ public:
 
 	void split_eight_side_elements_within_box_2D(Cube cube);
 
-	void split_elements_within_box_2D(const Cube &box);
+	void split_elements_within_box_into_4_2D(const Cube &box);
 
-	void split_all_elements_2D();
+	void split_elements_within_box_into_6_2D(const Cube &box);
+
+	void split_all_elements_into_4_2D();
+
+	void split_all_elements_into_6_2D();
 
 	void add_edge_2D(int dim, const Cube &box, Coord coord, int count, bool edged_8);
 
