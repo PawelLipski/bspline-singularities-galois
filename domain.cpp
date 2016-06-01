@@ -87,7 +87,7 @@ void Domain::split_elements_within_box_into_4_2D(const Cube &box) {
 	}
 }
 
-// Splits each element within the given box into 4 smaller ones.
+// Splits each element within the given box into 6 smaller ones.
 void Domain::split_elements_within_box_into_6_2D(const Cube &box) {
 	vector<Cube> old_elements;
 	elements.swap(old_elements);

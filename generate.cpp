@@ -9,14 +9,19 @@ using namespace std;
 Cube get_outmost_box(Coord size, MeshShape shape) {
 	if (shape == QUADRATIC) {
 		return Cube(0, size, 0, size);
-	} else {
+	} else if (shape == RECTANGULAR) {
 		return Cube(0, 2 * size, 0, size);
 	}
 }
 
-Cube get_inner_box(Coord middle, Coord edge_offset) {
-	return Cube(middle - edge_offset, middle + edge_offset,
-			middle - edge_offset, middle + edge_offset);
+Cube get_inner_box(Coord middle, Coord edge_offset, MeshShape shape) {
+	if (shape == QUADRATIC) {
+		return Cube(middle - edge_offset, middle + edge_offset,
+					middle - edge_offset, middle + edge_offset);
+	} else if (shape == RECTANGULAR) {
+		return Cube(middle - edge_offset, middle + 3 * edge_offset,
+					middle - edge_offset, middle + edge_offset);
+	}
 }
 
 int main(int argc, char** argv) {
@@ -114,8 +119,8 @@ int main(int argc, char** argv) {
 	Domain domain(outmost_box);
 
 	Coord middle;
-	Coord edge_offset;
-	Cube outer_box;
+	Coord edge_offset = size / 4;
+	Cube outer_box = outmost_box;
 
 	// Build a regular 4x4 grid.
 	if (mesh_shape == QUADRATIC) {
@@ -125,13 +130,11 @@ int main(int argc, char** argv) {
 			domain.split_eight_side_elements_within_box_2D(outmost_box);
 
 		middle = size / 2;
-		edge_offset = size / 4;
-		outer_box = outmost_box;
 
 
 		// Generate the adapted grid.
 		for (int i = 1; i < depth; i++) {
-			Cube inner_box(get_inner_box(middle, edge_offset));
+			Cube inner_box(get_inner_box(middle, edge_offset, mesh_shape));
 
 			if (mesh_type == EDGED_4 || mesh_type == EDGED_8) {
 				bool edged_8 = mesh_type == EDGED_8;
@@ -154,6 +157,11 @@ int main(int argc, char** argv) {
 		//build rectangular mesh, 4x6 grid (edge)
 		domain.split_all_elements_into_6_2D();  // 1 -> 6 elements (2x3)
 		domain.split_all_elements_into_4_2D();  // 4 -> 24 elements (4x6)
+
+		// Generate the adapted grid.
+		for (int i = 1; i < depth; i++) {
+			Cube inner_box(get_inner_box(middle, edge_offset, mesh_shape));
+		}
 	}
 
 	domain.allocate_elements_count_by_level_vector(depth);
@@ -183,7 +191,7 @@ int main(int argc, char** argv) {
 
 		// Generate elimination tree.
 		for (int i = 1; i < depth; i++) {
-			Cube inner_box(get_inner_box(middle, edge_offset));
+			Cube inner_box(get_inner_box(middle, edge_offset, (QUADRATIC)));
 			Cube side_box, main_box;
 
 			outer_box.split(X_DIM, inner_box.left(), &side_box, &main_box);

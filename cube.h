@@ -36,6 +36,8 @@ public:
 
 	Coord get_middle(int dim) const;
 
+	Coord get_third(int dim, int which) const;
+
 	Coord get_to(int dim) const;
 
 	Coord get_size(int dim) const;

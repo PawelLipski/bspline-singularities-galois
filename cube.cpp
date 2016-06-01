@@ -38,6 +38,10 @@ Coord Cube::get_middle(int dim) const {
 	return (get_from(dim) + get_to(dim)) / 2;
 }
 
+Coord Cube::get_third(int dim, int which) const {
+	return get_from(dim) + (((get_to(dim) - get_from(dim)) / 3) * which);
+}
+
 Coord Cube::get_to(int dim) const {
 	return bounds[2*dim+1];
 }
@@ -194,8 +198,14 @@ void Cube::split_halves(int dim, Cube* first, Cube* second) const {
 }
 
 void Cube::split_thirds(int dim, Cube *first, Cube *second, Cube *third) const {
-	//to be implented
-	//split(dim, get_middle(dim), first, second);
+	*first = *this;
+	*second = *this;
+	*third = *this;
+	int _1ST = 1;
+	int _2ND = 2;
+	first->set_bounds(dim, get_from(dim), get_third(dim, _1ST));
+	second->set_bounds(dim, get_third(dim, _1ST), get_third(dim, _2ND));
+	third->set_bounds(dim, get_third(dim, _2ND), get_to(dim));
 }
 
 
