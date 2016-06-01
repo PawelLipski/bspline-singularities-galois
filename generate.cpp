@@ -118,7 +118,7 @@ int main(int argc, char** argv) {
 	//cout << endl;
 	Domain domain(outmost_box);
 
-	Coord middle;
+	Coord middle = size / 2;
 	Coord edge_offset = size / 4;
 	Cube outer_box = outmost_box;
 
@@ -128,9 +128,6 @@ int main(int argc, char** argv) {
 		domain.split_all_elements_into_4_2D();  // 4 -> 16 elements (4x4)
 		if (mesh_type == EDGED_8 && depth > 1)
 			domain.split_eight_side_elements_within_box_2D(outmost_box);
-
-		middle = size / 2;
-
 
 		// Generate the adapted grid.
 		for (int i = 1; i < depth; i++) {
@@ -161,6 +158,18 @@ int main(int argc, char** argv) {
 		// Generate the adapted grid.
 		for (int i = 1; i < depth; i++) {
 			Cube inner_box(get_inner_box(middle, edge_offset, mesh_shape));
+
+			domain.add_edge_2D(X_DIM, outer_box, inner_box.up(), 6, false);  // horizontal
+			domain.add_edge_2D(X_DIM, outer_box, inner_box.down(), 6, false);
+			domain.add_edge_2D(Y_DIM, outer_box, inner_box.left(), 4, false);  // vertical
+			domain.add_edge_2D(Y_DIM, outer_box, inner_box.right(), 4, false);
+			domain.add_corner_vertices_2D(inner_box);
+
+			//Split internal elements
+			domain.split_elements_within_box_into_4_2D(inner_box);
+
+			edge_offset /= 2;
+			outer_box = inner_box;
 		}
 	}
 
