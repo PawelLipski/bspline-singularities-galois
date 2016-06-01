@@ -15,6 +15,11 @@ enum MeshType {
 	EDGED_8
 };
 
+enum MeshShape {
+	QUADRATIC,
+	RECTANGULAR
+};
+
 struct BsplineChoice {
 	Bspline* regular = nullptr;
 	GnomonBspline* gnomon = nullptr;

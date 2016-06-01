@@ -69,6 +69,23 @@ int main(int argc, char** argv) {
 		}
 	}
 
+	MeshShape mesh_shape = QUADRATIC;
+
+	if (argc >= 2) {
+		bool any_shape = true;
+		string mesh(argv[1]);
+		if (mesh == "--quadratid" || mesh == "-q")
+			mesh_shape = QUADRATIC;
+		else if (mesh == "--rectangular" || mesh == "-r")
+			mesh_shape = RECTANGULAR;
+		else
+			any_shape = false;
+		if (any_shape) {
+			argc--;
+			argv++;
+		}
+	}
+
 	int depth;
 	if (argc >= 2) {
 		depth = atoi(argv[1]);
