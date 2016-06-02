@@ -14,14 +14,14 @@ Cube get_outmost_box(Coord size, MeshShape shape) {
 	}
 }
 
-Cube get_inner_box(Coord middle, Coord edge_offset, MeshShape shape) {
-	if (shape == QUADRATIC) {
-		return Cube(middle - edge_offset, middle + edge_offset,
-					middle - edge_offset, middle + edge_offset);
-	} else if (shape == RECTANGULAR) {
-		return Cube(middle - edge_offset, middle + 3 * edge_offset,
-					middle - edge_offset, middle + edge_offset);
-	}
+Cube get_inner_box(Coord middle, Coord edge_offset) {
+	return Cube(middle - edge_offset, middle + edge_offset,
+				middle - edge_offset, middle + edge_offset);
+}
+
+Cube get_inner_box(const Cube &outer_box, Coord edge_offset) {
+	return Cube(outer_box.get_bound(0) + edge_offset, outer_box.get_bound(1) - edge_offset,
+				outer_box.get_bound(2) + edge_offset, outer_box.get_bound(3) - edge_offset);
 }
 
 int main(int argc, char** argv) {
@@ -131,7 +131,7 @@ int main(int argc, char** argv) {
 
 		// Generate the adapted grid.
 		for (int i = 1; i < depth; i++) {
-			Cube inner_box(get_inner_box(middle, edge_offset, mesh_shape));
+			Cube inner_box(get_inner_box(middle, edge_offset));
 
 			if (mesh_type == EDGED_4 || mesh_type == EDGED_8) {
 				bool edged_8 = mesh_type == EDGED_8;
@@ -157,7 +157,7 @@ int main(int argc, char** argv) {
 
 		// Generate the adapted grid.
 		for (int i = 1; i < depth; i++) {
-			Cube inner_box(get_inner_box(middle, edge_offset, mesh_shape));
+			Cube inner_box(get_inner_box(outer_box, edge_offset));
 
 			domain.add_edge_2D(X_DIM, outer_box, inner_box.up(), 6, false);  // horizontal
 			domain.add_edge_2D(X_DIM, outer_box, inner_box.down(), 6, false);
@@ -200,16 +200,14 @@ int main(int argc, char** argv) {
 
 		// Generate elimination tree.
 		for (int i = 1; i < depth; i++) {
-			Cube inner_box(get_inner_box(middle, edge_offset, (QUADRATIC)));
+			Cube inner_box(get_inner_box(outer_box, edge_offset));
 			Cube side_box, main_box;
-
 			outer_box.split(X_DIM, inner_box.left(), &side_box, &main_box);
 			side_node = domain.add_tree_node(side_box, outer_node);
 			domain.tree_process_cut_off_box(Y_DIM, side_node, false);
 			outer_node = domain.add_tree_node(main_box, outer_node);
 			outer_box = main_box;
 			domain.tree_process_box_2D(side_box);
-
 			outer_box.split(X_DIM, inner_box.right(), &main_box, &side_box);
 			side_node = domain.add_tree_node(side_box, outer_node);
 			outer_node = domain.add_tree_node(main_box, outer_node);

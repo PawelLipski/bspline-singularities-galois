@@ -319,21 +319,47 @@ Node *Domain::add_tree_node(Cube cube, Node *parent) {
 }
 
 void Domain::tree_process_cut_off_box(int dim, Node *node, bool toggle_dim) {
-	if (count_elements_within_box(node->get_cube()) == 1)
+	int elements_cnt = count_elements_within_box(node->get_cube());
+	//cout << "tree process cut off box " << elements_cnt << endl;
+	if (elements_cnt == 1) // leaf
+	{
 		return;
+	}
+	else if (elements_cnt > 1 && elements_cnt % 2 == 0) { //even num, we split into halves
+		//cout << "even" << endl;
+		Cube cut_off_cube = node->get_cube();
+		Cube first_half, second_half;
+		cut_off_cube.split_halves(dim, &first_half, &second_half);
 
-	Cube cut_off_cube = node->get_cube();
-	Cube first_half, second_half;
-	cut_off_cube.split_halves(dim, &first_half, &second_half);
+		Node *first_half_node = this->add_tree_node(first_half, node);
+		Node *second_half_node = this->add_tree_node(second_half, node);
 
-	Node* first_half_node = this->add_tree_node(first_half, node);
-	Node* second_half_node = this->add_tree_node(second_half, node);
+		if (toggle_dim) {
+			dim ^= 1;
+		}
 
-	if (toggle_dim)
-		dim ^= 1;
+		tree_process_cut_off_box(dim, first_half_node, toggle_dim);
+		tree_process_cut_off_box(dim, second_half_node, toggle_dim);
+	} else if (elements_cnt > 1) {
+		//cout << "odd" << endl;
+		//cut_off_box from rectangular mesh has odd cnt, it starts with 4,
+		//then next level is 4*2 - 2 = 6, so it is 6 -> 3 + 3
+		//6*2 - 2 = 10 -> 5 + 5
+		Cube cut_off_cube = node->get_cube();
+		Cube first_half, second_half;
+		Coord size = cut_off_cube.get_size(dim);
+		Coord where_to_split = cut_off_cube.get_from(dim) + size * (elements_cnt / 2) / elements_cnt;
+		// let's assume we have 5 elements in cut_off_box and cut_off_box is from 2 to 7 ->
+		// where_to_split equals 4 then
+		cut_off_cube.split(dim, where_to_split, &first_half, &second_half);
+		Node *first_half_node = this->add_tree_node(first_half, node);
+		Node *second_half_node = this->add_tree_node(second_half, node);
+		if (toggle_dim)
+			dim ^= 1;
 
-	tree_process_cut_off_box(dim, first_half_node, toggle_dim);
-	tree_process_cut_off_box(dim, second_half_node, toggle_dim);
+		tree_process_cut_off_box(dim, first_half_node, toggle_dim);
+		tree_process_cut_off_box(dim, second_half_node, toggle_dim);
+	}
 }
 
 const vector<Node *>& Domain::get_tree_nodes() const {
