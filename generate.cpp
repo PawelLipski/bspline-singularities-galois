@@ -10,7 +10,7 @@ Cube get_outmost_box(Coord size, MeshShape shape) {
 	if (shape == QUADRATIC) {
 		return Cube(0, size, 0, size);
 	} else if (shape == RECTANGULAR) {
-		return Cube(0, 2 * size, 0, size);
+		return Cube(0, (Coord) (1.5 * size), 0, size);
 	}
 }
 
@@ -200,6 +200,7 @@ int main(int argc, char** argv) {
 
 		// Generate elimination tree.
 		for (int i = 1; i < depth; i++) {
+			//cout << "looping" << endl;
 			Cube inner_box(get_inner_box(outer_box, edge_offset));
 			Cube side_box, main_box;
 			outer_box.split(X_DIM, inner_box.left(), &side_box, &main_box);
