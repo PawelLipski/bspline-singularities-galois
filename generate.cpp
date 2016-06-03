@@ -7,11 +7,10 @@ using namespace std;
 
 
 Cube get_outmost_box(Coord size, MeshShape shape) {
-	if (shape == QUADRATIC) {
+	if (shape == QUADRATIC)
 		return Cube(0, size, 0, size);
-	} else if (shape == RECTANGULAR) {
+	else // shape == RECTANGULAR
 		return Cube(0, (Coord) (1.5 * size), 0, size);
-	}
 }
 
 Cube get_inner_box(Coord middle, Coord edge_offset) {
@@ -19,9 +18,23 @@ Cube get_inner_box(Coord middle, Coord edge_offset) {
 				middle - edge_offset, middle + edge_offset);
 }
 
-Cube get_inner_box(const Cube &outer_box, Coord edge_offset) {
+Cube get_inner_box(const Cube& outer_box, Coord edge_offset) {
 	return Cube(outer_box.get_bound(0) + edge_offset, outer_box.get_bound(1) - edge_offset,
 				outer_box.get_bound(2) + edge_offset, outer_box.get_bound(3) - edge_offset);
+}
+
+void decompose_alternating_dimensions(Domain& domain, Node* outer_node, const Cube& outer_box, int dim) {
+	int elements_cnt = domain.count_elements_within_box(outer_node->get_cube());
+	//cout << "decompose_alternating_dimensions " << elements_cnt << endl;
+	if (elements_cnt == 1) // leaf
+		return;
+
+	Cube first_box, second_box;
+	outer_box.split_halves(dim, &first_box, &second_box);
+	Node* first_node = domain.add_tree_node(first_box, outer_node);
+	decompose_alternating_dimensions(domain, first_node, first_box, dim ^ 1);
+	Node* second_node = domain.add_tree_node(second_box, outer_node);
+	decompose_alternating_dimensions(domain, second_node, second_box, dim ^ 1);
 }
 
 int main(int argc, char** argv) {
@@ -221,22 +234,25 @@ int main(int argc, char** argv) {
 			// The innermost 16 elements are processed at the very end.
 			domain.tree_process_cut_off_box(X_DIM, outer_node, true);
 		} else {
-			// First, cut off the leftmost and the rightmost strip, so that a square is left.
+			// First, cut off the leftmost and the rightmost strip, so that a square remains.
 			Cube side_box, main_box;
 
 			outer_box.split(X_DIM, size/4, &side_box, &main_box);
 			side_node = domain.add_tree_node(side_box, outer_node);
-			outer_node = domain.add_tree_node(main_box, outer_node);
 			domain.tree_process_cut_off_box(Y_DIM, side_node, false);
 			domain.tree_process_box_2D(side_box);
+			outer_node = domain.add_tree_node(main_box, outer_node);
 			outer_box = main_box;
 
 			outer_box.split(X_DIM, 5*size/4, &main_box, &side_box);
-			outer_node = domain.add_tree_node(main_box, outer_node);
 			side_node = domain.add_tree_node(side_box, outer_node);
 			domain.tree_process_cut_off_box(Y_DIM, side_node, false);
 			domain.tree_process_box_2D(side_box);
+			outer_node = domain.add_tree_node(main_box, outer_node);
 			outer_box = main_box;
+
+			// Recursively decompose the remaining square
+			decompose_alternating_dimensions(domain, outer_node, outer_box, Y_DIM);
 		}
 
 		domain.print_galois_output();

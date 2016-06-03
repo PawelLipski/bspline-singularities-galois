@@ -3,7 +3,7 @@
 rm -rf tmp
 mkdir tmp
 
-max_depth=15
+max_depth=10
 generate_cmd=${1-../generate --galois -r}
 #../generate --galois -q <- for quadratic
 output_prefix=${2-flops-generate}
