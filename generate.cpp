@@ -60,29 +60,12 @@ int main(int argc, char** argv) {
 
 	MeshType mesh_type = EDGED_4;
 
-	if (argc >= 2) {
-		bool any_mesh = true;
-		string mesh(argv[1]);
-		if (mesh == "--unedged" || mesh == "-u")
-			mesh_type = UNEDGED;
-		else if (mesh == "--edged-4" || mesh == "-4")
-			mesh_type = EDGED_4;
-		else if (mesh == "--edged-8" || mesh == "-8")
-			mesh_type = EDGED_8;
-		else
-			any_mesh = false;
-		if (any_mesh) {
-			argc--;
-			argv++;
-		}
-	}
-
 	MeshShape mesh_shape = QUADRATIC;
 
 	if (argc >= 2) {
 		bool any_shape = true;
 		string mesh(argv[1]);
-		if (mesh == "--quadratid" || mesh == "-q")
+		if (mesh == "--quadratic" || mesh == "-q")
 			mesh_shape = QUADRATIC;
 		else if (mesh == "--rectangular" || mesh == "-r")
 			mesh_shape = RECTANGULAR;
