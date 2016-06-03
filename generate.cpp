@@ -203,12 +203,14 @@ int main(int argc, char** argv) {
 			//cout << "looping" << endl;
 			Cube inner_box(get_inner_box(outer_box, edge_offset));
 			Cube side_box, main_box;
+
 			outer_box.split(X_DIM, inner_box.left(), &side_box, &main_box);
 			side_node = domain.add_tree_node(side_box, outer_node);
 			domain.tree_process_cut_off_box(Y_DIM, side_node, false);
 			outer_node = domain.add_tree_node(main_box, outer_node);
 			outer_box = main_box;
 			domain.tree_process_box_2D(side_box);
+
 			outer_box.split(X_DIM, inner_box.right(), &main_box, &side_box);
 			side_node = domain.add_tree_node(side_box, outer_node);
 			outer_node = domain.add_tree_node(main_box, outer_node);

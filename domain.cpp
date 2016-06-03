@@ -376,7 +376,7 @@ void Domain::print_elements_per_tree_nodes() const {
 	}
 
 	// compute the supports here
-	print_tree_postorder(tree_nodes[0], new vector<bool>(bsplines.size(), false));
+	// print_tree_postorder(tree_nodes[0], new vector<bool>(bsplines.size(), false));
 }
 
 void Domain::print_tree_postorder(const Node* node, vector<bool>* bspline_printed) const {
