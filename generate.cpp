@@ -181,44 +181,63 @@ int main(int argc, char** argv) {
 		Node * outer_node = domain.add_tree_node(outer_box, NULL);
 		Node * side_node;
 
-		// Generate elimination tree.
-		for (int i = 1; i < depth; i++) {
-			//cout << "looping" << endl;
-			Cube inner_box(get_inner_box(outer_box, edge_offset));
+		if (mesh_shape == QUADRATIC) {
+			// Generate elimination tree.
+			for (int i = 1; i < depth; i++) {
+				//cout << "looping" << endl;
+				Cube inner_box(get_inner_box(outer_box, edge_offset));
+				Cube side_box, main_box;
+
+				outer_box.split(X_DIM, inner_box.left(), &side_box, &main_box);
+				side_node = domain.add_tree_node(side_box, outer_node);
+				domain.tree_process_cut_off_box(Y_DIM, side_node, false);
+				outer_node = domain.add_tree_node(main_box, outer_node);
+				outer_box = main_box;
+				domain.tree_process_box_2D(side_box);
+
+				outer_box.split(X_DIM, inner_box.right(), &main_box, &side_box);
+				side_node = domain.add_tree_node(side_box, outer_node);
+				outer_node = domain.add_tree_node(main_box, outer_node);
+				domain.tree_process_cut_off_box(Y_DIM, side_node, false);
+				outer_box = main_box;
+				domain.tree_process_box_2D(side_box);
+
+				outer_box.split(Y_DIM, inner_box.up(), &side_box, &main_box);
+				side_node = domain.add_tree_node(side_box, outer_node);
+				outer_node = domain.add_tree_node(main_box, outer_node);
+				domain.tree_process_cut_off_box(X_DIM, side_node, false);
+				outer_box = main_box;
+				domain.tree_process_box_2D(side_box);
+
+				outer_box.split(Y_DIM, inner_box.down(), &main_box, &side_box);
+				side_node = domain.add_tree_node(side_box, outer_node);
+				outer_node = domain.add_tree_node(main_box, outer_node);
+				domain.tree_process_cut_off_box(X_DIM, side_node, false);
+				outer_box = main_box;
+				domain.tree_process_box_2D(side_box);
+
+				edge_offset /= 2;
+			}
+			// The innermost 16 elements are processed at the very end.
+			domain.tree_process_cut_off_box(X_DIM, outer_node, true);
+		} else {
+			// First, cut off the leftmost and the rightmost strip, so that a square is left.
 			Cube side_box, main_box;
 
-			outer_box.split(X_DIM, inner_box.left(), &side_box, &main_box);
-			side_node = domain.add_tree_node(side_box, outer_node);
-			domain.tree_process_cut_off_box(Y_DIM, side_node, false);
-			outer_node = domain.add_tree_node(main_box, outer_node);
-			outer_box = main_box;
-			domain.tree_process_box_2D(side_box);
-
-			outer_box.split(X_DIM, inner_box.right(), &main_box, &side_box);
+			outer_box.split(X_DIM, size/4, &side_box, &main_box);
 			side_node = domain.add_tree_node(side_box, outer_node);
 			outer_node = domain.add_tree_node(main_box, outer_node);
 			domain.tree_process_cut_off_box(Y_DIM, side_node, false);
-			outer_box = main_box;
 			domain.tree_process_box_2D(side_box);
+			outer_box = main_box;
 
-			outer_box.split(Y_DIM, inner_box.up(), &side_box, &main_box);
-			side_node = domain.add_tree_node(side_box, outer_node);
+			outer_box.split(X_DIM, 5*size/4, &main_box, &side_box);
 			outer_node = domain.add_tree_node(main_box, outer_node);
-			domain.tree_process_cut_off_box(X_DIM, side_node, false);
-			outer_box = main_box;
-			domain.tree_process_box_2D(side_box);
-
-			outer_box.split(Y_DIM, inner_box.down(), &main_box, &side_box);
 			side_node = domain.add_tree_node(side_box, outer_node);
-			outer_node = domain.add_tree_node(main_box, outer_node);
-			domain.tree_process_cut_off_box(X_DIM, side_node, false);
-			outer_box = main_box;
+			domain.tree_process_cut_off_box(Y_DIM, side_node, false);
 			domain.tree_process_box_2D(side_box);
-
-			edge_offset /= 2;
+			outer_box = main_box;
 		}
-		// The innermost 16 elements are processed at the very end.
-		domain.tree_process_cut_off_box(X_DIM, outer_node, true);
 
 		domain.print_galois_output();
 

@@ -322,9 +322,8 @@ void Domain::tree_process_cut_off_box(int dim, Node *node, bool toggle_dim) {
 	int elements_cnt = count_elements_within_box(node->get_cube());
 	//cout << "tree process cut off box " << elements_cnt << endl;
 	if (elements_cnt == 1) // leaf
-	{
 		return;
-	}
+
 	else if (elements_cnt > 1 && elements_cnt % 2 == 0) { //even num, we split into halves
 		//cout << "even" << endl;
 		Cube cut_off_cube = node->get_cube();
@@ -334,9 +333,8 @@ void Domain::tree_process_cut_off_box(int dim, Node *node, bool toggle_dim) {
 		Node *first_half_node = this->add_tree_node(first_half, node);
 		Node *second_half_node = this->add_tree_node(second_half, node);
 
-		if (toggle_dim) {
+		if (toggle_dim)
 			dim ^= 1;
-		}
 
 		tree_process_cut_off_box(dim, first_half_node, toggle_dim);
 		tree_process_cut_off_box(dim, second_half_node, toggle_dim);
