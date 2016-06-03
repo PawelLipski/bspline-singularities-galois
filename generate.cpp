@@ -152,18 +152,19 @@ int main(int argc, char** argv) {
 		domain.split_all_elements_into_4_2D();  // 4 -> 24 elements (4x6)
 
 		// Generate the adapted grid.
+		int cnt = 6;
 		for (int i = 1; i < depth; i++) {
 			Cube inner_box(get_inner_box(outer_box, edge_offset));
 
-			domain.add_edge_2D(X_DIM, outer_box, inner_box.up(), 6, false);  // horizontal
-			domain.add_edge_2D(X_DIM, outer_box, inner_box.down(), 6, false);
+			domain.add_edge_2D(X_DIM, outer_box, inner_box.up(), cnt, false);  // horizontal
+			domain.add_edge_2D(X_DIM, outer_box, inner_box.down(), cnt, false);
 			domain.add_edge_2D(Y_DIM, outer_box, inner_box.left(), 4, false);  // vertical
 			domain.add_edge_2D(Y_DIM, outer_box, inner_box.right(), 4, false);
 			domain.add_corner_vertices_2D(inner_box);
 
 			//Split internal elements
 			domain.split_elements_within_box_into_4_2D(inner_box);
-
+			cnt = (cnt - 2) * 2;
 			edge_offset /= 2;
 			outer_box = inner_box;
 		}
