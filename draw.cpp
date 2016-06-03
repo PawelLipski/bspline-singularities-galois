@@ -3,6 +3,7 @@
 #include <iostream>
 #include <SDL/SDL.h>
 #include <vector>
+#include "domain.h"
 using namespace std;
 
 SDL_Surface* screen;
@@ -241,7 +242,8 @@ void draw_inside(int index) {
 }
 
 int main(int argc, char** argv) {
-	const int SIZE = 512;
+	int width = 512;
+	int height = 512;
 
 	enum InputFormat {
 		PLAIN,
@@ -270,15 +272,34 @@ int main(int argc, char** argv) {
 		}
 	}
 
+	MeshShape mesh_shape = QUADRATIC;
+
+	if (argc >= 2) {
+		bool any_shape = true;
+		string mesh(argv[1]);
+		if (mesh == "--quadratid" || mesh == "-q")
+			mesh_shape = QUADRATIC;
+		else if (mesh == "--rectangular" || mesh == "-r")
+			mesh_shape = RECTANGULAR;
+		else
+			any_shape = false;
+		if (any_shape) {
+			argc--;
+			argv++;
+		}
+	}
+
+	if (mesh_shape == RECTANGULAR)
+		width = width * 3 / 2;
+
 	int depth = argc == 1 ? 3 : atoi(argv[1]);
 	if (mode == NEIGHBORS)
 		scale = 32 >> depth;
 	else
 		scale = 256 >> depth;
 
-
 	SDL_Init(SDL_INIT_VIDEO);
-	screen = SDL_SetVideoMode(SIZE, SIZE, 0, SDL_ANYFORMAT);
+	screen = SDL_SetVideoMode(width, height, 0, SDL_ANYFORMAT);
 	SDL_WM_SetCaption("Esc to exit", NULL);
 
 	int N;
@@ -353,7 +374,7 @@ int main(int argc, char** argv) {
 					supports[j].begin(), supports[j].end(),
 					common.begin());
 				matrix[i][j] = iter == common.begin();
-				int sz = SIZE / M;
+				int sz = height / M;
 				SDL_Rect rect = { Sint16(j*sz), Sint16(i*sz), Uint16(sz-1), Uint16(sz-1) };
 				SDL_FillRect(screen, &rect, matrix[i][j] ? WHITE : RED);
 			}
@@ -369,7 +390,7 @@ int main(int argc, char** argv) {
 			}
 			for (int i = 0; i < M; i++) {
 				for (int j = 0; j < M; j++) {
-					int sz = SIZE / M;
+					int sz = height / M;
 					SDL_Rect rect = { Sint16(j*sz), Sint16(i*sz), Uint16(sz-1), Uint16(sz-1) };
 					SDL_FillRect(screen, &rect, matrix2[i][j] ? WHITE : GREEN);
 				}
