@@ -208,9 +208,10 @@ bool wait_until_key_or_quit(int key) {
 			return false;
 		}
 		if (res && was_key_up(event, SDLK_ESCAPE)) {
-			return true;
+			SDL_Quit();
+			exit(0);
 		}
-		SDL_Delay(200);
+		SDL_Delay(50);
 	}
 }
 
