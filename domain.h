@@ -57,6 +57,8 @@ public:
 
 	void split_all_elements_into_6_2D();
 
+	void remove_all_elements_not_contained_in(const Cube &box);
+
 	void add_edge_2D(int dim, const Cube &box, Coord coord, int count, bool edged_8);
 
 	void add_corner_vertices_2D(const Cube &box);

@@ -122,6 +122,17 @@ void Domain::split_all_elements_into_6_2D() {
 }
 
 
+void Domain::remove_all_elements_not_contained_in(const Cube &box) {
+	vector<Cube> old_elements;
+	elements.swap(old_elements);
+	for (const auto &e: old_elements) {
+		if (e.contained_in_box(box)) {
+			add_element(e);
+		}
+	}
+}
+
+
 
 /*** ADD ELEMENTS ***/
 
@@ -367,6 +378,9 @@ const vector<Node *>& Domain::get_tree_nodes() const {
 void Domain::print_elements_per_tree_nodes() const {
 	print_tree_nodes_count();
 	for (const Node* node: get_tree_nodes()) {
+		//cout << "   tree node\n   ";
+		//node->get_cube().print_bounds();
+		//cout << endl;
 		node->print_num();
 		print_elements_count_within_node(node);
 		print_elements_level_and_id_within_box(node);

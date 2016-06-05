@@ -23,18 +23,41 @@ Cube get_inner_box(const Cube& outer_box, Coord edge_offset) {
 				outer_box.get_bound(2) + edge_offset, outer_box.get_bound(3) - edge_offset);
 }
 
-void decompose_alternating_dimensions(Domain& domain, Node* outer_node, const Cube& outer_box, int dim) {
-	int elements_cnt = domain.count_elements_within_box(outer_node->get_cube());
-	//cout << "decompose_alternating_dimensions " << elements_cnt << endl;
-	if (elements_cnt == 1) // leaf
-		return;
-
+void decompose_alternating_dimensions(Domain &domain, Node *parent, Cube outer_box, Coord offset, int lvl = 0) {
+	int elements_cnt = domain.count_elements_within_box(outer_box);
 	Cube first_box, second_box;
-	outer_box.split_halves(dim, &first_box, &second_box);
-	Node* first_node = domain.add_tree_node(first_box, outer_node);
-	decompose_alternating_dimensions(domain, first_node, first_box, dim ^ 1);
-	Node* second_node = domain.add_tree_node(second_box, outer_node);
-	decompose_alternating_dimensions(domain, second_node, second_box, dim ^ 1);
+	Node *current_outer_node = domain.add_tree_node(outer_box, parent);
+	//we have a regular recantuglar mesh now, with two cut_off_boxes
+	if (2 * outer_box.get_size(0) == outer_box.get_size(1) && elements_cnt != 2) {
+		Cube third_box, fourth_box;
+
+		outer_box.split(Y_DIM, outer_box.get_bound(2) + offset, &first_box, &second_box);
+		Node *second_node = domain.add_tree_node(second_box, current_outer_node);
+
+		decompose_alternating_dimensions(domain, current_outer_node, first_box, offset, lvl + 1);
+
+		second_box.split(Y_DIM, second_box.get_bound(3) - offset, &third_box, &fourth_box);
+
+		decompose_alternating_dimensions(domain, second_node, third_box, offset, lvl + 1);
+		decompose_alternating_dimensions(domain, second_node, fourth_box, offset, lvl + 1);
+	} else if (outer_box.get_size(0) == outer_box.get_size(1) && elements_cnt != 1) {
+		//quadratic element, needs to be split into halves
+
+		outer_box.split_halves(X_DIM, &first_box, &second_box);
+		decompose_alternating_dimensions(domain, current_outer_node, first_box, offset / 2, lvl + 1);
+		decompose_alternating_dimensions(domain, current_outer_node, second_box, offset / 2, lvl + 1);
+	} else if (elements_cnt == 2) {
+		//cut_off box, only 2 leaves inside
+		if (outer_box.get_size(0) == 2) {
+			outer_box.split_halves(Y_DIM, &first_box, &second_box);
+		} else {
+			outer_box.split_halves(X_DIM, &first_box, &second_box);
+
+		};
+		domain.add_tree_node(first_box, current_outer_node);
+		domain.add_tree_node(second_box, current_outer_node);
+	}
+	//domain.print_tree_nodes_count();
 }
 
 int main(int argc, char** argv) {
@@ -108,10 +131,7 @@ int main(int argc, char** argv) {
 
 
 	Coord size = (output_format == GALOIS ? 4L : 2L) << depth;  // so that the smallest elements are of size 1x1
-	//cout << "size: " << size << endl;
 	Cube outmost_box(get_outmost_box(size, mesh_shape));
-	//outmost_box.print_bounds();
-	//cout << endl;
 	Domain domain(outmost_box);
 
 	Coord middle = size / 2;
@@ -155,7 +175,6 @@ int main(int argc, char** argv) {
 		int cnt = 6;
 		for (int i = 1; i < depth; i++) {
 			Cube inner_box(get_inner_box(outer_box, edge_offset));
-
 			domain.add_edge_2D(X_DIM, outer_box, inner_box.up(), cnt, false);  // horizontal
 			domain.add_edge_2D(X_DIM, outer_box, inner_box.down(), cnt, false);
 			domain.add_edge_2D(Y_DIM, outer_box, inner_box.left(), 4, false);  // vertical
@@ -168,6 +187,11 @@ int main(int argc, char** argv) {
 			edge_offset /= 2;
 			outer_box = inner_box;
 		}
+
+		outer_box = Cube(outmost_box.get_bound(0) + size / 2, outmost_box.get_bound(1) - size / 2,
+						 outmost_box.get_bound(2), outmost_box.get_bound(3));
+
+		domain.remove_all_elements_not_contained_in(outer_box);
 	}
 
 	domain.allocate_elements_count_by_level_vector(depth);
@@ -190,12 +214,12 @@ int main(int argc, char** argv) {
 		domain.compute_bsplines_supports(mesh_type, order);
 
 		edge_offset = size / 4;
-		outer_box = outmost_box;
-
-		Node * outer_node = domain.add_tree_node(outer_box, NULL);
-		Node * side_node;
 
 		if (mesh_shape == QUADRATIC) {
+			outer_box = outmost_box;
+
+			Node *outer_node = domain.add_tree_node(outer_box, NULL);
+			Node *side_node;
 			// Generate elimination tree.
 			for (int i = 1; i < depth; i++) {
 				//cout << "looping" << endl;
@@ -235,25 +259,11 @@ int main(int argc, char** argv) {
 			// The innermost 16 elements are processed at the very end.
 			domain.tree_process_cut_off_box(X_DIM, outer_node, true);
 		} else {
-			// First, cut off the leftmost and the rightmost strip, so that a square remains.
-			Cube side_box, main_box;
 
-			outer_box.split(X_DIM, size/4, &side_box, &main_box);
-			side_node = domain.add_tree_node(side_box, outer_node);
-			domain.tree_process_cut_off_box(Y_DIM, side_node, false);
-			domain.tree_process_box_2D(side_box);
-			outer_node = domain.add_tree_node(main_box, outer_node);
-			outer_box = main_box;
+			// Recursively decompose the remaining rectangular
+			edge_offset = size / 4;
+			decompose_alternating_dimensions(domain, NULL, outer_box, edge_offset);
 
-			outer_box.split(X_DIM, 5*size/4, &main_box, &side_box);
-			side_node = domain.add_tree_node(side_box, outer_node);
-			domain.tree_process_cut_off_box(Y_DIM, side_node, false);
-			domain.tree_process_box_2D(side_box);
-			outer_node = domain.add_tree_node(main_box, outer_node);
-			outer_box = main_box;
-
-			// Recursively decompose the remaining square
-			decompose_alternating_dimensions(domain, outer_node, outer_box, Y_DIM);
 		}
 
 		domain.print_galois_output();
